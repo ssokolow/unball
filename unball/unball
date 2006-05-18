@@ -1,0 +1,386 @@
+#!/usr/bin/env bash
+# unball 
+# by deitarion (Stephan Sokolow)
+# Version 0.2.10
+# Licensed under the GNU GPL
+#
+# Inspired by maitre's unball (http://kdelook.org/content/show.php?content=12561)
+# (It would be based on it, but there was none of the old code left by the time I was done the first release)
+#
+# Version 1.0.0 of this script will be released when I can find no more unsupported archive formats to add.
+# The changelog may now be found in the ChangeLog file.
+#
+# TODO:
+# - Figure out whether the following programs generate something unball doesn't already unpack: freeze, pax, ppmd, upm
+# - Add support for using nomarch as an alternative to arc
+# - Add optional use of the Gentoo Portage sandbox to ensure nothing gets changed outside of the target dir.
+# - Decide how to best warn people away from formats like RAR due to their highly proprietary nature.
+# - Figure out what PC-BSD Installers (.pbi) MacOS X .dist files, .slp, and Ruby gems (.gem)  are, internally.
+# - Get around to adding lzma, qda, atr, sitx (Stuffit X)
+# - Add support for recursively unpacking nested archives
+# - Consider swapping things so that it follows the policy used by Konqueror and Nautilus (check the header first and fall back to the extension)
+#    (The problem is that doing so risks running an unintended extractor. It shouldn't be a risk though since this script avoids executing given files)
+# - Unsupported/untested Self-Extractors:
+#   - Borrow a windows computer and create test files for ARJ, LHA, and ZOO.
+#   - Consider adding a switch which enables use of UPX  decompression when applicable. (UPX is an executable packer)
+# - Decide on and implement a detection method to figure out what .BIN files are. (BinHexed Archives, CD Images, Apple II ROMs, etc.)
+# - Add more support for identifying disk image formats that cannot be unpacked by unball.
+# - Add --silent to unball and remove the /dev/null redirect
+# - Make unball use stderr for error messages.
+# - Figure out how to make a .bhx file (BinHex ASCII, according to filext.com) for the tests.
+# - Figure out what .xef files are. (WinACE offers to handle them)
+#
+# Notes:
+# - MacOS X .pkg packages are actually just directories and .mpkg files are data files which aren't archives.
+
+function exists()    { type "$@" > /dev/null 2>&1; }
+function isprog()    { which "$@" > /dev/null 2>&1; }
+function lower()     { tr [:upper:] [:lower:] <<< "$@"; }
+function pathjoin()  { ([[ "$2" != /* ]] && echo "$1"/"$2") || echo "$2"; }
+function pathsplit() { grep -Eo "[^/]*$" <<< "$@"; }
+function sizeInKiB()   { `du -k "$FILE" | grep -oE "^[0-9]*"`; }
+function abspath()   { (exists realpath && realpath -s "$@") || (exists readlink && readlink -f "$@") || pathjoin "`pwd`" "$@"; }
+
+function extract_cab() {
+    echo "Attempting to extract CAB archive. (Microsoft or InstallShield Cabinet)"
+    (exists cabextract && call cabextract "" "$2") ||
+    (exists unshield && call unshield "" "$2") ||
+    (echo "Unable to extract $2. Ensure that both cabextract and unshield are installed." && return 1)
+}
+
+function extract_exe() {
+    echo "Attempting to extract EXE file without running it's untrusted executable code..."
+    (exists unzip && call unzip "" "$2") ||
+    (exists 7z && call 7z "x" "$2") ||
+    (exists unace && call unace e "$2") ||
+    (exists arj && call arj x "$2") ||
+    (exists unrar && call unrar x "$2")
+    [ "`ls -1`" == "" ] && (exists lha && call lha x "$2")
+    [ "`ls -1`" == "" ] && echo "Cannot extract $2. If you are certain it is a self-extracting archive and that it does not contain malicious code, try running it inside Wine" && return 1 # Unrar and lha always say "everything's dandy" so we have to check manually.
+    return 0
+}
+
+function extract_gbzip() {
+    TARGETFILE=$(pathjoin "$TEMPTARGET" $(pathsplit "$2"))
+    exists $1 || (echo "ERROR: Cannot find unarchiver: $1" && return 1)
+    cp "$2" "$TARGETFILE" || (echo "ERROR: Cannot create temporary copy of $2" && return 1)
+    
+    if [ ".${TARGETFILE##*.}" != ".gz" ]; then
+        call $1 "-S .${TARGETFILE##*.}" "$TARGETFILE" || (echo "ERROR: Decompressor $1 failed." && return 1)
+    else
+        call $1 "" "$TARGETFILE" || (echo "ERROR: Decompressor $1 failed." && return 1)
+    fi
+}
+
+function extract_rpm() { 
+    if exists rpm2cpio && exists cpio; then
+        rpm2cpio "$2" | cpio --quiet -id || (echo "ERROR: rpm2cpio or cpio error" && return 1)
+    elif exists rpm2targz && exists tar && (exists gunzip || exists gzip); then
+        call rpm2targz "$2" || (echo "ERROR: Unknown rpm2targz failure" && return 1)
+        TARGZ="${2%.*}.tar.gz"
+        call tar xzf "$TARGZ" || (echo "ERROR: Unknown failure extracting $TARGZ" && return 1)
+        call rm "$TARGZ" || (echo "ERROR: Could not remove $TARGZ" && return 1)
+        unset TARGZ
+    else
+        echo "ERROR: RPM extraction requires either rpm2cpio with cpio, or rpm2targz with a gzip-friendly tar command."
+        return 1
+    fi
+    return 0
+}
+
+function extract_sit() { 
+    exists unstuff || export PATH="$PATH:/opt/stuffit/bin"; 
+    (exists unstuff && call unstuff "--destination=." "`sed \"s@/[^/]*@../@g\" <<< \`pwd\``$2") || (echo "ERROR: Could not find Stuffit Expander" && return 1)
+}
+
+function extract_adf() { 
+    if [ "$1" == "adz" ]; then
+        extract_gbzip gunzip "$2"
+        TGT="${2%.adz}.adf"
+    else
+        TGT="$2"
+    fi
+    
+    (exists unadf && call unadf "$TGT") || (exists readdisk && call readdisk "$TGT") || (echo "ERROR: Could not find unadf or readdisk" && return 1); 
+}
+function extract_dms() { (exists xdms && call xdms u "$2") || (exists undms && call undms "$2" "${2%.*}.adf" ) || (echo "ERROR: Could not find xDMS or undms" && return 1); }
+
+function decode_macbin() { (exists macunpack && call macunpack -f "$2") || (exists unstuff && call unstuff "--destination=." "`sed \"s@/[^/]*@../@g\" <<< \`pwd\``$2") || (echo "ERROR: Could not find macunpack or Stuffit Expander" && return 1); }
+function decode_binhex() { (exists uudeview && call uudeview -i "$2") || (exists unstuff && call unstuff "--destination=." "`sed \"s@/[^/]*@../@g\" <<< \`pwd\``$2") || (echo "ERROR: Could not find UUDeView or Stuffit Expander" && return 1); }
+function decode_uu()  { (exists uudecode && call uudecode "" "$2") || (exists uudeview && call uudeview -i "$2") || (echo "ERROR: Could not find UUDecode or UUDeView" && return 1); }
+function decode_xx()  { (exists xxdecode && call xxdecode "" "$2") || (exists uudeview && call uudeview -i "$2") || (echo "ERROR: Could not find XXDecode or UUDeView" && return 1); }
+function decode_ync() { (exists ydecode && call ydecode "" "$2") || (exists yydecode && call yydecode "" "$2") ||(exists uudeview && call uudeview -i "$2") || (echo "ERROR: Could not find YDecode, yydecode,  or UUDeView" && return 1); }
+
+# A centralized method of implementing the quiet/verbose switch.
+function call() {
+    if [ "$verbose" == 1 ] || [ "$1" == "gunzip" ] || [ "$1" == "bunzip" ] || [ "$1" == "cpio" ]; then
+        ([ -n "$2" ] && $1 $2 "$3") || $1 "$3"
+    else
+	([ -n "$2" ] && $1 $2 "$3" > /dev/null 2>&1) || $1 "$3" > /dev/null 2>&1
+    fi
+}
+
+# This is the best bash equivalent I can think of to Python's try/except or Java's try/catch. (I forget what Perl's version is called)
+function really_extract() {
+    # Usage: really_extract archive_tool arguments file targetDir
+    [[ $# != 4 ]] && echo "BUG #002: Invalid number of arguments passed to really_extract()" && return 1
+    
+    CMD="$1"
+    
+    SRCFILE="${3##*/}"
+    TARGET=`pathjoin "$OUTDIR" "${SRCFILE%.*}"`
+    if [ -e "$TARGET" ]; then
+	echo "Target dir \"$TARGET\" exists. Aborting for this file."
+	return 2
+    fi
+    TEMPTARGET=`mktemp -td unball.XXXXXX` || return 2
+    cd "$TEMPTARGET" || return 3
+    exists "$1" || return 4
+    
+    ARGS=${2//\%OUTDIR\%/$TEMPTARGET}
+    ((isprog "$CMD" && call "$CMD" "$ARGS" "$3") || ("$CMD" "$ARGS" "$3")) || return 5
+    
+    # The check for nested tar archives
+    if [[ "$TARGET" == *.tar ]] && [ -f "$TARGET" ]; then
+        echo "Found nested tar archive. Unballing...";
+        (tar xf "$TARGET" || return 5) && (rm "$TARGET" || return 7)
+    fi
+    [[ "$TARGET" == *.tar ]] && TARGET="${TARGET%.*}"
+    unset TARTARGET
+    
+    # If there are no more than 3 entries (including . and ..) then just move the contents
+    if [ `ls -a "$TEMPTARGET" | wc -l` -le 3 ]; then
+        mv * "$TARGET" || return 6
+    else
+        mv "$TEMPTARGET" "$TARGET" || return 6
+    fi
+    
+    cd "$CURRDIR" || return 3
+    [ -a "$TEMPTARGET" ] && (rmdir "$TEMPTARGET" || return 7)
+    return 0
+}
+
+function extract() {
+    # Usage: extract archive_tool arguments file extension
+    # Return values for really_extract:
+    # 0 - Extracted OK
+    # 1 - A bug trap was triggered.
+    # 2 - Could not make temp dir
+    # 3- Could not change directories
+    # 4 - Could not find requested unarchiving tool
+    # 5 - Archive tool returned an error
+    # 6 - Could not move files to target dir
+    # 7- Could not delete temporary files/dirs.
+    [[ $# != 4 ]] && echo "BUG #001: Invalid number of arguments passed to extract()" && return 1
+    CURRFILE=`abspath "$3"`
+    
+    echo "Found $4, unballing $3..."
+    really_extract "$1" "$2" "$CURRFILE" "$OUTDIR"
+    RETURNCODE="$?"
+    if [ $RETURNCODE != 0 ]; then
+        # Clean up after the failed extraction
+        cd "$CURRDIR"
+        rm -rf "$TEMPTARGET"
+        [ $RETURNCODE == 6 ] && [ ! -f "$TARGET" ] && rm -rf "$TARGET"
+        
+        [ $RETURNCODE == 4 ] && echo "ERROR: Required archiving tool ($1) not found."
+        echo "ERROR: Could not extract $3 (Error code: $RETURNCODE)"
+        return $RETURNCODE
+    else
+        return 0
+    fi
+}
+
+function show_help() {
+    echo "ssokolow's unball"
+    echo "Usage: $0 [options] archive [archive [...]]"
+    echo
+    echo "Options:"
+    echo " -d/--dir target      Set the target directory for extraction"
+    echo " -D/--samedir target  Use the source directory as the target"
+    echo " -v/--verbose         Show status output from the decompressors"
+}
+
+# Moving this into it's own function is the first step towards recursive support.
+function extractify() {
+    FILE="$1"
+    if [ "$samedir" == 1 ]; then
+	OUTDIR=`egrep -o ".*/" <<< \`abspath "$FILE"\``
+    fi
+    if [ -f "$FILE" ]; then
+        case `lower "$FILE"` in
+            # These silently ignore common formats which an "unball *" would otherwise generate an error message for.
+            *.txt|*.htm|*.html|*.shtm|*.shtml) [ "$verbose" == 1 ] && echo "Skipping text/html document: $FILE";;
+            *.mp3|*.ogg|*.flac|*.wav|*.shn|*.m4a|*.aac|*.ac3|*.mpc|*.wma) [ "$verbose" == 1 ] && echo "Skipping waveform audio file: $FILE";;
+            *.mod|*.stm|*.s3m|*.xm|*.it|*.mo3|*.mid|*.spc|*.gym|*.vgm|*.psf|*.sid|*.nsf|*.hsd) [ "$verbose" == 1 ] && echo "Skipping non-waveform audio file: $FILE";;
+            
+            # The universal nested tar code would handle these, but gunzip and bunzip delete the compressed file on success.
+            # ...and a lot of people don't like that so we'll use tar's built-in support for input piping.
+            *.tar.bz2|*.tbz|*.tbz2) extract tar xjf "$FILE" "bzipped tar archive";;
+            *.tar.gz|*.tgz) extract tar xzf "$FILE" "gzipped tar archive";;
+            *.tar.z|*.taz|*.tz) extract tar xzf "$FILE" "compressed tar archive";;
+            
+            # Let's take advantage of the fact that Stuffit Expander automatically handles BinHex and MacBinary
+            *.sit|*.sit.bin|*.sit.hqx) extract extract_sit "" "$FILE" "Stuffit archive";;
+            *.sea|*.sea.bin|*.sea.hqx) extract extract_sit "" "$FILE" "Stuffit Self-Extracting archive";;
+	    *.sitx) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a StuffitX archive. As of this writing, there is no tool in the Gentoo Portage tree which can extract such files and the author of unball is too lazy to install one manually without a request from a user.";;
+            
+            *.7z) extract 7z "x -o%OUTDIR%" "$FILE" "7zip archive";;
+            *.ace) extract unace e "$FILE" "ace archive";;
+	    *.adf) extract extract_adf "adf" "$FILE" "Amiga ADF disk image";;
+	    *.adz) extract extract_adf "adz" "$FILE" "GZipped Amiga ADF disk image";;
+	    *.alz) extract unalz "" "$FILE" "ALZip Archive";;
+            *.a | *.ar) extract ar x "$FILE" "Potential ar archive";;
+            *.arc) extract arc x "$FILE" "arc archive";;
+            *.arj) extract arj "x -y" "$FILE" "arj archive";;
+            *.atr) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently an Atari ATR disk image. Unball doesn't support it yet, but apparently atool can extract it.";;
+            *.b64|*.mim) extract uudeview -ib "$FILE" "Base64-encoded file";;
+	    *.bh) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a BlakHole archive, but the author of unball could barely find any non-Linux programs which can handle this format. Supporting it is currently beyond the capabilities of unball.";;
+            *.bin) extract extract_macbin "" "$FILE" "Potential MacBinary-encoded file";;
+            *.bz2) extract extract_gbzip bunzip2 "$FILE" "bzip2-compressed file";;
+            *.cab) extract extract_cab "" "$FILE" "Microsoft or InstallShield 'cabinet'";;
+            *.cbr) extract unrar x "$FILE" "RAR-compressed comic bundle";;
+	    *.cbz) extract unzip "" "$FILE" "ZIP-compressed comic bundle";;
+	    *.ccd) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is a CloneCD image. It can be converted to a standard ISO9660 CD image using ccd2iso.";;
+            *.cp) extract cpio "--force-local --quiet -idI" "$FILE" "cpio archive";;
+            *.cpio) extract cpio "--force-local --quiet -idI" "$FILE" "cpio archive";;
+	    *.cpt) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a Compact Pro (A.K.A. Compactor) archive. At this time, the unball author knows of no PackIt extractor for non-Macintosh platforms.";;
+	    *.dar) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a DAR archive. DAR is a Linux backup tool and unball does not currently support extraction of DAR archives. If you ever see this message, report it to me and I'll consider that motivation enough to add support.";;
+            *.deb) extract ar x "$FILE" "Debian Linux package";;
+	    *.dgc) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a DGCA archive, but since the only known site is in Japanese, the author of unball cannot tell much beyond the fact that the only complete tool seems to be Windows-only.";;
+            *.dms) extract decode_dms "" "$FILE" "DMS-packed ADF disk image";;
+	    *.dmg) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is an Apple MacOS X disk image. To access it's contents, mount it using a loopback device. It's just an HFS, HFS+, UFS, or other Linux-readable filesystem in a file.";;
+            *.ear) (exists jar && extract jar xf "$FILE" "potential Java Enterprise Archive (.ear)") || extract unzip "" "$FILE" "Potential Java Enterprise Archive (.ear)";;
+            *.egg) extract unzip "" "$FILE" "Python install package (egg)";;
+            *.exe) extract extract_exe "" "$FILE" "Potential Windows self-extracting archive";;
+	    *.gca) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a GCA archive, but since the only known site is in Japanese, the author of unball cannot tell much beyond the fact that the only complete tool seems to be Windows-only.";;
+            *.gz) extract extract_gbzip gunzip "$FILE" "gzipped file";;
+            *.hqx|*.bhx) extract decode_binhex "" "$FILE" "BinHex-encoded file";; #UNTESTED for lack of a non-stuffit BinHex file.
+            *.ipk) extract tar xzf "$FILE" "itsy package";;
+	    *.iso) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is an ISO9660 CD or DVD image. To access it's contents, mount it using a loopback device, or burn it to a disc.";;
+            # A jar is just a zip file with a different extension and a specific folder layout inside
+            *.j | *.jar) (exists jar && extract jar xf "$FILE" "jar archive") || extract unzip "" "$FILE" "jar archive";;
+            *.lzh | *.lha) extract lha x "$FILE" "lzh archive";;
+            *.lzo) extract lzop -x "$FILE" "lzop archive";;
+            *.lzx) extract unlzx -x "$FILE" "Amiga LZX archive";;
+	    *.msi) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is a Microsoft Installer package. At this time, the unball author knows of no MSI extraction method for Linux aside from running them inside Wine.";;
+            *.pak) extract unzip "" "$FILE" "Potential Quake level (.pak)";;
+	    *.partimg) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is a PartImage file. It can be restored to an empty partition using the PartImage tool.";;
+	    *.pit) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a PackIt archive. At this time, the unball author knows of no PackIt extractor for non-Macintosh platforms.";;
+            *.pk3) extract unzip "" "$FILE" "Quake 3 level (.pk3)";;
+	    *.pq6) extract paq6 "" "$FILE" "PAQ6 archive";;
+            *.rar) extract unrar x "$FILE" "rar archive";;
+            *.rk) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a WinRK archive. However, it seems that only the proprietary WinRK tool for Windows can extract these. Maybe you could run it inside Wine?";;
+            *.rpm) extract extract_rpm "" "$FILE" "RPM Package";;
+            *.rsn) extract unrar x "$FILE" "RAR-compressed SNES music (spc) set";;
+            *.rz) extract extract_gbzip runzip "$FILE" "rzip-compressed file";;
+            *.sfark) extract sfarkxtc "" "$FILE" "sfArk-compressed SoundFont set";;
+            *.sfpack) DELAYEDMESSAGES="$DELAYEDMESSAGES\nFOUND: SFPack-compressed SoundFont set. unball does not handle these because there is no native Linux extraction tool for them. Please use the SFPack extractor for Windows from inside Wine.";;
+            *.sh) [ `sizeInKiB "$FILE"` -ge 512 ] && DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is unusually large for a shell script. It is probably a self-extracting archive. For security reasons, it was not executed automatically.";;
+            *.shar)  DELAYEDMESSAGES="$DELAYEDMESSAGES\nFOUND: Shell Archive. Because there is no reliable way to extract these without executing them, please run \"sh $FILE\" manually if you really want to extract it.";;
+            # TODO: Figure out exactly what format *.slp files are in and call the decompressor directly.
+            *.slp) extract alien -g  "$FILE" "Stampede Linux slp package";; #Untested for lack of a .slp file
+	    *.sqx) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a Squeez archive (.sqx) but as of this writing, there is no known Linux tool which can extract Squeez files. However, the format is detailed at http://www.sqx-archiver.org/ and you can probably run the Squeez extractor for DOS or Windows inside Wine.";;
+            *.tar) extract tar xf "$FILE" "tar archive";;
+            *.uu | *.uue) extract decode_uu "" "$FILE" "UUEncoded file";;
+            *.war) (exists jar && extract jar xf "$FILE" "Potential Java Web Archive (.war)") || extract unzip "" "$FILE" "Potential Java Web Archive (.war)";;
+	    *.xar) extract xar -xf "$FILE" "Potential XAR archive";;
+	    *.xpi) extract unzip "" "$FILE" "XPI install package";;
+            *.xx | *.xxe) extract decode_xx "" "$FILE" "XXEncoded file";;
+            *.ync) extract decode_ync "" "$FILE" "yEncoded file";;
+            *.zip) extract unzip "" "$FILE" "Zip archive";;
+            *.zoo) extract zoo -extract "$FILE" "zoo archive";;
+            *.z) extract extract_gbzip uncompress "$FILE" "UNIX compressed file";; #UNTESTED
+	    *.zz) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a ZZip archive. The code for ZZip is GPLed, but there appears to only be the Windows tool available..";;
+	    *.*_) extract extract_gbzip msexpand "$FILE" "Microsoft compress.exe-packed file";;
+            *) echo "Unrecognized extension for $FILE. Attempting to determine type using file header..."
+                #IDEA: Use a while loop, the -k option for file, and a whole lotta break statements.
+                case `file -binNpr "$FILE"` in
+                    "application/java-archive") (exists jar && extract jar xf "$FILE" "jar archive") || extract unzip "" "$FILE" "jar archive";;
+                    "application/mac-binhex40") extract decode_binhex "" "$FILE" "BinHex-encoded file";;
+		    "application/x-7z-compressed") extract 7z x "$FILE" "7zip archive";;
+                    "application/x-ace") extract unace e "$FILE" "ace archive";;
+                    "application/x-ar"| "application/x-archive") extract ar x "$FILE" "ar archive";;
+                    "application/x-arc"*) extract arc x "$FILE" "arc archive";;
+                    "application/arj"|"application/x-arj") extract arj "x -y" "$FILE" "arj archive";;
+                    "application/x-bcpio") extract cpio "--force-local --quiet -idI" "$FILE" "binary cpio archive";;
+                    "application/bzip2"|"application/x-bz2"|"application/x-bzip"|"application/x-bzip2") extract extract_gbzip bunzip2 "$FILE" "bzip2-compressed file";;
+                    "application/cab") extract extract_cab "" "$FILE" "Microsoft or InstallShield 'cabinet'";;
+                    "application/x-compress"|"x-compress") extract extract_gbzip uncompress "$FILE" "UNIX compressed file";;
+                    "application/x-compressed") extract tar xzf "$FILE" "gzipped tar archive";;
+                    "application/x-cpio") extract cpio "--force-local --quiet -idI" "$FILE" "cpio archive";;
+                    "application/x-deb") extract ar x "$FILE" "Debian Linux package";;
+                    "application/x-dgca-compressed") DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is a DGCA archive, but since the only known site is in Japanese, the author of unball cannot tell much beyond the fact that the only complete tool seems to be Windows-only.";;
+                    "application/x-gca-compressed") DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is a GCA archive, but since the only known site is in Japanese, the author of unball cannot tell much beyond the fact that the only complete tool seems to be Windows-only.";;
+                    "application/x-gzip"|"x-gzip") extract extract_gbzip gunzip "$FILE" "gzipped file";;
+		    "application/x-iso9660-image") DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is an ISO9660 CD or DVD image. To access it's contents, mount it using a loopback device, or burn it to a disc.";;
+                    "application/lzh"|"application/x-lzh"|"application/x-lha"|"application/x-lzh-archive"|"application/x-lharc"*) extract lha x "$FILE" "lzh archive";;
+                    "application/x-lzop") extract lzop -x "$FILE" "lzop archive";;
+                    "application/macbinary"|"application/x-macbinary") extract extract_sit "" "$FILE" "MacBinary-encoded file";;
+                    "application/x-rar") extract unrar x "$FILE" "rar archive";;
+                    "application/x-rpm") extract extract_rpm "" "$FILE" "RPM Package";;
+                    "application/x-shar"|"application/x-sh") [ `sizeInKiB "$FILE"` -ge 512 ] && DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is unusually large for a shell script. It is probably a self-extracting archive. For security reasons, it was not executed automatically.";;
+                    "application/x-stuffit") extract extract_sit "" "$FILE" "Stuffit archive";;
+                    "application/x-sv4cpio") extract cpio "--force-local --quiet -idI" "$FILE" "SV4 cpio archive";; #UNTESTED
+                    "application/x-tar"*|"application/x-gtar") extract tar xf "$FILE" "tar archive";;
+                    "application/x-zip"|"application/zip") extract unzip "" "$FILE" "zip archive";;
+                    "application/x-zoo") extract zoo -extract "$FILE" "zoo archive";;
+                    "application/octet-stream") echo "The file is a generic binary file. It may be an archive but unball cannot be sure.";;
+                    "application/x-uuencode"|"x-uuencode") extract decode_uu "" "$FILE" "UUEncoded file";;
+                    *) echo "File is not a known archive type." && SKIPPED=1;;
+                esac;;
+        esac
+    LASTERROR="$?"
+    elif [ -e "$FILE" ]; then
+    	[ "$verbose" == 1 ] && echo "$FILE is not a regular file. Skipping."
+    else
+        echo "$FILE not found."
+    fi
+    return "$LASTERROR"
+}
+
+# ===== Start of Main Program =====
+# Prep the requisite variables
+CURRDIR=`pwd`
+OUTDIR="$CURRDIR" # This will be changed if --dir is used.
+
+# Jury-rig some flexibility
+exists unrar || (exists rar && alias unrar="rar")
+exists 7z || (exists 7za && alias 7z="7za")
+
+# Parse the options
+arg="$1"
+while [[ $arg == -* ]]; do
+    case "$1" in
+        -h|--help) show_help && exit 0;;
+        -v|--verbose) verbose=1 && shift;;
+        -d|--dir) OUTDIR="$2" && shift 2;;
+	-D|--samedir) samedir=1 && shift;;
+        --) shift && break;;
+        *) break;;
+    esac
+    arg="$1"
+done
+
+# Add support for sourcing this for it's functions
+if [ "$1" == "--source" ]; then
+    export abspath exists isprog lower pathjoin pathsplit sizeInKiB
+    return 0
+fi
+
+# If no arguments were provided, then show the help and exit.
+[ $# == 0 ] && show_help && exit 1
+
+# Check for things which could cause problems
+[ ! -w "$OUTDIR" ] && echo "FATAL: unball does not have write permissions for target directory" && exit 2
+
+# Parse the arguments and act on them
+LASTERROR=0
+for FILE in "$@"; do
+    extractify "$FILE"     # Identify and extract.
+    TMP="$?" && [ "$TMP" != 0 ] && LASTERROR="$TMP"
+done
+
+(([ -n "$DELAYEDMESSAGES" ] && echo -e "$DELAYEDMESSAGES") &&
+([ -n "$SKIPPED" ] && echo "Some of the given files were skipped because they were not archives or were in an unsupported format.")) ||
+exit "$LASTERROR"

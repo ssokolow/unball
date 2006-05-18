@@ -1,0 +1,90 @@
+Version 0.2.10
+- Made sure unball returns a nonzero exit code on error
+- Moved ChangeLog to it's own file and clarified a few things.
+- Got rid of the meaningless "realpath not found errors" from richiefrich's pastebin dump.
+- Fixed header detection for a few formats.
+- Added untested support for ADF, ADZ, ALZ, DMS, and TZ files.
+- Confirmed that 0.2.9 emptied the list of known bugs.
+- Added support for the macunpack utility as an alternative to unstuff for extracting MacBinary.
+- Began working on recursive support.
+- Unit Tests:
+ - Added unit tests for the header-based format detection.
+ - Pruned out some duplicate tests and added tests for Windows zip, rar, and 7-zip self-extractors.
+ - Added unit tests for -D and immediately caught a bug. (ignoring the first argument)
+ - Made sure that every unit test doubles as a test of space handling in paths since that's a common
+   source of bugs in bash scripting when compared to languages like Perl, PHP, and Python.
+ - Added a unit test to ensure the correct number of files are extracted when testing all formats which
+   don't currently have a special internal layout. (currently everything except j/jar/ear/war files)
+
+Version 0.2.9
+- Added support for unball being sourced via a `source unball --source` command
+ in preparation for my automated RAR/ACE/CBR/EXE-to-Zip converter.
+- Added support for base64 encoded files with a .b64 extension.
+- Fixed an "always extracts to the source dir" bug I hadn't noticed.
+- Wrote some Python-based unit tests and cleaned out a bunch of other annoyances.
+
+Version 0.2.8
+- Fixed handling of ACE archives in most cases. The unace binary is unpredictable.
+- Fixed compatibility with systems that don't install bash in /bin
+- Switched from sed-based extension removal to internal bash functions.
+
+Version 0.2.7
+- Added recognition of PackIt (.pit) and Compact Pro archives (.cpt), MacOS Disk Images (.dmg), 
+  PAQ6 (.pq6), GCA, DGCA (.dgc), ZZip (.zz), and DAR archives, Microsoft Installers (.msi),
+  BlakHole (.bh) archives, WinRK (.rk) archives, and PartImage (.partimg) disk images.
+- Added support for rzip-compressed (.rz) files.
+- Added explicit support for CPIO files with .cp extensions, JAR files with .j extensions
+  Itsy Packages (renamed gzipped tarballs with specific contents), Python eggs (.egg)
+- Added PC-BSD Installers (.pbi), MacOS X .pkg, and .mpkg files, and Ruby gems (.gem)  to the TODO list.
+
+Version 0.2.6
+- Added support for yydecode
+
+Version 0.2.5 changes:
+- unball now silently skips common non-archives unless passed --verbose
+- Fixed the message displayed when extracting CAB files.
+- Added by-extension support for RSN (RAR containing SPC files) archives.
+
+Version 0.2.4 changes:
+- Fixed the "risk of deleting source if the 'strip extension to create target' process fails" bug.
+
+Version 0.2.3 changes:
+- Added the --samedir option.
+
+Version 0.2.2 changes:
+- Fixed a harmless bug causing the wrong message while unpacking .zip files
+  and forcing the use of the "check the headers" fallback for .cbz files.
+- Added support for sfArk files and recognition of SFPack files.
+
+Version 0.2.1 changes:
+- Added more explicit (extension) and fallback (header) entries to the list of supported formats.
+- Added some entries which will identify unsupported formats without unpacking them.
+- Added recognition and messages for CloneCD and ISO9660 CD images.
+- Corrected a TODO. "lha for UNIX" is now open source and hosted on SourceForge Japan.
+- Added a more helpful failure message to the routine which attempts to extract self-extractors without running them.
+- unball will now exit with error code 2 if the target directory is not writeable.
+
+Version 0.2.0 changes:
+- Added support for .Z (UNIX compress) files. I'm surprised I forgot about them.
+- Added support for several more "renamed zip file" formats
+- There is now support for using the "file" command as a fallback if unball
+  doesn't recognize a file's extension. (This allows unball to unpack OpenOffice
+  and KOffice documents without needing an explicit entry for them.
+
+Version 0.1.2 bugfixes:
+- Now the old abspath() is just a fallback and it will try two proven path 
+  canonicalization tools before resorting to my code.
+
+Version 0.1.1 bugfixes:
+- Works if the directory has spaces in the name (bug fixed in abspath())
+- Actually obeys the target dir specified with --dir
+
+Unball 0.1.0 enhancements over maitre's script as of version 1.0.0:
+- Works with filenames containing spaces.
+- Support for a great many more formats. (In fact, more formats than most people even know of)
+- Ignores case when matching  archive extensions to programs. (I can't find any reason not to)
+- Creates containing folders as needed regardless of archive format and only when necessary. (Much better than the old method)
+- Silencing extraction tools is now centralized. (And adds support for --verbose)
+- Code is much cleaner (once you compensate for it's greater complexity)
+- Should work as a drop-in replacement for maitre's unball script.
+- Some other stuff but I can't remember what it was.

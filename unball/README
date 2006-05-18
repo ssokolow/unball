@@ -1,0 +1,2 @@
+To install unball, just copy it to /usr/local/bin
+To run the unit tests, install unball, then run ./runTests.py from inside this directory.
