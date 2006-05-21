@@ -54,7 +54,7 @@ function extract_exe() {
     (exists 7z && call 7z "x" "$2") ||
     (exists unace && call unace "x -y" "$2") ||
     (exists arj && call arj x "$2") ||
-    (exists unrar && call unrar x "$2")
+    (exists unrar && call unrar "x -y -p-" "$2")
     [ "`ls -1`" == "" ] && (exists lha && call lha x "$2")
     [ "`ls -1`" == "" ] && echo "Cannot extract $2. If you are certain it is a self-extracting archive and that it does not contain malicious code, try running it inside Wine" && return 1 # Unrar and lha always say "everything's dandy" so we have to check manually.
     return 0
@@ -242,7 +242,7 @@ function extractify() {
             *.bin) extract extract_macbin "" "$FILE" "Potential MacBinary-encoded file";;
             *.bz2) extract extract_gbzip bunzip2 "$FILE" "bzip2-compressed file";;
             *.cab) extract extract_cab "" "$FILE" "Microsoft or InstallShield 'cabinet'";;
-            *.cbr) extract unrar x "$FILE" "RAR-compressed comic bundle";;
+            *.cbr) extract unrar "x -y -p-" "$FILE" "RAR-compressed comic bundle";;
 	    *.cbz) extract unzip "" "$FILE" "ZIP-compressed comic bundle";;
 	    *.ccd) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is a CloneCD image. It can be converted to a standard ISO9660 CD image using ccd2iso.";;
             *.cp) extract cpio "--force-local --quiet -idI" "$FILE" "cpio archive";;
@@ -272,10 +272,10 @@ function extractify() {
 	    *.pit) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a PackIt archive. At this time, the unball author knows of no PackIt extractor for non-Macintosh platforms.";;
             *.pk3) extract unzip "" "$FILE" "Quake 3 level (.pk3)";;
 	    *.pq6) extract paq6 "" "$FILE" "PAQ6 archive";;
-            *.rar) extract unrar x "$FILE" "rar archive";;
+            *.rar) extract unrar "x -y -p-" "$FILE" "rar archive";;
             *.rk) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a WinRK archive. However, it seems that only the proprietary WinRK tool for Windows can extract these. Maybe you could run it inside Wine?";;
             *.rpm) extract extract_rpm "" "$FILE" "RPM Package";;
-            *.rsn) extract unrar x "$FILE" "RAR-compressed SNES music (spc) set";;
+            *.rsn) extract unrar "x -y -p-" "$FILE" "RAR-compressed SNES music (spc) set";;
             *.rz) extract extract_gbzip runzip "$FILE" "rzip-compressed file";;
             *.sfark) extract sfarkxtc "" "$FILE" "sfArk-compressed SoundFont set";;
             *.sfpack) DELAYEDMESSAGES="$DELAYEDMESSAGES\nFOUND: SFPack-compressed SoundFont set. unball does not handle these because there is no native Linux extraction tool for them. Please use the SFPack extractor for Windows from inside Wine.";;
@@ -320,7 +320,7 @@ function extractify() {
                     "application/lzh"|"application/x-lzh"|"application/x-lha"|"application/x-lzh-archive"|"application/x-lharc"*) extract lha x "$FILE" "lzh archive";;
                     "application/x-lzop") extract lzop -x "$FILE" "lzop archive";;
                     "application/macbinary"|"application/x-macbinary") extract extract_sit "" "$FILE" "MacBinary-encoded file";;
-                    "application/x-rar") extract unrar x "$FILE" "rar archive";;
+                    "application/x-rar") extract unrar "x -y -p-" "$FILE" "rar archive";;
                     "application/x-rpm") extract extract_rpm "" "$FILE" "RPM Package";;
                     "application/x-shar"|"application/x-sh") [ `sizeInKiB "$FILE"` -ge 512 ] && DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is unusually large for a shell script. It is probably a self-extracting archive. For security reasons, it was not executed automatically.";;
                     "application/x-stuffit") extract extract_sit "" "$FILE" "Stuffit archive";;
