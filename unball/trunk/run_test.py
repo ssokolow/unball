@@ -157,13 +157,12 @@ def testdir(path):
     path = os.path.abspath(path)
     print 'Testing directory "%s" ...' % os.path.split(path)[1]
     
-    t = [unittest.makeSuite(makeTests(os.path.join(path, arch))) for arch in sorted(os.listdir(path)) if not (arch == '.svn' and os.path.isdir(arch))]
-    dirSuite = unittest.TestSuite(t)
+    t = [unittest.makeSuite(makeTests(os.path.join(path, arch))) for arch in sorted(os.listdir(path)) if not (os.path.isdir(arch))]
+    return unittest.TestSuite(t)
     
-    unittest.TextTestRunner(verbosity=2).run(dirSuite)
-
 if __name__ == '__main__':
-    testdir('sources')
+    tester = unittest.TextTestRunner(verbosity=2)
+    tester.run(testdir('test sources'))
     #TODO: Test for multiple arguments goes here.
     print "TODO: Fix the error reporting in unball so that 'missing extractor' message get through."
     print "Formats which could be partially tested (usually 'renamed zip' formats) but aren't: .deb, .egg,\

@@ -32,6 +32,10 @@
 #
 # Notes:
 # - MacOS X .pkg packages are actually just directories and .mpkg files are data files which aren't archives.
+#
+# Known Bugs:
+# - unace seems to freeze if it doesn't have valid stdin, stdout, and stderr. This seems to mainly manifest
+#   itself as an inability to extract .ACE and .EXE files via the .desktop file for Konqueror.
 
 function exists()    { type "$@" > /dev/null 2>&1; }
 function isprog()    { which "$@" > /dev/null 2>&1; }
@@ -152,8 +156,9 @@ function really_extract() {
     chmod -R u+r *
 
     # If there are no more than 3 entries (including . and ..) then just move the contents
+    #FIXME: This will be confused by spaces in the path
     if [ `ls -a "$TEMPTARGET" | wc -l` -le 3 ]; then
-        mv * "$TARGET" || return 6
+        mv * "$OUTDIR" || return 6
     else
         mv "$TEMPTARGET" "$TARGET" || return 6
     fi
