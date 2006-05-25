@@ -15,6 +15,7 @@ HTML, CSS, & JS:
 - weblint
 - csslint-0.6 (from libcroco-0.6.0)
 - linklint (or other link checker)
+- W3C and WDG HTML/CSS/etc. validators
 
 PHP:
 - php -l (lint-like syntax check)

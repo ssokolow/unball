@@ -1,2 +1,6 @@
 To install unball, just copy it to /usr/local/bin
-To run the unit tests, install unball, then run ./runTests.py from inside this directory.
+All supplemental features require unball to be in the search path.
+
+Supplemental features:
+- To run the unit tests, run ./runTests.py from inside this directory.
+- To add the KDE service menu, copy unball.desktop to ~/.kde/share/apps/konqueror/servicemenus/

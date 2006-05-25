@@ -1,0 +1,4 @@
+unball TODO:
+1. Create and bundle a nautilus script (http://g-scripts.sourceforge.net/)
+2. Add proper split RAR support
+3. Improve the test suite

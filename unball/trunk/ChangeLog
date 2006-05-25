@@ -1,4 +1,5 @@
 Version 0.2.10
+- Added a .desktop file to generate a KDE Service Menu
 - Made sure unball returns a nonzero exit code on error
 - Moved ChangeLog to it's own file and clarified a few things.
 - Got rid of the meaningless "realpath not found errors" from richiefrich's pastebin dump.
