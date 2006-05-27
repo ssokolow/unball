@@ -36,6 +36,9 @@
 # Known Bugs:
 # - unace seems to freeze if it doesn't have valid stdin, stdout, and stderr. This seems to mainly manifest
 #   itself as an inability to extract .ACE and .EXE files via the .desktop file for Konqueror.
+# - In the case of one or more files having corrupted contents, unball refuses to extract ACE archives.
+#   I suspect this is a problem with a lot more formats. I'll have to write some unit tests and fix the
+#   problem.
 
 function exists()    { type "$@" > /dev/null 2>&1; }
 function isprog()    { which "$@" > /dev/null 2>&1; }

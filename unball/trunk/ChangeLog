@@ -1,4 +1,8 @@
 Version 0.2.10
+- Found and fixed a bug where extracting single-file/folder archives which 
+  preserved the name of the files inside (eg. a single-file zip or rar) would 
+  discard the preserved name of the contents, overwriting it with the name of
+  the archive, sans extension.
 - Improved the automated handling of RAR archives. (eg. ensured it won't freeze on passworded archives)
 - Fixed support for ACE archives (again, but I think I finally got it)
 - Added a .desktop file to generate a KDE Service Menu
