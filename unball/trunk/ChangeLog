@@ -1,4 +1,5 @@
 Version 0.2.10
+- Fixed support for ACE archives (again, but I think I finally got it)
 - Added a .desktop file to generate a KDE Service Menu
 - Made sure unball returns a nonzero exit code on error
 - Moved ChangeLog to it's own file and clarified a few things.
@@ -16,6 +17,7 @@ Version 0.2.10
    source of bugs in bash scripting when compared to languages like Perl, PHP, and Python.
  - Added a unit test to ensure the correct number of files are extracted when testing all formats which
    don't currently have a special internal layout. (currently everything except j/jar/ear/war files)
+ - Added an ignore for ".svn" inside the test sources directory.
 
 Version 0.2.9
 - Added support for unball being sourced via a `source unball --source` command

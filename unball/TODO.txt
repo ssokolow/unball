@@ -2,3 +2,15 @@ unball TODO:
 1. Create and bundle a nautilus script (http://g-scripts.sourceforge.net/)
 2. Add proper split RAR support
 3. Improve the test suite
+3.1. There seems to be some unfixed problems relating to single-file archives which don't include the
+	name of the contained file in the archive's name.
+3.2. Add tests to make sure that some kind of warning is given with the Konqueror system.
+4. moveToZip.desktop and moveToZip.sh should become their own related project since they work so well
+	with unball as a temporary FrAT alternative.
+5. Write a simple tutorial explaining how to use Konqueror, unball, and moveToZip to efficiently do a
+	manual recursive conversion similar to what FrAT does.
+6. Don't forget to include unit tests to ensure that FrAT recognizes and handles unball errors safely.
+7. Add unit tests for split archives (especially split ACE, split RAR using numbered extension, 
+	and split RAR using numbered suffixes)
+8. Add a check and a unit test for split ACE files where the first file (*.ACE) is uppercase and the 
+	following files (*.c??) are lowercase. It freezes up unace and therefor freezes up unball.
