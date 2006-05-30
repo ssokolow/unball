@@ -67,8 +67,10 @@ def makeTests(path):
             
             callstring = 'unball "%s" > /dev/null' % self.srcfile
             retcode = os.system(callstring)
-            if (len(retcodes) > retcode): retstring = retcodes[retcode]
-            else: retstring = "Unknown code"
+            if (len(retcodes) > retcode): 
+                retstring = retcodes[retcode]
+            else: 
+                retstring = "Unknown code"
 
             self.failIf(retcode, "Unball returned error code %s (%s)" % (retcode, retstring))
             self.failUnless(len(os.listdir(self.srcdir)) == 1, 
@@ -97,8 +99,10 @@ def makeTests(path):
             
             callstring = 'unball -d "%s" "%s" > /dev/null' % (self.destdir, self.srcfile)
             retcode = os.system(callstring)
-            if (len(retcodes) > retcode): retstring = retcodes[retcode]
-            else: retstring = "Unknown code"
+            if (len(retcodes) > retcode): 
+                retstring = retcodes[retcode]
+            else: 
+                retstring = "Unknown code"
             
             self.failIf(retcode, "Unball returned error code %s (%s)" % (retcode, retstring))
             self.failIf(len(os.listdir(self.pwd_dir))  > 0, 
@@ -128,8 +132,10 @@ def makeTests(path):
             
             callstring = 'unball -D "%s" > /dev/null' % self.srcfile
             retcode = os.system(callstring)
-            if (len(retcodes) > retcode): retstring = retcodes[retcode]
-            else: retstring = "Unknown code"
+            if (len(retcodes) > retcode): 
+                retstring = retcodes[retcode]
+            else: 
+                retstring = "Unknown code"
             
             self.failIf(retcode, "Unball returned error code %s (%s)" % (retcode, retstring))
             self.failUnless(os.path.exists(self.srcfile), 
