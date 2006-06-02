@@ -21,7 +21,7 @@
 # - Consider swapping things so that it follows the policy used by Konqueror and Nautilus (check the header first and fall back to the extension)
 #    (The problem is that doing so risks running an unintended extractor. It shouldn't be a risk though since this script avoids executing given files)
 # - Unsupported/untested Self-Extractors:
-#   - Borrow a windows computer and create test files for ARJ, LHA, and ZOO.
+#   - Borrow a windows computer and create test files for self-extracting ARJ, LHA, and ZOO.
 #   - Consider adding a switch which enables use of UPX  decompression when applicable. (UPX is an executable packer)
 # - Decide on and implement a detection method to figure out what .BIN files are. (BinHexed Archives, CD Images, Apple II ROMs, etc.)
 # - Add more support for identifying disk image formats that cannot be unpacked by unball.
@@ -39,6 +39,7 @@
 # - In the case of one or more files having corrupted contents, unball refuses to extract ACE archives.
 #   I suspect this is a problem with a lot more formats. I'll have to write some unit tests and fix the
 #   problem.
+# - Arj isn't being passed an "always answer yes" flag which is vital for extracting split ARJ files.
 
 function exists()    { type "$@" > /dev/null 2>&1; }
 function isprog()    { which "$@" > /dev/null 2>&1; }

@@ -1,4 +1,5 @@
 unball TODO:
+0. unball should not create empty directories
 1. Create and bundle a nautilus script (http://g-scripts.sourceforge.net/)
 2. Add proper split RAR support
 3. Improve the test suite
@@ -10,10 +11,12 @@ unball TODO:
 5. Write a simple tutorial explaining how to use Konqueror, unball, and moveToZip to efficiently do a
 	manual recursive conversion similar to what FrAT does.
 6. Don't forget to include unit tests to ensure that FrAT recognizes and handles unball errors safely.
-7. Add unit tests for split archives (especially split ACE, split RAR using numbered extension, 
-	and split RAR using numbered suffixes)
+7. Add unit tests for split archives (especially split ACE, split RAR using numbered extension (.r## and .###),
+	split RAR using numbered suffixes (.part#.rar), and split ARJ)
 8. Add a check and a unit test for split ACE files where the first file (*.ACE) is uppercase and the 
 	following files (*.c??) are lowercase. It freezes up unace and therefor freezes up unball.
 9. Move the rest of the TODO notes into this file.
 10. Add unshield to the list of *.exe checks if it's capable of unpacking single-file installshield packs.
 11. Add tests for password-protected archives. (Zip, RAR, and ACE for starters)
+12. Make detection by header default so that Zip files with .rar extensions
+	will extract.
