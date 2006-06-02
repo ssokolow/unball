@@ -1,45 +1,25 @@
 #!/usr/bin/env bash
-# unball 
-# by deitarion (Stephan Sokolow)
+# unball
 # Version 0.2.10
-# Licensed under the GNU GPL
+# Copyright 2005, 2006 Stephan Sokolow
 #
-# Inspired by maitre's unball (http://kdelook.org/content/show.php?content=12561)
-# (It would be based on it, but there was none of the old code left by the time I was done the first release)
+# See the README file in the distribution archive for details. 
+# If unball came pre-installed, the archive can be obtained from http://www.ssokolow.com/
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 #
-# Version 1.0.0 of this script will be released when I can find no more unsupported archive formats to add.
-# The changelog may now be found in the ChangeLog file.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
-# TODO:
-# - Figure out whether the following programs generate something unball doesn't already unpack: freeze, pax, ppmd, upm
-# - Add support for using nomarch as an alternative to arc
-# - Add optional use of the Gentoo Portage sandbox to ensure nothing gets changed outside of the target dir.
-# - Decide how to best warn people away from formats like RAR due to their highly proprietary nature.
-# - Figure out what PC-BSD Installers (.pbi) MacOS X .dist files, .slp, and Ruby gems (.gem)  are, internally.
-# - Get around to adding lzma, qda, atr, sitx (Stuffit X)
-# - Add support for recursively unpacking nested archives
-# - Consider swapping things so that it follows the policy used by Konqueror and Nautilus (check the header first and fall back to the extension)
-#    (The problem is that doing so risks running an unintended extractor. It shouldn't be a risk though since this script avoids executing given files)
-# - Unsupported/untested Self-Extractors:
-#   - Borrow a windows computer and create test files for self-extracting ARJ, LHA, and ZOO.
-#   - Consider adding a switch which enables use of UPX  decompression when applicable. (UPX is an executable packer)
-# - Decide on and implement a detection method to figure out what .BIN files are. (BinHexed Archives, CD Images, Apple II ROMs, etc.)
-# - Add more support for identifying disk image formats that cannot be unpacked by unball.
-# - Add --silent to unball and remove the /dev/null redirect
-# - Make unball use stderr for error messages.
-# - Figure out how to make a .bhx file (BinHex ASCII, according to filext.com) for the tests.
-# - Figure out what .xef files are. (WinACE offers to handle them)
-#
-# Notes:
-# - MacOS X .pkg packages are actually just directories and .mpkg files are data files which aren't archives.
-#
-# Known Bugs:
-# - unace seems to freeze if it doesn't have valid stdin, stdout, and stderr. This seems to mainly manifest
-#   itself as an inability to extract .ACE and .EXE files via the .desktop file for Konqueror.
-# - In the case of one or more files having corrupted contents, unball refuses to extract ACE archives.
-#   I suspect this is a problem with a lot more formats. I'll have to write some unit tests and fix the
-#   problem.
-# - Arj isn't being passed an "always answer yes" flag which is vital for extracting split ARJ files.
 
 function exists()    { type "$@" > /dev/null 2>&1; }
 function isprog()    { which "$@" > /dev/null 2>&1; }
