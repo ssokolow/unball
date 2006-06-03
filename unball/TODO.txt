@@ -20,3 +20,5 @@ unball TODO:
 11. Add tests for password-protected archives. (Zip, RAR, and ACE for starters)
 12. Make detection by header default so that Zip files with .rar extensions
 	will extract.
+13. Confirm that Konqueror .war files are the same format as Java .war files. (renamed zips)
+14. Implement a method of testing each program for formats which can be extracted using multiple tools.
