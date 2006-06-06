@@ -140,7 +140,6 @@ function really_extract() {
     chmod -R u+r *
 
     # If there are no more than 3 entries (including . and ..) then just move the contents
-    #FIXME: This will be confused by spaces in the path
     if [ `ls -a "$TEMPTARGET" | wc -l` -le 3 ]; then
         mv * "$OUTDIR" || return 6
     else
@@ -250,8 +249,7 @@ function extractify() {
             *.hqx|*.bhx) extract decode_binhex "" "$FILE" "BinHex-encoded file";; #UNTESTED for lack of a non-stuffit BinHex file.
             *.ipk) extract tar xzf "$FILE" "itsy package";;
 	    *.iso) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is an ISO9660 CD or DVD image. To access it's contents, mount it using a loopback device, or burn it to a disc.";;
-            # A jar is just a zip file with a different extension and a specific folder layout inside
-            *.j | *.jar) (exists jar && extract jar xf "$FILE" "jar archive") || extract unzip "" "$FILE" "jar archive";;
+            *.j | *.jar) (exists jar && extract jar xf "$FILE" "jar archive") || extract unzip "" "$FILE" "jar archive";; # A jar is just a zip file with a different extension and a specific folder layout inside
             *.lzh | *.lha) extract lha x "$FILE" "lzh archive";;
             *.lzo) extract lzop -x "$FILE" "lzop archive";;
             *.lzx) extract unlzx -x "$FILE" "Amiga LZX archive";;
@@ -270,7 +268,6 @@ function extractify() {
             *.sfpack) DELAYEDMESSAGES="$DELAYEDMESSAGES\nFOUND: SFPack-compressed SoundFont set. unball does not handle these because there is no native Linux extraction tool for them. Please use the SFPack extractor for Windows from inside Wine.";;
             *.sh) [ `sizeInKiB "$FILE"` -ge 512 ] && DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is unusually large for a shell script. It is probably a self-extracting archive. For security reasons, it was not executed automatically.";;
             *.shar)  DELAYEDMESSAGES="$DELAYEDMESSAGES\nFOUND: Shell Archive. Because there is no reliable way to extract these without executing them, please run \"sh $FILE\" manually if you really want to extract it.";;
-            # TODO: Figure out exactly what format *.slp files are in and call the decompressor directly.
             *.slp) extract alien -g  "$FILE" "Stampede Linux slp package";; #Untested for lack of a .slp file
 	    *.sqx) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a Squeez archive (.sqx) but as of this writing, there is no known Linux tool which can extract Squeez files. However, the format is detailed at http://www.sqx-archiver.org/ and you can probably run the Squeez extractor for DOS or Windows inside Wine.";;
             *.tar) extract tar xf "$FILE" "tar archive";;
@@ -286,7 +283,6 @@ function extractify() {
 	    *.zz) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a ZZip archive. The code for ZZip is GPLed, but there appears to only be the Windows tool available..";;
 	    *.*_) extract extract_gbzip msexpand "$FILE" "Microsoft compress.exe-packed file";;
             *) echo "Unrecognized extension for $FILE. Attempting to determine type using file header..."
-                #IDEA: Use a while loop, the -k option for file, and a whole lotta break statements.
                 case `file -binNpr "$FILE"` in
                     "application/java-archive") (exists jar && extract jar xf "$FILE" "jar archive") || extract unzip "" "$FILE" "jar archive";;
                     "application/mac-binhex40") extract decode_binhex "" "$FILE" "BinHex-encoded file";;
@@ -313,7 +309,7 @@ function extractify() {
                     "application/x-rpm") extract extract_rpm "" "$FILE" "RPM Package";;
                     "application/x-shar"|"application/x-sh") [ `sizeInKiB "$FILE"` -ge 512 ] && DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is unusually large for a shell script. It is probably a self-extracting archive. For security reasons, it was not executed automatically.";;
                     "application/x-stuffit") extract extract_sit "" "$FILE" "Stuffit archive";;
-                    "application/x-sv4cpio") extract cpio "--force-local --quiet -idI" "$FILE" "SV4 cpio archive";; #UNTESTED
+                    "application/x-sv4cpio") extract cpio "--force-local --quiet -idI" "$FILE" "SV4 cpio archive";;
                     "application/x-tar"*|"application/x-gtar") extract tar xf "$FILE" "tar archive";;
                     "application/x-zip"|"application/zip") extract unzip "" "$FILE" "zip archive";;
                     "application/x-zoo") extract zoo -extract "$FILE" "zoo archive";;

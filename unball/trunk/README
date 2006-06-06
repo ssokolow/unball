@@ -36,6 +36,8 @@ Known Bugs:
 - arj isn't being passed an "always answer yes" flag which is vital for extracting split ARJ files.
 - arj won't be able to extract split ARJ files when the contents cross archive boundaries. A solution will
   require some of the same changes that fixing problems related to split RAR files requires.
+- If the archive name or the name of the extracted program contains spaces, then I suspect the script
+  will always create a containing folder. I have not yet confirmed this.
 
 Notes:
 - MacOS X .pkg packages are actually just directories and .mpkg files are data files which aren't archives.
@@ -55,6 +57,7 @@ Formats and Tools:
 - Figure out whether the following programs generate something unball doesn't already unpack: freeze, pax, ppmd, upm
 - Consider adding a switch which enables use of UPX decompression when applicable. (UPX is an executable packer)
 - Figure out what .xef files are. (WinACE offers to handle them)
+- Figure out exactly what format *.slp files use and call the decompressor directly rather than converting them to .tgz with alien.
 - Figure out how to make a .bhx file (BinHex ASCII, according to filext.com) for the tests.
 - Add more support for identifying disk image formats that cannot be unpacked by unball. (eg. ISO, DMG, BIN, CCD, etc.)
 - Add proper split archive support (RAR, ZIP, ACE, ARJ, and what else?)
@@ -76,6 +79,14 @@ Unit Tests:
 - Add tests for password-protected archives. (Zip, RAR, and ACE for starters)
 - Implement a method of testing each program for formats which can be extracted using multiple backend tools.
 - Don't forget to include unit tests in FrAT (pre-final name) to ensure that it recognizes and handles unball errors safely.
+- Ensure that unball passes "Missing Extractor" errors out to the calling program as exit codes.
+- Make test archives for:
+  - Specialized variants of currently tested formats: .egg, .ipk
+  - Un-tested self-extractors: arj, lha, sea
+  - Stuff which may be difficult to create: .tar.z, .tar.Z, .sea.bin, .sit.bin, .dms, .adf, .adz, .alz, .cab (InstallShield), .paq6, .sfark, .slp
+  - Stuff which has been tested using non-redistributable (or overly large) archives: .deb, .lzx, .rpm, .sea.hqx, .tar.Z
+  - Stuff which cannot currently be supported: .sitx, .bh, .cpt, .dar, .dgc, .gca, .msi, .partimg, .rk, .sfpack, .shar, .sqx, .zz
+- Test unball's behaviour when handed multiple arguments in the same run.
 
 For Version 0.3.0 (next after 0.2.10):
 - Switch to using header-based detection as default and extension checking as a fallback.
@@ -85,3 +96,4 @@ Miscellaneous:
 - Add optional use of the Gentoo Portage sandbox to ensure nothing gets changed outside of the target dir.
 - Decide how to best warn people away from formats like RAR due to their highly proprietary nature.
 - Add support for recursively unpacking nested archives
+- IDEA: Use a while loop and the -k option for the file command to allow properly robust extraction of files with ambiguous headers.

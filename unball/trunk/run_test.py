@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 __author__ = "Stephan Sokolow (deitarion)"
+__revision__ = "$Revision$"
 
 import os, shutil, tempfile, unittest
 
@@ -163,14 +164,3 @@ def testdir(path):
 if __name__ == '__main__':
     tester = unittest.TextTestRunner(verbosity=2)
     tester.run(testdir('test sources'))
-    #TODO: Test for multiple arguments goes here.
-    print "TODO: Fix the error reporting in unball so that 'missing extractor' message get through."
-    print "Formats which could be partially tested (usually 'renamed zip' formats) but aren't: .deb, .egg,\
-.ipk"
-    print "Formats which lack bundled test archives: .exe (arj), .exe (lha), .tar.z, .tar.Z, \
-.sea{,.bin,.hqx}, .sit.bin, .dms, .adf, .adz, .alz, .cab (IS), .lzx, .paq6, .rpm, .sfark, .slp"
-    print "Formats which have been tested using archives I can't/wont't share: .deb, .lzx, .rpm, .sea.hqx,\
-.tar.Z, (including .taz, .tz)"
-    print "Formats which cannot currently be supported: .sitx, .bh, .cpt, .dar, .dgc, .gca, .msi, \
-.partimg, .rk, .sfpack, .shar, .sqx, .zz"
-    print "TODO: Add tests to ensure that split rar archives are handled properly."
