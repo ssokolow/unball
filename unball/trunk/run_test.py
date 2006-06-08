@@ -157,8 +157,9 @@ def testdir(path):
     """Generate and run a set of tests for the given directory full of archives."""
     path = os.path.abspath(path)
     print 'Testing directory "%s" ...' % os.path.split(path)[1]
-    
-    t = [unittest.makeSuite(makeTests(os.path.join(path, arch))) for arch in sorted(os.listdir(path)) if not (os.path.isdir(arch))]
+
+    i, j, l = os.path.isdir, os.path.join, os.listdir
+    t = [unittest.makeSuite(makeTests(j(path, arch))) for arch in sorted(l(path)) if not (i(arch))]
     return unittest.TestSuite(t)
     
 if __name__ == '__main__':
