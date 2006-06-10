@@ -47,6 +47,8 @@ System Integration:
 - The Konqueror script (completed, but suffers from an ACE-related bug) should give some kind of warning on failure.
 - moveToZip.desktop and moveToZip.sh should be shared with the world since they work so well with unball as a 
   temporary FrAT (pre-final name) alternative.
+- Whip up a quick install.sh which installs unball to /usr/local/bin and adds the Konqueror action if Konqueror
+  is installed. (using $X/share/apps/konqueror/servicemenus where $X is an entry in $KDEDIRS)
 
 Formats and Tools:
 - Add support for using nomarch as an alternative to arc
@@ -97,3 +99,5 @@ Miscellaneous:
 - Decide how to best warn people away from formats like RAR due to their highly proprietary nature.
 - Add support for recursively unpacking nested archives
 - IDEA: Use a while loop and the -k option for the file command to allow properly robust extraction of files with ambiguous headers.
+- Look into the option of doing the "move from temp" and "unpack next archive" stages simultaneously to speed
+  things on systems where /tmp isn't on the same partition as $TARGET
