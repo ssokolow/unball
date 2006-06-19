@@ -88,8 +88,8 @@ Unit Tests:
 - Make test archives for:
   - Specialized variants of currently tested formats: .egg, .ipk
   - Un-tested self-extractors: arj, lha, sea
-  - Stuff which may be difficult to create: .tar.z, .tar.Z, .sea.bin, .sit.bin, .dms, .adf, .adz, .alz, .cab (InstallShield), .paq6, .sfark, .slp
-  - Stuff which has been tested using non-redistributable (or overly large) archives: .deb, .lzx, .rpm, .sea.hqx, .tar.Z
+  - Stuff which may be difficult to create: .tar.z, .sea.bin, .sit.bin, .dms, .adf, .adz, .alz, .cab (InstallShield), .paq6, .sfark, .slp
+  - Stuff which has been tested using non-redistributable (or overly large) archives: .deb, .lzx, .rpm, .sea.hqx
   - Stuff which cannot currently be supported: .sitx, .bh, .cpt, .dar, .dgc, .gca, .msi, .partimg, .rk, .sfpack, .shar, .sqx, .zz
 - Test unball's behaviour when handed multiple arguments in the same run.
 
