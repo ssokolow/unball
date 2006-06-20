@@ -53,11 +53,12 @@ System Integration:
   is installed. (using $X/share/apps/konqueror/servicemenus where $X is an entry in $KDEDIRS)
 
 Formats and Tools:
+- Add support for zip files using bzip2 compression. (p7zip can extract them)
 - Add support for using nomarch as an alternative to arc
 - Unball only supports Java .war files. (renamed zips) Konqueror .war files are renamed .tgz files.
 - Figure out what PC-BSD Installers (.pbi) MacOS X .dist files, .slp, and Ruby gems (.gem)  are, internally.
 - Get around to adding lzma, qda, atr, sitx (Stuffit X)
-- Look for a way to add support for zip archives compressed using bzip2 and ppmd. (Created by WinZip 10)
+- Look for a way to add support for zip archives compressed using ppmd. (Created by WinZip 10)
 - Figure out whether the following programs generate something unball doesn't already unpack: freeze, pax, ppmd, upm
 - Consider adding a switch which enables use of UPX decompression when applicable. (UPX is an executable packer)
 - Figure out what .xef files are. (WinACE offers to handle them)

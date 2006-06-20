@@ -29,6 +29,18 @@ function pathsplit() { grep -Eo "[^/]*$" <<< "$@"; }
 function sizeInKiB()   { `du -k "$FILE" | grep -oE "^[0-9]*"`; }
 function abspath()   { (exists realpath && realpath -s "$@") || (exists readlink && readlink -f "$@") || pathjoin "`pwd`" "$@"; }
 
+function proprietary_warning() {
+    # usage: proprietary_warning <extractor> <format> <creator> [<regkey>]
+    if isprog $3 && [ \! "$I_AM_INCONSIDERATE" ]; then
+        echo "Thank you for extracting a $2 file. However, there is no open-source tool capable of extracting them."
+        echo "Out of courtesy for people with uncommon Processor/OS configurations (eg. Linux/Alpha), please do not create them."
+        echo "This message may be disabled by removing the \"$3\" command from your system. Doing so will not affect your ability to extract such archives as unball uses the $1 command."
+        echo "NOTE: On some systems, the package manager may combine them into a single package."
+        echo
+        echo 'If you cannot do so, you may also  `export I_AM_INCONSIDERATE=1`'
+    fi
+}
+
 function extract_cab() {
     echo "Attempting to extract CAB archive. (Microsoft or InstallShield Cabinet)"
     (exists cabextract && call cabextract "" "$2") ||
@@ -42,7 +54,7 @@ function extract_exe() {
     (exists 7z && call 7z "x" "$2") ||
     (exists unace && call unace "x -y" "$2") ||
     (exists arj && call arj x "$2") ||
-    (exists unrar && call unrar "x -y -p-" "$2")
+    (exists unrar && call unrar "x -y -p-" "$2" && proprietary_warning unrar RAR rar)
     [ "`ls -1`" == "" ] && (exists lha && call lha x "$2")
     [ "`ls -1`" == "" ] && echo "Cannot extract $2. If you are certain it is a self-extracting archive and that it does not contain malicious code, try running it inside Wine" && return 1 # Unrar and lha always say "everything's dandy" so we have to check manually.
     return 0
@@ -259,7 +271,7 @@ function extractify() {
 	    *.pit) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a PackIt archive. At this time, the unball author knows of no PackIt extractor for non-Macintosh platforms.";;
             *.pk3) extract unzip "" "$FILE" "Quake 3 level (.pk3)";;
 	    *.pq6) extract paq6 "" "$FILE" "PAQ6 archive";;
-            *.rar) extract unrar "x -y -p-" "$FILE" "rar archive";;
+            *.rar) extract unrar "x -y -p-" "$FILE" "rar archive" && proprietary_warning unrar RAR rar;;
             *.rk) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a WinRK archive. However, it seems that only the proprietary WinRK tool for Windows can extract these. Maybe you could run it inside Wine?";;
             *.rpm) extract extract_rpm "" "$FILE" "RPM Package";;
             *.rsn) extract unrar "x -y -p-" "$FILE" "RAR-compressed SNES music (spc) set";;
