@@ -24,6 +24,7 @@ Version 0.2.10
    don't currently have a special internal layout. (currently everything except j/jar/ear/war files)
  - Added an ignore for ".svn" inside the test sources directory.
  - Added tests for .Z, .tar.Z, .taz, and .tz (as well as the appropriate header detection)
+ - Cleaned up the unit test output on failure (redirected unball's stderr to /dev/null)
 
 Version 0.2.9
 - Added support for unball being sourced via a `source unball --source` command
