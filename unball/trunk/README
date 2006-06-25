@@ -11,22 +11,22 @@ The changelog may now be found in the ChangeLog file.
 
 ==== Installation: ====
 
-To install unball, just copy it to /usr/local/bin
-All uses require unball to be in the search path.
+To install unball system-wide, just run `./install.sh` as root.
+For details on alternate uses of install.sh, run `./install.sh --help`.
 
 ==== Usage: ====
 
-Just run `unball someArchive.zip` and let it do it's thing.
-For details, run `unball --help`.
+Console:
+  Just run `unball someArchive.zip` and let it do it's thing.
+  For details, run `unball --help`.
 
-Supplemental features:
-- To run the unit tests, run ./runTests.py from inside this directory.
-- To add the KDE service menu, copy unball.desktop to ~/.kde/share/apps/konqueror/servicemenus/
+KDE:
+  Right-click any archive and "Extract with unball" will be available from the Actions menu.
+  Right-click any folder and "Move to Zip Archive" will be available in the Actions menu.
+
+The unit tests can be run by typing `./run_test.py` after installing unball. (preferrably not as root)
 
 ==== Programmer's TODO list: ====
-
-Stuff TODO for 0.2.10:
-- Fix the unit tests which have mysteriously broken.
 	
 Known Bugs:
 - unball can create empty directories in some situations
@@ -47,10 +47,6 @@ Notes:
 System Integration:
 - Create and bundle a nautilus script (http://g-scripts.sourceforge.net/)
 - The Konqueror script should give some kind of warning on failure.
-- moveToZip.desktop and moveToZip.sh should be shared with the world since they work so well with unball as a 
-  temporary FrAT (pre-final name) alternative.
-- Whip up a quick install.sh which installs unball to /usr/local/bin and adds the Konqueror action if Konqueror
-  is installed. (using $X/share/apps/konqueror/servicemenus where $X is an entry in $KDEDIRS)
 
 Formats and Tools:
 - Add support for zip files using bzip2 compression. (p7zip can extract them)

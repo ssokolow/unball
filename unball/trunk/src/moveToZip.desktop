@@ -1,0 +1,10 @@
+[Desktop Entry]
+ServiceTypes=inode/directory
+Actions=moveToZip
+Icon=zip
+
+[Desktop Action moveToZip]
+Name=Move to Zip Archive
+Icon=zip
+Exec=moveToZip.sh %f
+
