@@ -114,3 +114,6 @@ Miscellaneous:
 - Fix the unball hack so it only uses /dev/random for the input if stdin has been closed.
 - Try to figure out what about /dev/random unace needs so I can pass only that.
 - Make call() more robust
+- Add signal handlers using `trap`
+- Audit the environment and the extractor manpages for variables I should be setting/unsetting
+- Check to see if there are any variables I should be marking read-only.
