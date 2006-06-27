@@ -52,7 +52,7 @@ function extract_exe() {
     (exists unzip && call unzip "" "$2") ||
     (exists 7z && call 7z "x" "$2") ||
     (exists arj && call arj x "$2") ||
-    (exists unrar && call unrar "x -y -p-" "$2" && proprietary_warning unrar RAR rar)
+    (exists unrar && call unrar "x -y -p-" "$2")
     # unrar and lha don't have proper return values with regards to "cannot extract..."
     # unace just can't be called anything earlier than last because it's unreliable
     [ "`ls -1`" == "" ] && (exists lha && call lha x "$2")
@@ -65,9 +65,11 @@ function extract_gbzip() {
     TARGETFILE=$(pathjoin "$TEMPTARGET" $(pathsplit "$2"))
     exists $1 || (echo "ERROR: Cannot find unarchiver: $1" && return 1)
     cp "$2" "$TARGETFILE" || (echo "ERROR: Cannot create temporary copy of $2" && return 1)
-    
-    if [ ".${TARGETFILE##*.}" != ".gz" ]; then
+    if [ ".${TARGETFILE##*.}" != ".gz" ] && [ "$1" == "gunzip" ]; then
         call $1 "-S .${TARGETFILE##*.}" "$TARGETFILE" || (echo "ERROR: Decompressor $1 failed." && return 1)
+    elif [ `file -binNpr` == "application/x-compress" ]; then
+	new_call "$1" -c "$TARGETFILE" > "$TARGETFILE.out"
+	rm "$TARGETFILE"
     else
         call $1 "" "$TARGETFILE" || (echo "ERROR: Decompressor $1 failed." && return 1)
     fi
@@ -91,7 +93,7 @@ function extract_rpm() {
 
 function extract_sit() { 
     exists unstuff || export PATH="$PATH:/opt/stuffit/bin"; 
-    (exists unstuff && call unstuff "--destination=." "`sed \"s@/[^/]*@../@g\" <<< \`pwd\``$2") || (echo "ERROR: Could not find Stuffit Expander" && return 1)
+    (exists unstuff && call unstuff "--destination=." "`sed \"s@/[^/]*@../@g\" <<< \`pwd\``$1") || (echo "ERROR: Could not find Stuffit Expander" && return 1)
 }
 
 function extract_adf() { 
@@ -107,13 +109,14 @@ function extract_adf() {
 function extract_dms() { (exists xdms && call xdms u "$2") || (exists undms && call undms "$2" "${2%.*}.adf" ) || (echo "ERROR: Could not find xDMS or undms" && return 1); }
 
 function decode_macbin() { (exists macunpack && call macunpack -f "$2") || (exists unstuff && call unstuff "--destination=." "`sed \"s@/[^/]*@../@g\" <<< \`pwd\``$2") || (echo "ERROR: Could not find macunpack or Stuffit Expander" && return 1); }
-function decode_binhex() { (exists uudeview && call uudeview -i "$2") || (exists unstuff && call unstuff "--destination=." "`sed \"s@/[^/]*@../@g\" <<< \`pwd\``$2") || (echo "ERROR: Could not find UUDeView or Stuffit Expander" && return 1); }
-function decode_uu()  { (exists uudecode && call uudecode "" "$2") || (exists uudeview && call uudeview -i "$2") || (echo "ERROR: Could not find UUDecode or UUDeView" && return 1); }
-function decode_xx()  { (exists xxdecode && call xxdecode "" "$2") || (exists uudeview && call uudeview -i "$2") || (echo "ERROR: Could not find XXDecode or UUDeView" && return 1); }
-function decode_ync() { (exists ydecode && call ydecode "" "$2") || (exists yydecode && call yydecode "" "$2") ||(exists uudeview && call uudeview -i "$2") || (echo "ERROR: Could not find YDecode, yydecode,  or UUDeView" && return 1); }
+function decode_binhex() { (exists uudeview && call uudeview -i "$1") || (exists unstuff && call unstuff "--destination=." "`sed \"s@/[^/]*@../@g\" <<< \`pwd\``$1") || (echo "ERROR: Could not find UUDeView or Stuffit Expander" && return 1); }
+function decode_uu()  { (exists uudecode && call uudecode "" "$1") || (exists uudeview && call uudeview -i "$1") || (echo "ERROR: Could not find UUDecode or UUDeView" && return 1); }
+function decode_xx()  { (exists xxdecode && call xxdecode "" "$1") || (exists uudeview && call uudeview -i "$1") || (echo "ERROR: Could not find XXDecode or UUDeView" && return 1); }
+function decode_ync() { (exists ydecode && call ydecode "" "$1") || (exists yydecode && call yydecode "" "$1") ||(exists uudeview && call uudeview -i "$2") || (echo "ERROR: Could not find YDecode, yydecode,  or UUDeView" && return 1); }
 
 # A centralized method of implementing the quiet/verbose switch.
 function call() {
+    echo "$@"
     if [ "$verbose" == 1 ] || [ "$1" == "gunzip" ] || [ "$1" == "bunzip" ] || [ "$1" == "cpio" ]; then
         ([ -n "$2" ] && $1 $2 "$3") || $1 "$3"
     else
@@ -121,6 +124,20 @@ function call() {
 		([ -n "$2" ] && $1 $2 "$3" < /dev/random > /dev/null 2>&1) || $1 "$3" < /dev/random > /dev/null 2>&1
 	else
 		([ -n "$2" ] && $1 $2 "$3" > /dev/null 2>&1) || $1 "$3" > /dev/null 2>&1
+	fi
+    fi
+}
+
+# What will eventually be the only call command
+function new_call() {
+    if [ "$verbose" == 1 ] || [ "$1" == "gunzip" ] || [ "$1" == "bunzip" ] || 
+	[ "$1" == "cpio" ] || [ "$1" == "uncompress" ]; then
+        "$@"
+    else
+	if [ "$1" == "unace" ]; then 
+		"$@" < /dev/random > /dev/null 2>&1
+	else 
+		"$@" > /dev/null 2>&1
 	fi
     fi
 }
@@ -169,7 +186,7 @@ function really_extract() {
 }
 
 function extract() {
-    # Usage: extract archive_tool arguments file extension
+    # Usage: extract archive_tool arguments file type_description
     # Return values for really_extract:
     # 0 - Extracted OK
     # 1 - A bug trap was triggered.
@@ -181,7 +198,8 @@ function extract() {
     # 7- Could not delete temporary files/dirs.
     [[ $# != 4 ]] && echo "BUG #001: Invalid number of arguments passed to extract()" && return 1
     CURRFILE=`abspath "$3"`
-    
+    echo "CURRFILE: $3 $CURRFILE"
+
     echo "Found $4, unballing $3..."
     really_extract "$1" "$2" "$CURRFILE" "$OUTDIR"
     RETURNCODE="$?"
@@ -276,7 +294,7 @@ function extractify() {
 	    *.pit) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a PackIt archive. At this time, the unball author knows of no PackIt extractor for non-Macintosh platforms.";;
             *.pk3) extract unzip "" "$FILE" "Quake 3 level (.pk3)";;
 	    *.pq6) extract paq6 "" "$FILE" "PAQ6 archive";;
-            *.rar) extract unrar "x -y -p-" "$FILE" "rar archive" && proprietary_warning unrar RAR rar;;
+            *.rar) extract unrar "x -y -p-" "$FILE" "rar archive";;
             *.rk) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a WinRK archive. However, it seems that only the proprietary WinRK tool for Windows can extract these. Maybe you could run it inside Wine?";;
             *.rpm) extract extract_rpm "" "$FILE" "RPM Package";;
             *.rsn) extract unrar "x -y -p-" "$FILE" "RAR-compressed SNES music (spc) set";;

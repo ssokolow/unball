@@ -6,7 +6,7 @@ Inspired by maitre's unball (http://kdelook.org/content/show.php?content=12561)
 (It would be based on it, but there was none of the old code left by the time I was done the first release)
 
 Version 1.0.0 of this script will be released when I am satisfied that the interface behaviour has stabilized and
-	that the list of supported archive formats and planned features is small is big enough.
+	that the list of supported archive formats and planned features have grown/shrunk enough.
 The changelog may now be found in the ChangeLog file.
 
 ==== Installation: ====
@@ -26,8 +26,7 @@ Supplemental features:
 ==== Programmer's TODO list: ====
 
 Stuff TODO for 0.2.10:
-Unit tests:
-	- Passworded archives
+- Fix the unit tests which have mysteriously broken.
 	
 Known Bugs:
 - unball can create empty directories in some situations
@@ -98,6 +97,7 @@ Unit Tests:
   - Stuff which cannot currently be supported: .sitx, .bh, .cpt, .dar, .dgc, .gca, .msi, .partimg, .rk, .sfpack, .shar, .sqx, .zz
 - Test unball's behaviour when handed multiple arguments in the same run.
 - Make it so that nonexistant extractors don't trigger a full-blown failure. Instead, display a list of skipped tests at the end with missing required binaries in brackets.
+- Add an option to test only certain formats. (eg. for quick re-running while trying to fix a regression)
 
 For Version 0.3.0 (next after 0.2.10):
 - Make detection by header default so that Zip files with .rar extensions will extract.
@@ -112,3 +112,4 @@ Miscellaneous:
 - Improve the design of the .exe extraction function.
 - Fix the unball hack so it only uses /dev/random for the input if stdin has been closed.
 - Try to figure out what about /dev/random unace needs so I can pass only that.
+- Make call() more robust
