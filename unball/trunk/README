@@ -110,3 +110,5 @@ Miscellaneous:
 - Look into the option of doing the "move from temp" and "unpack next archive" stages simultaneously to speed
   things on systems where /tmp isn't on the same partition as $TARGET (in other words, skipping the /tmp part)
 - Improve the design of the .exe extraction function.
+- Fix the unball hack so it only uses /dev/random for the input if stdin has been closed.
+- Try to figure out what about /dev/random unace needs so I can pass only that.
