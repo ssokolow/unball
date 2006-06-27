@@ -31,9 +31,6 @@ Unit tests:
 	
 Known Bugs:
 - unball can create empty directories in some situations
-- unace freezes when unball is a Konqueror Action. This seems to mainly manifest itself as an inability to 
-  extract .ACE and .EXE files via the .desktop file for Konqueror and it's because unace
-  assumes that stdin, stdout, and stderr are open, which they aren't when Konqueror is calling unball.
 - In the case of one or more files having corrupted contents, unball refuses to extract ACE archives.
   I suspect this is a problem with a lot more formats. I'll have to write some unit tests and fix the
   problem. (The problem is that unball just aborts if the backend tool returns a nonzero exit code.)
@@ -50,7 +47,7 @@ Notes:
 
 System Integration:
 - Create and bundle a nautilus script (http://g-scripts.sourceforge.net/)
-- The Konqueror script (completed, but suffers from an ACE-related bug) should give some kind of warning on failure.
+- The Konqueror script should give some kind of warning on failure.
 - moveToZip.desktop and moveToZip.sh should be shared with the world since they work so well with unball as a 
   temporary FrAT (pre-final name) alternative.
 - Whip up a quick install.sh which installs unball to /usr/local/bin and adds the Konqueror action if Konqueror

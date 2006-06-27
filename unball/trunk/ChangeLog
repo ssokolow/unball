@@ -25,7 +25,7 @@ Version 0.2.10
  - Added an ignore for ".svn" inside the test sources directory.
  - Added tests for .Z, .tar.Z, .taz, and .tz (as well as the appropriate header detection)
  - Cleaned up the unit test output on failure (Disconnected unball's stderr from the console)
- - Altered the tests so they close stdin, stdout, and stderr like Konqueror does)
+ - Altered the tests so they close stdin, stdout, and stderr like Konqueror does
 
 Version 0.2.9
 - Added support for unball being sourced via a `source unball --source` command
