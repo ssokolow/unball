@@ -26,6 +26,14 @@ KDE:
 
 The unit tests can be run by typing `./run_test.py` after installing unball. (preferrably not as root)
 
+==== Tips: ====
+
+When using Konqueror, you can easily batch-convert a collection of assorted archives to Zips:
+1. Select all of the archives and choose "Extract with unball" from the Actions menu.
+2. Select all of the folders which result and choose "Move to Zip Archive" from the Actions menu.
+3. Once all the folders are gone, delete the original non-Zip archives.
+(The folders will only vanish after the zip archives have been tested)
+
 ==== Programmer's TODO list: ====
 	
 Known Bugs:
@@ -65,10 +73,6 @@ Formats and Tools:
 - Add unshield to the list of *.exe checks if it's capable of unpacking single-file installshield packs.
 - Add support for identification (and, if possible, extraction) of .hex (BinHex 1) and .hcx (BinHex 2) files
 - Look into the use of http://sourceforge.net/projects/macbinconv
-
-Documentation:
-- Write a simple tutorial explaining how to use Konqueror, unball, and moveToZip to efficiently do a
-	manual recursive conversion similar to what FrAT (pre-final name) does.
 
 Unit Tests:
 - Ensure that the extraction tool gets to pick the name when the archive only contains one file or folder.
