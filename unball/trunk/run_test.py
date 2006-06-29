@@ -66,7 +66,8 @@ def makeTests(path):
             """Testing unball %s with implicit destination"""
             os.chdir(self.destdir)
             
-            callstring = 'unball "%s" > /dev/null 2>&1' % self.srcfile
+            #callstring = 'unball "%s" > /dev/null 2>&1' % self.srcfile
+            callstring = 'unball "%s" <&- >&- 2>&-' % self.srcfile
             retcode = os.system(callstring)
             if (len(retcodes) > retcode): 
                 retstring = retcodes[retcode]
@@ -98,7 +99,8 @@ def makeTests(path):
             
             os.chdir(self.pwd_dir)
             
-            callstring = 'unball -d "%s" "%s" > /dev/null 2>&1' % (self.destdir, self.srcfile)
+            #callstring = 'unball -d "%s" "%s" > /dev/null 2>&1' % (self.destdir, self.srcfile)
+            callstring = 'unball -d "%s" "%s" <&- >&- 2>&-' % (self.destdir, self.srcfile)
             retcode = os.system(callstring)
             if (len(retcodes) > retcode): 
                 retstring = retcodes[retcode]
@@ -131,7 +133,8 @@ def makeTests(path):
             """Testing unball %s with samedir  destination"""
             os.chdir(self.pwd_dir)
             
-            callstring = 'unball -D "%s" > /dev/null 2>&1' % self.srcfile
+            #callstring = 'unball -D "%s" > /dev/null 2>&1' % self.srcfile
+            callstring = 'unball -D "%s" <&- >&- 2>&-' % self.srcfile
             retcode = os.system(callstring)
             if (len(retcodes) > retcode): 
                 retstring = retcodes[retcode]
@@ -157,6 +160,7 @@ def testdir(path):
     """Generate and run a set of tests for the given directory full of archives."""
     path = os.path.abspath(path)
     print 'Testing directory "%s" ...' % os.path.split(path)[1]
+    print "NOTE: stdin, stdout, and stderr are closed for these tests. If extraction of ACE files freezes, it's a regression."
 
     i, j, l = os.path.isdir, os.path.join, os.listdir
     t = [unittest.makeSuite(makeTests(j(path, arch))) for arch in sorted(l(path)) if not (i(arch))]

@@ -36,8 +36,7 @@ function proprietary_warning() {
         echo "Out of courtesy for people with uncommon Processor/OS configurations (eg. Linux/Alpha), please do not create them."
         echo "This message may be disabled by removing the \"$3\" command from your system. Doing so will not affect your ability to extract such archives as unball uses the $1 command."
         echo "NOTE: On some systems, the package manager may combine them into a single package."
-        echo
-        echo 'If you cannot do so, you may also  `export I_AM_INCONSIDERATE=1`'
+        echo -e '\nIf you cannot do so, you may also  `export I_AM_INCONSIDERATE=1`\n'
     fi
 }
 
@@ -52,10 +51,12 @@ function extract_exe() {
     echo "Attempting to extract EXE file without running it's untrusted executable code..."
     (exists unzip && call unzip "" "$2") ||
     (exists 7z && call 7z "x" "$2") ||
-    (exists unace && call unace "x -y" "$2") ||
     (exists arj && call arj x "$2") ||
     (exists unrar && call unrar "x -y -p-" "$2" && proprietary_warning unrar RAR rar)
+    # unrar and lha don't have proper return values with regards to "cannot extract..."
+    # unace just can't be called anything earlier than last because it's unreliable
     [ "`ls -1`" == "" ] && (exists lha && call lha x "$2")
+    [ "`ls -1`" == "" ] && (exists unace && call unace "x -y" "$2" )
     [ "`ls -1`" == "" ] && echo "Cannot extract $2. If you are certain it is a self-extracting archive and that it does not contain malicious code, try running it inside Wine" && return 1 # Unrar and lha always say "everything's dandy" so we have to check manually.
     return 0
 }
@@ -116,7 +117,11 @@ function call() {
     if [ "$verbose" == 1 ] || [ "$1" == "gunzip" ] || [ "$1" == "bunzip" ] || [ "$1" == "cpio" ]; then
         ([ -n "$2" ] && $1 $2 "$3") || $1 "$3"
     else
-	([ -n "$2" ] && $1 $2 "$3" > /dev/null 2>&1) || $1 "$3" > /dev/null 2>&1
+	if [ "$1" == "unace" ]; then
+		([ -n "$2" ] && $1 $2 "$3" < /dev/random > /dev/null 2>&1) || $1 "$3" < /dev/random > /dev/null 2>&1
+	else
+		([ -n "$2" ] && $1 $2 "$3" > /dev/null 2>&1) || $1 "$3" > /dev/null 2>&1
+	#fi
     fi
 }
 
