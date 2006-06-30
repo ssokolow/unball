@@ -25,11 +25,17 @@ Supplemental features:
 
 ==== Programmer's TODO list: ====
 
+Stuff TODO for 0.2.10:
+Unit tests:
+	- Passworded archives
+	- Closed stdin/out/err (the Konqueror+ACE problem)
+	
+
 Known Bugs:
 - unball can create empty directories in some situations
 - unace freezes when unball is a Konqueror Action. This seems to mainly manifest itself as an inability to 
   extract .ACE and .EXE files via the .desktop file for Konqueror and I suspect it's because unace
-  doesn't check whether it has a valid stdin, stdout, and stderr.
+  doesn't check whether it has valid and open stdin, stdout, and stderr descriptors.
 - In the case of one or more files having corrupted contents, unball refuses to extract ACE archives.
   I suspect this is a problem with a lot more formats. I'll have to write some unit tests and fix the
   problem. (The problem is that unball just aborts if the backend tool returns a nonzero exit code.)
@@ -76,28 +82,31 @@ Documentation:
 
 Unit Tests:
 - Ensure that the extraction tool gets to pick the name when the archive only contains one file or folder.
-- Borrow a windows computer and create test files for self-extracting ARJ, LHA, and ZOO.
-- Make unball use stderr for error messages.
-- Add --silent to unball and remove the /dev/null redirect in the unit tests
+- Create test files for self-extracting ARJ, LHA, and ZOO. (DosBox/DosEmu if native doesn't work)
+- Make unball use stderr for error messages like it's supposed to.
+- Perhaps add --silent to unball and remove the /dev/null redirect in the unit tests?
 - Add unit tests for split archives (especially split ACE, split RAR using numbered extension (.r## and .###),
-	split RAR using numbered suffixes (.part#.rar), and split ARJ)
+	split RAR using numbered suffixes (.part#.rar), split ARJ, and split tar)
 - Add a check and a unit test for split ACE files where the first file (*.ACE) is uppercase and the 
-	following files (*.c??) are lowercase. It freezes up unace and therefor freezes up unball.
+	following files (*.c??) are lowercase. It freezes up unace and therefore freezes up unball.
+	(I've encountered such a problem in the wild)
 - Add tests for password-protected archives. (Zip, RAR, and ACE for starters)
 - Implement a method of testing each program for formats which can be extracted using multiple backend tools.
+	(by adjusting PATH and setting up a dir with symlinks)
 - Don't forget to include unit tests in FrAT (pre-final name) to ensure that it recognizes and handles unball errors safely.
 - Ensure that unball passes "Missing Extractor" errors out to the calling program as exit codes.
 - Make test archives for:
   - Specialized variants of currently tested formats: .egg, .ipk
   - Un-tested self-extractors: arj, lha, sea
-  - Stuff which may be difficult to create: .tar.z, .sea.bin, .sit.bin, .dms, .adf, .adz, .alz, .cab (InstallShield), .paq6, .sfark, .slp
+  - Stuff which may be difficult to create: .tar.z (apparently different from .tar.Z), .sea.bin, .sit.bin, .dms, .adf, .adz, .alz, .cab (InstallShield), .paq6, .sfark, .slp
   - Stuff which has been tested using non-redistributable (or overly large) archives: .deb, .lzx, .rpm, .sea.hqx
   - Stuff which cannot currently be supported: .sitx, .bh, .cpt, .dar, .dgc, .gca, .msi, .partimg, .rk, .sfpack, .shar, .sqx, .zz
 - Test unball's behaviour when handed multiple arguments in the same run.
+- ACE archives when the std* descriptors have been closed. (Konqueror .desktop problem)
+- Make it so that nonexistant extractors don't trigger a full-blown failure. Instead, display a list of skipped tests at the end with missing required binaries in brackets.
 
 For Version 0.3.0 (next after 0.2.10):
-- Switch to using header-based detection as default and extension checking as a fallback.
-- Make detection by header default so that Zip files with .rar extensions will extract. (using header detection)
+- Make detection by header default so that Zip files with .rar extensions will extract.
 
 Miscellaneous:
 - Add optional use of the Gentoo Portage sandbox to ensure nothing gets changed outside of the target dir.
@@ -105,4 +114,5 @@ Miscellaneous:
 - Add support for recursively unpacking nested archives
 - IDEA: Use a while loop and the -k option for the file command to allow properly robust extraction of files with ambiguous headers.
 - Look into the option of doing the "move from temp" and "unpack next archive" stages simultaneously to speed
-  things on systems where /tmp isn't on the same partition as $TARGET
+  things on systems where /tmp isn't on the same partition as $TARGET (in other words, skipping the /tmp part)
+- Improve the design of the .exe extraction function.

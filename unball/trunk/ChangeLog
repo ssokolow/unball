@@ -1,19 +1,19 @@
 Version 0.2.10
+- Confirmed that 0.2.9 emptied the list of known bugs. (though some more have been discovered since then)
+- Improved the automated handling of RAR archives. (eg. ensured it won't freeze on passworded archives)
 - Found and fixed a bug where extracting single-file/folder archives which 
   preserved the name of the files inside (eg. a single-file zip or rar) would 
   discard the preserved name of the contents, overwriting it with the name of
   the archive, sans extension.
-- Improved the automated handling of RAR archives. (eg. ensured it won't freeze on passworded archives)
 - Fixed support for ACE archives (again, but I think I finally got it)
 - Added a .desktop file to generate a KDE Service Menu
 - Made sure unball returns a nonzero exit code on error
 - Moved ChangeLog to it's own file and clarified a few things.
 - Got rid of the meaningless "realpath not found errors" from richiefrich's pastebin dump.
 - Fixed header detection for a few formats.
-- Added untested support for ADF, ADZ, ALZ, DMS, and TZ files.
-- Confirmed that 0.2.9 emptied the list of known bugs.
+- Added untested support for ADF, ADZ, ALZ, and DMS files.
 - Added support for the macunpack utility as an alternative to unstuff for extracting MacBinary.
-- Began working on recursive support.
+- Began working on the internal changes needed for recursive support.
 - Unit Tests:
  - Added unit tests for the header-based format detection.
  - Pruned out some duplicate tests and added tests for Windows zip, rar, and 7-zip self-extractors.
@@ -23,7 +23,7 @@ Version 0.2.10
  - Added a unit test to ensure the correct number of files are extracted when testing all formats which
    don't currently have a special internal layout. (currently everything except j/jar/ear/war files)
  - Added an ignore for ".svn" inside the test sources directory.
- - Added tests for .Z, .tar.Z, and .taz (as well as the appropriate header detection)
+ - Added tests for .Z, .tar.Z, .taz, and .tz (as well as the appropriate header detection)
 
 Version 0.2.9
 - Added support for unball being sourced via a `source unball --source` command
