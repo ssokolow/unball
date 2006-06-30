@@ -31,7 +31,7 @@ retcodes = [
             'Could not delete temporary files/dirs'
            ]
 
-count_omit = ['jartest.j', 'jartest.jar', 'eartest.ear', 'wartest.war']
+count_omit = ['jartest.j', 'jartest.jar', 'eartest.ear', 'wartest.war', 'mscompress.tx_']
 
 def makeTests(path):
     """
@@ -92,7 +92,7 @@ def makeTests(path):
                             "%s didn't strip .tar from the name of the newly created dir." % callstring)
                 if not filename in count_omit:
                     self.failIf(len(os.listdir(newdir)) != 9, 
-                                "%s did not extract the correct number of files" % callstring)
+                                "%s did not extract the correct number of files. Got %s but expected %s" % (callstring, len(os.listdir(newdir)), 9))
             
         def testExplicitDestination(self):
             """Testing unball %s with explicit destination"""
@@ -127,7 +127,7 @@ def makeTests(path):
                             "%s didn't strip .tar from the name of the newly created dir." % callstring)
                 if not filename in count_omit:
                     self.failIf(len(os.listdir(newdir)) != 9, 
-                                "%s did not extract the correct number of files" % callstring)
+                                "%s did not extract the correct number of files. Got %s but expected %s" % (callstring, len(os.listdir(newdir)), 9))
         
         def testSameDestination(self):
             """Testing unball %s with samedir  destination"""

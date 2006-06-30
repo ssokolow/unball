@@ -1,4 +1,6 @@
 Version 0.2.10
+- Fixed a previously unknown problem where lzop would refuse to extract if stdin, stdout, or stderr were 
+  closed. (which is true when unball is called from Konqueror)
 - Confirmed that 0.2.9 emptied the list of known bugs. (though some more have been discovered since then)
 - Improved the automated handling of RAR archives. (eg. ensured it won't freeze on passworded archives)
 - Found and fixed a bug where extracting single-file/folder archives which 
@@ -26,6 +28,7 @@ Version 0.2.10
  - Added tests for .Z, .tar.Z, .taz, and .tz (as well as the appropriate header detection)
  - Cleaned up the unit test output on failure (Disconnected unball's stderr from the console)
  - Altered the tests so they close stdin, stdout, and stderr like Konqueror does
+ - Fixed the mscompress test so it doesn't give a false failure.
 
 Version 0.2.9
 - Added support for unball being sourced via a `source unball --source` command
