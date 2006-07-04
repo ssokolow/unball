@@ -56,8 +56,9 @@ function extract_gbzip() {
     cp "$2" "$TARGETFILE" || (echo "ERROR: Cannot create temporary copy of $2" && return 1)
     if [ ".${TARGETFILE##*.}" != ".gz" ] && [ "$1" == "gunzip" ]; then
         call $1 "-S .${TARGETFILE##*.}" "$TARGETFILE" || (echo "ERROR: Decompressor $1 failed." && return 1)
-    elif [ `file -binNpr` == "application/x-compress" ]; then
-	new_call "$1" -c "$TARGETFILE" > "$TARGETFILE.out"
+    elif [ `file -binNpr $TARGETFILE` == "application/x-compress" ] && [ ".${TARGETFILE##*.}" != ".Z" ] && 
+		[ ".${TARGETFILE##*.}" != ".z" ]; then
+	"$1" -c "$TARGETFILE" > "$TARGETFILE.out"
 	rm "$TARGETFILE"
     else
         call $1 "" "$TARGETFILE" || (echo "ERROR: Decompressor $1 failed." && return 1)
