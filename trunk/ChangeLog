@@ -1,5 +1,5 @@
 Version 0.2.10
-- Added an easy-install script.
+- Added an easy-install script. (Includes Konqueror and Nautilus integration)
 - Fixed support for ACE archives (again, but I think I finally got it)
 - Fixed a previously unknown problem where lzop would refuse to extract if stdin, stdout, or stderr were 
   closed. (which is true when unball is called from Konqueror)

@@ -23,9 +23,9 @@ function install_nautilus() {
 	# Install the symlinks
 	pushd "$NSCRIPT_FULL_PATH" > /dev/null
 		ln -s "$UNBALL_TARGET" ./Unball
-		chmod "$1:$2" ./Unball
+		chown "$1:$2" ./Unball
 		ln -s "$MOVETOZIP_TARGET" "./Move to ZIP"
-		chmod "$1:$2" "./Move to ZIP"
+		chown "$1:$2" "./Move to ZIP"
 	popd > /dev/null
 }
 
@@ -33,9 +33,9 @@ function user_enum() {
 	# Usage: user_enum <command>
 	# command will receive <UID> <GID> <HOMEDIR> as it's parameters
 	#FIXME: This will break if the homedir path contains spaces.
-	for LINE in `cut -sd: -f3,4,6 /etc/passwd`; do		
+	for LINE in `cut -sd: -f3,4,6 /etc/passwd`; do
 		LINE_SPLIT=`echo $LINE | tr ":" " "`
-		$1 $LINE # DON'T just quote the $LINE. It has to expand into 3 positional args.
+		$1 $LINE_SPLIT # DON'T just quote the $LINE_SPLIT. It has to expand into 3 positional args.
 	done
 }
 
