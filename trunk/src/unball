@@ -21,8 +21,8 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 
-function exists()    { type "$@" > /dev/null 2>&1; }
-function isprog()    { which "$@" > /dev/null 2>&1; }
+function exists()    { type "$@" &> /dev/null ; }
+function isprog()    { which "$@" &> /dev/null ; }
 function lower()     { tr [:upper:] [:lower:] <<< "$@"; }
 function pathjoin()  { ([[ "$2" != /* ]] && echo "$1"/"$2") || echo "$2"; }
 function pathsplit() { grep -Eo "[^/]*$" <<< "$@"; }
@@ -110,9 +110,9 @@ function call() {
         ([ -n "$2" ] && $1 $2 "$3") || $1 "$3"
     else
 	if [ "$1" == "unace" ] || [ "$1" == "lzop" ]; then
-		([ -n "$2" ] && $1 $2 "$3" < /dev/random > /dev/null 2>&1) || $1 "$3" < /dev/random > /dev/null 2>&1
+		([ -n "$2" ] && $1 $2 "$3" < /dev/random &> /dev/null) || $1 "$3" < /dev/random &> /dev/null
 	else
-		([ -n "$2" ] && $1 $2 "$3" > /dev/null 2>&1) || $1 "$3" > /dev/null 2>&1
+		([ -n "$2" ] && $1 $2 "$3" &> /dev/null) || $1 "$3" &> /dev/null
 	fi
     fi
 }
@@ -124,9 +124,9 @@ function new_call() {
         "$@"
     else
 	if [ "$1" == "unace" ]; then 
-		"$@" < /dev/random > /dev/null 2>&1
+		"$@" < /dev/random &> /dev/null
 	else 
-		"$@" > /dev/null 2>&1
+		"$@" &> /dev/null
 	fi
     fi
 }

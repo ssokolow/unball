@@ -66,7 +66,7 @@ def makeTests(path):
             """Testing unball %s with implicit destination"""
             os.chdir(self.destdir)
             
-            #callstring = 'unball "%s" > /dev/null 2>&1' % self.srcfile
+            #callstring = 'unball "%s" &> /dev/null' % self.srcfile
             callstring = 'unball "%s" <&- >&- 2>&-' % self.srcfile
             retcode = os.system(callstring)
             if (len(retcodes) > retcode): 
@@ -99,7 +99,7 @@ def makeTests(path):
             
             os.chdir(self.pwd_dir)
             
-            #callstring = 'unball -d "%s" "%s" > /dev/null 2>&1' % (self.destdir, self.srcfile)
+            #callstring = 'unball -d "%s" "%s" &> /dev/null' % (self.destdir, self.srcfile)
             callstring = 'unball -d "%s" "%s" <&- >&- 2>&-' % (self.destdir, self.srcfile)
             retcode = os.system(callstring)
             if (len(retcodes) > retcode): 
@@ -133,7 +133,7 @@ def makeTests(path):
             """Testing unball %s with samedir  destination"""
             os.chdir(self.pwd_dir)
             
-            #callstring = 'unball -D "%s" > /dev/null 2>&1' % self.srcfile
+            #callstring = 'unball -D "%s" &> /dev/null' % self.srcfile
             callstring = 'unball -D "%s" <&- >&- 2>&-' % self.srcfile
             retcode = os.system(callstring)
             if (len(retcodes) > retcode): 
