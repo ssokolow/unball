@@ -1,8 +1,0 @@
-[Desktop Entry]
-ServiceTypes=application/x-7z,application/x-ace,application/x-arc,application/x-archive,application/x-arj,application/x-bzip,application/x-bzip2,application/x-compress,application/x-cpio,application/x-deb,application/x-debian-package,application/x-gzip,application/x-jar,application/x-lha,application/x-lzop,application/x-msdos-program,application/x-pak,application/x-rar,application/x-rar-compressed,application/x-rpm,application/x-tar,application/x-tarz,application/x-tbz,application/x-tgz,application/x-tzo,application/x-zip,application/x-zoo
-Actions=unball
-
-[Desktop Action unball]
-Name=Extract with unball
-Icon=zip
-Exec=unball -D %F
