@@ -1,17 +1,53 @@
 # The basic framework for adjusting the install location.
 [ -z "$DESTDIR" ] && export DESTDIR="/"
 [ -z "$PREFIX" ] && export PREFIX="/usr/local"
-PREFIX="$DESTDIR/$PREFIX"
+NAUTILUS_SCRIPT_SUFFIX="" # Set this to use hierarchical categories for Nautilus scripts.
+UNBALL_TARGET="$PREFIX/bin/unball"
+MOVETOZIP_TARGET="$PREFIX/bin/moveToZip.sh"
+
+function install_nautilus() {
+	# Usage: install_nautilus <UID> <GID> <HOMEDIR>
+	# Purpose: Install unball and MoveToZip into the Nautilus scripts menu.
+
+	# Find the script dir if it exists. Return if it doesn't.
+	if [ -d "$3/.gnome2/nautilus-scripts" ]; then NSCRIPT_PATH="$3/.gnome2/nautilus-scripts"
+	elif [ -d "$3/.gnome/nautilus-scripts" ]; then NSCRIPT_PATH="$3/.gnome/nautilus-scripts"
+	elif [ -d "$3/Nautilus/scripts" ]; then NSCRIPT_PATH="$3/Nautilus/scripts"
+	else return 1
+	fi
+	
+	# Make the script category dir if it doesn't exist
+	NSCRIPT_FULL_PATH="$DESTDIR/$NSCRIPT_PATH/$NAUTILUS_SCRIPT_SUFFIX"
+	[ ! -d "$NSCRIPT_FULL_PATH" ] && mkdir -p "$NSCRIPT_FULL_PATH" &> /dev/null
+	
+	# Install the symlinks
+	pushd "$NSCRIPT_FULL_PATH" > /dev/null
+		ln -s "$UNBALL_TARGET" ./Unball
+		chmod "$1:$2" ./Unball
+		ln -s "$MOVETOZIP_TARGET" "./Move to ZIP"
+		chmod "$1:$2" "./Move to ZIP"
+	popd > /dev/null
+}
+
+function user_enum() {
+	# Usage: user_enum <command>
+	# command will receive <UID> <GID> <HOMEDIR> as it's parameters
+	#FIXME: This will break if the homedir path contains spaces.
+	for LINE in `cut -sd: -f3,4,6 /etc/passwd`; do		
+		LINE_SPLIT=`echo $LINE | tr ":" " "`
+		$1 $LINE # DON'T just quote the $LINE. It has to expand into 3 positional args.
+	done
+}
 
 # This will just fail silently if we don't have write permissions for DESTDIR.
 # That way, we can just leave the checking to the last minute.
-[ ! -d "$PREFIX" ] && mkdir -p "$PREFIX" > /dev/null 2>&1
+[ ! -d "$DESTDIR/$PREFIX" ] && mkdir -p "$DESTDIR/$PREFIX" &> /dev/null
 
 # Support for installing the Konqueror service menu
-if which konqueror > /dev/null 2>&1; then
+if which konqueror &> /dev/null; then
 	if [ -w "$DESTDIR" ]; then
 		[ -z "$KDEDIR" ] && KDEDIR="$DESTDIR/`cut -d: -f1 <<< \"$KDEDIRS\"`"
-		[ -z "$KDEDIR" ] && KDEDIR="$PREFIX"
+		[ -z "$KDEDIR" ] && KDEDIR="$DESTDIR/$PREFIX"
 	else
 		KDEDIR=~/.kde
 	fi
@@ -19,14 +55,26 @@ if which konqueror > /dev/null 2>&1; then
 fi
 
 # Do the install.
-if [ -w "$PREFIX" ] && [ "$1" != "--help" ] ; then
-	[ -d "$PREFIX/bin" ] || mkdir -p "$PREFIX/bin"
-	install src/unball "$PREFIX/bin/unball"
+if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
+	# Install unball
+	[ -d "$DESTDIR/PREFIX/bin" ] || mkdir -p "$DESTDIR/$PREFIX/bin"
+	install src/unball "$DESTDIR/$UNBALL_TARGET"
 
+	# Install the Konqueror hooks
 	if [ -n "$SERVICEMENU_DIR" ]; then
 		[ -d "$SERVICEMENU_DIR" ] || mkdir -p "$SERVICEMENU_DIR"
 		install --mode 0644 src/*.desktop "$SERVICEMENU_DIR"
-		install src/moveToZip.sh "$PREFIX/bin/moveToZip.sh"
+		install src/moveToZip.sh "$DESTDIR/$MOVETOZIP_TARGET"
+	fi
+
+	# Install the Nautilus hook, but only if it doesn't already exist.
+	# This ensures that users won't have unball re-added if they removed it after a previous install.
+	NAUTILUS_SKEL_TARGET="/etc/skel/.gnome2/nautilus-scripts"
+	if [ ! -L "$NAUTILUS_SKEL_TARGET/Unball" ]; then
+		mkdir -p "$DESTDIR/$NAUTILUS_SKEL_TARGET"
+		ln -s "$UNBALL_TARGET" "$DESTDIR/$NAUTILUS_SKEL_TARGET/Unball"
+		ln -s "$MOVETOZIP_TARGET" "$DESTDIR/$NAUTILUS_SKEL_TARGET/Move to ZIP"
+		user_enum install_nautilus
 	fi
 else
 	[ "$1" != "--help" ] && echo "Sorry, it appears that you do not have write permissions for the chosen install location."
