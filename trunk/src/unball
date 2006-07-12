@@ -44,9 +44,9 @@ function extract_exe() {
     (exists unrar && call unrar "x -y -p-" "$2")
     # unrar and lha don't have proper return values with regards to "cannot extract..."
     # unace just can't be called anything earlier than last because it's unreliable
-    [ "`ls -1`" == "" ] && (exists lha && call lha x "$2")
-    [ "`ls -1`" == "" ] && (exists unace && call unace "x -y" "$2" )
-    [ "`ls -1`" == "" ] && echo "Cannot extract $2. If you are certain it is a self-extracting archive and that it does not contain malicious code, try running it inside Wine" && return 1 # Unrar and lha always say "everything's dandy" so we have to check manually.
+    [ "`ls -1`" = "" ] && (exists lha && call lha x "$2")
+    [ "`ls -1`" = "" ] && (exists unace && call unace "x -y" "$2" )
+    [ "`ls -1`" = "" ] && echo "Cannot extract $2. If you are certain it is a self-extracting archive and that it does not contain malicious code, try running it inside Wine" && return 1 # Unrar and lha always say "everything's dandy" so we have to check manually.
     return 0
 }
 
@@ -54,9 +54,9 @@ function extract_gbzip() {
     TARGETFILE=$(pathjoin "$TEMPTARGET" $(pathsplit "$2"))
     exists $1 || (echo "ERROR: Cannot find unarchiver: $1" && return 1)
     cp "$2" "$TARGETFILE" || (echo "ERROR: Cannot create temporary copy of $2" && return 1)
-    if [ ".${TARGETFILE##*.}" != ".gz" ] && [ "$1" == "gunzip" ]; then
+    if [ ".${TARGETFILE##*.}" != ".gz" ] && [ "$1" = "gunzip" ]; then
         call $1 "-S .${TARGETFILE##*.}" "$TARGETFILE" || (echo "ERROR: Decompressor $1 failed." && return 1)
-    elif [ `file -binNpr $TARGETFILE` == "application/x-compress" ] && [ ".${TARGETFILE##*.}" != ".Z" ] && 
+    elif [ `file -binNpr $TARGETFILE` = "application/x-compress" ] && [ ".${TARGETFILE##*.}" != ".Z" ] && 
 		[ ".${TARGETFILE##*.}" != ".z" ]; then
 	"$1" -c "$TARGETFILE" > "$TARGETFILE.out"
 	rm "$TARGETFILE"
@@ -82,12 +82,15 @@ function extract_rpm() {
 }
 
 function extract_sit() { 
-    exists unstuff || export PATH="$PATH:/opt/stuffit/bin"; 
+    if ! exists unstuff; then
+        PATH="$PATH:/opt/stuffit/bin"
+        export PATH
+    fi
     (exists unstuff && call unstuff "--destination=." "`sed \"s@/[^/]*@../@g\" <<< \`pwd\``$1") || (echo "ERROR: Could not find Stuffit Expander" && return 1)
 }
 
 function extract_adf() { 
-    if [ "$1" == "adz" ]; then
+    if [ "$1" = "adz" ]; then
         extract_gbzip gunzip "$2"
         TGT="${2%.adz}.adf"
     else
@@ -106,10 +109,10 @@ function decode_ync() { (exists ydecode && call ydecode "" "$1") || (exists yyde
 
 # A centralized method of implementing the quiet/verbose switch.
 function call() {
-    if [ "$verbose" == 1 ] || [ "$1" == "gunzip" ] || [ "$1" == "bunzip" ] || [ "$1" == "cpio" ]; then
+    if [ "$verbose" = 1 ] || [ "$1" = "gunzip" ] || [ "$1" = "bunzip" ] || [ "$1" = "cpio" ]; then
         ([ -n "$2" ] && $1 $2 "$3") || $1 "$3"
     else
-	if [ "$1" == "unace" ] || [ "$1" == "lzop" ]; then
+	if [ "$1" = "unace" ] || [ "$1" = "lzop" ]; then
 		([ -n "$2" ] && $1 $2 "$3" < /dev/random &> /dev/null) || $1 "$3" < /dev/random &> /dev/null
 	else
 		([ -n "$2" ] && $1 $2 "$3" &> /dev/null) || $1 "$3" &> /dev/null
@@ -119,11 +122,11 @@ function call() {
 
 # What will eventually be the only call command
 function new_call() {
-    if [ "$verbose" == 1 ] || [ "$1" == "gunzip" ] || [ "$1" == "bunzip" ] || 
-	[ "$1" == "cpio" ] || [ "$1" == "uncompress" ]; then
+    if [ "$verbose" = 1 ] || [ "$1" = "gunzip" ] || [ "$1" = "bunzip" ] || 
+	[ "$1" = "cpio" ] || [ "$1" = "uncompress" ]; then
         "$@"
     else
-	if [ "$1" == "unace" ]; then 
+	if [ "$1" = "unace" ]; then 
 		"$@" < /dev/random &> /dev/null
 	else 
 		"$@" &> /dev/null
@@ -141,7 +144,7 @@ function really_extract() {
     SRCFILE="${3##*/}"
     TARGET=`pathjoin "$OUTDIR" "${SRCFILE%.*}"`
 
-    if [ "$TARGET" == "`pathjoin \"$OUTDIR\" \"$SRCFILE\"`" ]; then # The source file is extensionless
+    if [ "$TARGET" = "`pathjoin \"$OUTDIR\" \"$SRCFILE\"`" ]; then # The source file is extensionless
         TARGET="$TARGET.out"
     fi
     
@@ -158,11 +161,11 @@ function really_extract() {
     ((isprog "$CMD" && call "$CMD" "$ARGS" "$3") || ("$CMD" "$ARGS" "$3")) || return 5
     
     # The check for nested tar archives
-    if [[ "$TARGET" == *.tar ]] && [ -f "$TARGET" ]; then
+    if [[ "$TARGET" = *.tar ]] && [ -f "$TARGET" ]; then
         echo "Found nested tar archive. Unballing...";
         (tar xf "$TARGET" || return 5) && (rm "$TARGET" || return 7)
     fi
-    [[ "$TARGET" == *.tar ]] && TARGET="${TARGET%.*}"
+    [[ "$TARGET" = *.tar ]] && TARGET="${TARGET%.*}"
     unset TARTARGET
     
     # Compensate for an idiocy I discovered in unball which can create files with 000 permissions.
@@ -201,9 +204,9 @@ function extract() {
         # Clean up after the failed extraction
         cd "$CURRDIR"
         rm -rf "$TEMPTARGET"
-        [ $RETURNCODE == 6 ] && [ ! -f "$TARGET" ] && rm -rf "$TARGET"
+        [ $RETURNCODE = 6 ] && [ ! -f "$TARGET" ] && rm -rf "$TARGET"
         
-        [ $RETURNCODE == 4 ] && echo "ERROR: Required archiving tool ($1) not found."
+        [ $RETURNCODE = 4 ] && echo "ERROR: Required archiving tool ($1) not found."
         echo "ERROR: Could not extract $3 (Error code: $RETURNCODE)"
         return $RETURNCODE
     else
@@ -224,15 +227,15 @@ function show_help() {
 # Moving this into it's own function is the first step towards recursive support.
 function extractify() {
     FILE="$1"
-    if [ "$samedir" == 1 ]; then
+    if [ "$samedir" = 1 ]; then
 	OUTDIR=`egrep -o ".*/" <<< \`abspath "$FILE"\``
     fi
     if [ -f "$FILE" ]; then
         case `lower "$FILE"` in
             # These silently ignore common formats which an "unball *" would otherwise generate an error message for.
-            *.txt|*.htm|*.html|*.shtm|*.shtml) [ "$verbose" == 1 ] && echo "Skipping text/html document: $FILE";;
-            *.mp3|*.ogg|*.flac|*.wav|*.shn|*.m4a|*.aac|*.ac3|*.mpc|*.wma) [ "$verbose" == 1 ] && echo "Skipping waveform audio file: $FILE";;
-            *.mod|*.stm|*.s3m|*.xm|*.it|*.mo3|*.mid|*.spc|*.gym|*.vgm|*.psf|*.sid|*.nsf|*.hsd) [ "$verbose" == 1 ] && echo "Skipping non-waveform audio file: $FILE";;
+            *.txt|*.htm|*.html|*.shtm|*.shtml) [ "$verbose" = 1 ] && echo "Skipping text/html document: $FILE";;
+            *.mp3|*.ogg|*.flac|*.wav|*.shn|*.m4a|*.aac|*.ac3|*.mpc|*.wma) [ "$verbose" = 1 ] && echo "Skipping waveform audio file: $FILE";;
+            *.mod|*.stm|*.s3m|*.xm|*.it|*.mo3|*.mid|*.spc|*.gym|*.vgm|*.psf|*.sid|*.nsf|*.hsd) [ "$verbose" = 1 ] && echo "Skipping non-waveform audio file: $FILE";;
             
             # The universal nested tar code would handle these, but gunzip and bunzip delete the compressed file on success.
             # ...and a lot of people don't like that so we'll use tar's built-in support for input piping.
@@ -349,7 +352,7 @@ function extractify() {
         esac
     LASTERROR="$?"
     elif [ -e "$FILE" ]; then
-    	[ "$verbose" == 1 ] && echo "$FILE is not a regular file. Skipping."
+    	[ "$verbose" = 1 ] && echo "$FILE is not a regular file. Skipping."
     else
         echo "$FILE not found."
     fi
@@ -367,7 +370,7 @@ exists 7z || (exists 7za && alias 7z="7za")
 
 # Parse the options
 arg="$1"
-while [[ $arg == -* ]]; do
+while [[ $arg = -* ]]; do
     case "$1" in
         -h|--help) show_help && exit 0;;
         -v|--verbose) verbose=1 && shift;;
@@ -380,13 +383,13 @@ while [[ $arg == -* ]]; do
 done
 
 # Add support for sourcing this for it's functions
-if [ "$1" == "--source" ]; then
+if [ "$1" = "--source" ]; then
     export abspath exists isprog lower pathjoin pathsplit sizeInKiB
     return 0
 fi
 
 # If no arguments were provided, then show the help and exit.
-[ $# == 0 ] && show_help && exit 1
+[ $# = 0 ] && show_help && exit 1
 
 # Check for things which could cause problems
 [ ! -w "$OUTDIR" ] && echo "FATAL: unball does not have write permissions for target directory" && exit 2

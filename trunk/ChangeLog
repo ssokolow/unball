@@ -19,6 +19,7 @@ Version 0.2.10
 - Added support for the macunpack utility as an alternative to unstuff for extracting MacBinary.
 - Began working on the internal changes needed for recursive support.
 - Fixed support for extensionless archives with --samedir
+- Made unball and install.sh more compatible with the original Bourne shell, but it's not ready yet.
 - Unit Tests:
  - Added unit tests for the header-based format detection.
  - Pruned out some duplicate tests and added tests for Windows zip, rar, and 7-zip self-extractors.

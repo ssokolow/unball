@@ -1,6 +1,6 @@
 # The basic framework for adjusting the install location.
-[ -z "$DESTDIR" ] && export DESTDIR="/"
-[ -z "$PREFIX" ] && export PREFIX="/usr/local"
+[ -z "$DESTDIR" ] && DESTDIR="/" && export DESTDIR
+[ -z "$PREFIX" ] && PREFIX="/usr/local" && export PREFIX
 NAUTILUS_SCRIPT_SUFFIX="" # Set this to use hierarchical categories for Nautilus scripts.
 UNBALL_TARGET="$PREFIX/bin/unball"
 MOVETOZIP_TARGET="$PREFIX/bin/moveToZip.sh"
@@ -63,7 +63,7 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 	# Install the Konqueror hooks
 	if [ -n "$SERVICEMENU_DIR" ]; then
 		[ -d "$SERVICEMENU_DIR" ] || mkdir -p "$SERVICEMENU_DIR"
-		install --mode 0644 src/*.desktop "$SERVICEMENU_DIR"
+		install --mode 0644 src/servicemenus/*.desktop "$SERVICEMENU_DIR"
 		install src/moveToZip.sh "$DESTDIR/$MOVETOZIP_TARGET"
 	fi
 
