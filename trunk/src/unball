@@ -140,10 +140,16 @@ function really_extract() {
     
     SRCFILE="${3##*/}"
     TARGET=`pathjoin "$OUTDIR" "${SRCFILE%.*}"`
+
+    if [ "$TARGET" == "`pathjoin \"$OUTDIR\" \"$SRCFILE\"`" ]; then # The source file is extensionless
+        TARGET="$TARGET.out"
+    fi
+    
     if [ -e "$TARGET" ]; then
 	echo "Target dir \"$TARGET\" exists. Aborting for this file."
 	return 2
     fi
+
     TEMPTARGET=`mktemp -td unball.XXXXXX` || return 2
     cd "$TEMPTARGET" || return 3
     exists "$1" || return 4

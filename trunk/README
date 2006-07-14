@@ -21,8 +21,12 @@ Console:
   For details, run `unball --help`.
 
 KDE:
-  Right-click any archive and "Extract with unball" will be available from the Actions menu.
+  Right-click any archive and "Extract with unball" will be available in the Actions menu.
   Right-click any folder and "Move to Zip Archive" will be available in the Actions menu.
+
+GNOME:
+  Right-click any archive and "Unball" will be available in the Scripts menu.
+  Right-click any file or folder and "Move to ZIP" will be available in the Scripts menu.
 
 The unit tests can be run by typing `./run_test.py` after installing unball. (preferrably not as root)
 
@@ -34,10 +38,11 @@ When using Konqueror, you can easily batch-convert a collection of assorted arch
 3. Once all the folders are gone, delete the original non-Zip archives.
 (The folders will only vanish after the zip archives have been tested)
 
+I haven't had a chance to check whether this works in Nautilus yet, but it should.
+
 ==== Programmer's TODO list: ====
 	
 Known Bugs:
-- Extensionless files won't extract
 - If the archive name or the name of the extracted program/folder contains spaces, then unball will always
   create a containing folder.
 - unball can create empty directories in some situations
@@ -54,8 +59,9 @@ Notes:
 - MacOS X .pkg packages are actually just directories and .mpkg files are data files which aren't archives.
 
 System Integration:
-- Create and bundle a nautilus script (http://g-scripts.sourceforge.net/)
 - The Konqueror script should give some kind of warning on failure.
+- Add integration for the new Xfce file manager
+- Look into automating integration into ROX Filer.
 
 Formats and Tools:
 - Add support for zip files using bzip2 compression. (p7zip can extract them)

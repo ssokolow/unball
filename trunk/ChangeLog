@@ -18,6 +18,7 @@ Version 0.2.10
 - Added untested support for ADF, ADZ, ALZ, and DMS files.
 - Added support for the macunpack utility as an alternative to unstuff for extracting MacBinary.
 - Began working on the internal changes needed for recursive support.
+- Fixed support for extensionless archives with --samedir
 - Unit Tests:
  - Added unit tests for the header-based format detection.
  - Pruned out some duplicate tests and added tests for Windows zip, rar, and 7-zip self-extractors.
@@ -31,6 +32,7 @@ Version 0.2.10
  - Cleaned up the unit test output on failure (Disconnected unball's stderr from the console)
  - Altered the tests so they close stdin, stdout, and stderr like Konqueror does
  - Fixed the mscompress test so it doesn't give a false failure.
+ - Added a test for extensionless archives
 
 Version 0.2.9
 - Added support for unball being sourced via a `source unball --source` command
