@@ -84,4 +84,6 @@ else
 	echo '  2. As root (to put unball in /usr/bin): PREFIX=/usr ./install.sh'
 	echo '  3. As a non-root user to install to your home directory: PREFIX=~ ./install.sh'
 	echo "The default install location is /usr/local/bin"
+	echo
+	echo "Also, if you prefer to sort your Nautilus scripts into categories, you can set the NAUTILUS_SCRIPT_SUFFIX variable."
 fi
