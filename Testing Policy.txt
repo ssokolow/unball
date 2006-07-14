@@ -9,4 +9,4 @@ Python:
 Shell:
 - bash -n (syntax check (short for "noexec"))
 - run_test.py or run_test.sh (Unit Tests)
-- bash --debugger -v (for debugging only)
+- bash --debugger -xv (for debugging only)
