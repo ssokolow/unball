@@ -76,6 +76,9 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 		ln -s "$MOVETOZIP_TARGET" "$DESTDIR/$NAUTILUS_SKEL_TARGET/Move to ZIP"
 		user_enum install_nautilus
 	fi
+
+	echo "unball installed. You can now type \"./run_test.py\" to run the unit tests. If tests fail, you probably are missing some extraction tools."
+	echo "Note: In this version of unball, there are six tests which always fail: Three for ziptest_bz2.zip, and three for ziptest_ppmd.zip."
 else
 	[ "$1" != "--help" ] && echo "Sorry, it appears that you do not have write permissions for the chosen install location."
 	echo "The install location can be adjusted using the DESTDIR and PREFIX environment variables."
