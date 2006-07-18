@@ -10,3 +10,8 @@ Shell:
 - bash -n (syntax check (short for "noexec"))
 - run_test.py or run_test.sh (Unit Tests)
 - bash --debugger -xv (for debugging only)
+
+ebuilds:
+- bash -n (syntax check (short for "noexec"))
+- repoman (the Gentoo ebuild syntax checker)
+
