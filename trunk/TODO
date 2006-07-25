@@ -47,6 +47,8 @@ Formats and Tools:
 - Add support for identification (and, if possible, extraction) of .hex (BinHex 1) and .hcx (BinHex 2) files
 - Look into the use of http://sourceforge.net/projects/macbinconv
 - Add support for using base64tool
+- Ruby gems are tar files containing a gzipped tarball and a gzipped metadata file
+- Whatever format the "pax" tool reads and writes.
 
 Unit Tests:
 - Ensure that the extraction tool gets to pick the name when the archive only contains one file or folder.
