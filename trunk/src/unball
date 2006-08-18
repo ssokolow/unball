@@ -110,12 +110,25 @@ function decode_ync() { (exists ydecode && call ydecode "" "$1") || (exists yyde
 # A centralized method of implementing the quiet/verbose switch.
 function call() {
     if [ "$verbose" = 1 ] || [ "$1" = "gunzip" ] || [ "$1" = "bunzip" ] || [ "$1" = "cpio" ]; then
-        ([ -n "$2" ] && $1 $2 "$3") || $1 "$3"
+        # Reminder: This cannot be compressed using && and || because $1 may return a nonzero value.
+        if [ -n "$2" ]; then
+		$1 $2 "$3"
+	else
+		$1 "$3"
+	fi
     else
 	if [ "$1" = "unace" ] || [ "$1" = "lzop" ]; then
-		([ -n "$2" ] && $1 $2 "$3" < /dev/random &> /dev/null) || $1 "$3" < /dev/random &> /dev/null
+		if [ -n "$2" ]; then
+			$1 $2 "$3" < /dev/random &> /dev/null
+		else
+			$1 "$3" < /dev/random &> /dev/null
+		fi
 	else
-		([ -n "$2" ] && $1 $2 "$3" &> /dev/null) || $1 "$3" &> /dev/null
+		if [ -n "$2" ]; then
+			$1 $2 "$3" &> /dev/null
+		else
+			$1 "$3" &> /dev/null
+		fi
 	fi
     fi
 }

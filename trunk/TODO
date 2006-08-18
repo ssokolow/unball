@@ -6,6 +6,7 @@ Publicity:
 - Put in on KDE-Apps
 	
 Known Bugs:
+- Unball has a really weird foul-up with the .NCO file in my private testing collection.
 - If the archive name or the name of the extracted program/folder contains spaces, then unball will
   sometimes create a containing folder.
 - unball can create empty directories in some situations
@@ -51,6 +52,7 @@ Formats and Tools:
 - Whatever format the "pax" tool reads and writes.
 
 Unit Tests:
+- Figure out what the problem with my .NCO file is and ensure that there's a regression test.
 - Ensure that the extraction tool gets to pick the name when the archive only contains one file or folder.
 - Create test files for self-extracting ARJ, LHA, and ZOO. (DosBox/DosEmu if native doesn't work)
 - Make unball use stderr for error messages like it's supposed to.
