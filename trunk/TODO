@@ -89,6 +89,8 @@ Unit Tests:
 
 For Version 0.3.0 (next after 0.2.10):
 - Make detection by header default so that Zip files with .rar extensions will extract.
+- Add support for using GNU screen to split apart the unball-generated and subprocess-generated portions of
+  verbose-mode output.
 
 Miscellaneous:
 - Add optional use of the Gentoo Portage sandbox to ensure nothing gets changed outside of the target dir.

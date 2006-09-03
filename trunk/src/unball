@@ -233,7 +233,7 @@ function show_help() {
     echo
     echo "Options:"
     echo " -d/--dir target      Set the target directory for extraction"
-    echo " -D/--samedir target  Use the source directory as the target"
+    echo " -D/--samedir         Use the source directory as the target"
     echo " -v/--verbose         Show status output from the decompressors"
 }
 
