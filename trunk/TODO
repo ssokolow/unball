@@ -6,7 +6,17 @@ Publicity:
 - Put in on KDE-Apps
 	
 Known Bugs:
+- moveToZip.sh is MUCH too fragile with regards to input format and shouldn't end in .sh because it's a
+  hassle for console users.
+- The non-verbose restrictions don't apply to supplementary commands like cp
+  and mv. This is a problem because the newest set of GNU Userland tools
+  provides visual feedback for things that take longer than some limit. (I
+  don't know what exactly)
+- If you run the same extraction command twice, you get a second copy of the archive contents 
+  nested into the first.
 - Unball has a really weird foul-up with the .NCO file in my private testing collection.
+- Unball doesn't clean up if you send SIGINT. (The trap command should be used)
+- Extracting tar archives can create files that only root can delete. (doesn't ignore stored permissions)
 - If the archive name or the name of the extracted program/folder contains spaces, then unball will
   sometimes create a containing folder.
 - unball can create empty directories in some situations
