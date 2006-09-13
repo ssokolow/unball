@@ -39,3 +39,8 @@ When using Konqueror, you can easily batch-convert a collection of assorted arch
 (The folders will only vanish after the zip archives have been tested)
 
 I haven't had a chance to check whether this works in Nautilus yet, but it should.
+
+To convert a WinHTTrack-generated library of saved websites into zips for easy archival on CDs or DVDs:
+1. CD into the folder where your library is kept
+2. Run this command --> for SITE in *.whtt; do moveToZip.sh "${SITE%.whtt}"; rm -f "$SITE"; done
+

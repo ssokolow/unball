@@ -41,6 +41,7 @@ System Integration:
 - Add a normal .desktop entry so unball can be the default double-click action if people prefer.
 
 Formats and Tools:
+- There are a ton of unsupported formats in the midnight commander extensions file.
 - Add support for zip files using bzip2 compression. (p7zip can extract them)
 - Add support for using nomarch as an alternative to arc
 - Unball only supports Java .war files. (renamed zips) Konqueror .war files are renamed .tgz files.
@@ -93,6 +94,7 @@ For Version 0.3.0 (next after 0.2.10):
   verbose-mode output.
 
 Miscellaneous:
+- Maybe unball should be adapted to use Midnight Commander definitions.
 - Add optional use of the Gentoo Portage sandbox to ensure nothing gets changed outside of the target dir.
 - Add support for recursively unpacking nested archives
 - IDEA: Use a while loop and the -k option for the file command to allow properly robust extraction of files with ambiguous headers.

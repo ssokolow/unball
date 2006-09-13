@@ -1,8 +1,13 @@
 #!/bin/sh
+# moveToZip.sh v0.2
+# By: Stephan Sokolow (deitarion/SSokolow)
+# $Revision$
+
+source unball --source # Why keep two copies of the abspath() function?
 
 for FILE in "$@"; do
-	srcdir="${FILE%/}"
-	pushd "${FILE%/*}"
+	srcdir=`realpath "${FILE%/}"`
+	pushd "${srcdir%/*}" > /dev/null
 	zip -rTm "${srcdir##*/}".zip "${srcdir##*/}"
-	popd
+	popd > /dev/null
 done
