@@ -89,6 +89,8 @@ Unit Tests:
 - Test unball's behaviour when handed multiple arguments in the same run.
 - Make it so that nonexistant extractors don't trigger a full-blown failure. Instead, display a list of skipped tests at the end with missing required binaries in brackets.
 - Add an option to test only certain formats. (eg. for quick re-running while trying to fix a regression)
+- Add a "check hard" option which runs the test suite once for each installed shell it finds.
+  (Supporting ash, bash, dash, ksh, mksh, pdksh, posh, sash, shish, and zsh)
 
 For Version 0.3.0 (next after 0.2.10):
 - Make detection by header default so that Zip files with .rar extensions will extract.
