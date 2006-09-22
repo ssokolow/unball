@@ -167,5 +167,9 @@ def testdir(path):
     return unittest.TestSuite(t)
     
 if __name__ == '__main__':
-    tester = unittest.TextTestRunner(verbosity=2)
-    tester.run(testdir('test sources'))
+    try:
+        import testoob
+        testoob.main(testdir('test sources'), verbose=True)
+    except ImportError:
+        tester = unittest.TextTestRunner(verbosity=2)
+        tester.run(testdir('test sources'))

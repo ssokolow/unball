@@ -34,6 +34,7 @@ Version 0.2.10
  - Altered the tests so they close stdin, stdout, and stderr like Konqueror does
  - Fixed the mscompress test so it doesn't give a false failure.
  - Added a test for extensionless archives
+ - Added support for testoob with a fallback to the regular pyunit framework.
 
 Version 0.2.9
 - Added support for unball being sourced via a `source unball --source` command
