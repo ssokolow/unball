@@ -21,6 +21,8 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 
+MY_VERSION="0.2.10" # For easy change of the version number provided by --version
+
 function exists()    { type "$@" &> /dev/null ; }
 function isprog()    { which "$@" &> /dev/null ; }
 function lower()     { tr [:upper:] [:lower:] <<< "$@"; }
@@ -228,13 +230,17 @@ function extract() {
 }
 
 function show_help() {
-    echo "ssokolow's unball"
-    echo "Usage: $0 [options] archive [archive [...]]"
+    echo "Usage: $0 [options] archive ..."
+    echo "Extract one or more archives, given only the filename, while ensuring they won't make a mess."
     echo
     echo "Options:"
-    echo " -d/--dir target      Set the target directory for extraction"
+    echo " -d/--dir TARGET      Set the target directory for extraction"
     echo " -D/--samedir         Use the source directory as the target"
     echo " -v/--verbose         Show status output from the decompressors"
+}
+
+function show_version() {
+    echo "unball (ssokolow's) $MY_VERSION"
 }
 
 # Moving this into it's own function is the first step towards recursive support.
@@ -386,6 +392,7 @@ arg="$1"
 while [[ $arg = -* ]]; do
     case "$1" in
         -h|--help) show_help && exit 0;;
+        --version) show_version && exit 0;;
         -v|--verbose) verbose=1 && shift;;
         -d|--dir) OUTDIR="$2" && shift 2;;
 	-D|--samedir) samedir=1 && shift;;

@@ -41,6 +41,7 @@ System Integration:
 - Add integration for the new Xfce file manager.
 - Look into automating integration into ROX Filer through non-.desktop means.
 - Add a normal .desktop entry so unball can be the default double-click action if people prefer.
+- Improve moveToZip.sh so that help2man can be used with it.
 
 Formats and Tools:
 - There are a ton of unsupported formats in the midnight commander extensions file.

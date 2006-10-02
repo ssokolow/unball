@@ -4,6 +4,8 @@
 NAUTILUS_SCRIPT_SUFFIX="" # Set this to use hierarchical categories for Nautilus scripts.
 UNBALL_TARGET="$PREFIX/bin/unball"
 MOVETOZIP_TARGET="$PREFIX/bin/moveToZip.sh"
+MANPAGES_TARGET="$PREFIX/man/man1"
+
 
 function install_nautilus() {
 	# Usage: install_nautilus <UID> <GID> <HOMEDIR>
@@ -57,8 +59,12 @@ fi
 # Do the install.
 if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 	# Install unball
-	[ -d "$DESTDIR/PREFIX/bin" ] || mkdir -p "$DESTDIR/$PREFIX/bin"
+	[ -d "$DESTDIR/$PREFIX/bin" ] || mkdir -p "$DESTDIR/$PREFIX/bin"
 	install src/unball "$DESTDIR/$UNBALL_TARGET"
+	
+	# Install manpages
+	[ -d "$DESTDIR/$MANPAGES_TARGET" ] || mkdir -p "$DESTDIR/$MANPAGES_TARGET"
+	which help2man > /dev/null && help2man -N unball | gzip > "$DESTDIR/$MANPAGES_TARGET/unball.1.gz"
 
 	# Install the Konqueror hooks
 	if [ -n "$SERVICEMENU_DIR" ]; then

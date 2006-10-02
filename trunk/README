@@ -5,14 +5,16 @@ Version 0.2.10
 Inspired by maitre's unball (http://kdelook.org/content/show.php?content=12561)
 (It would be based on it, but there was none of the old code left by the time I was done the first release)
 
-Version 1.0.0 of this script will be released when I am satisfied that the interface behaviour has stabilized and
-	that the list of supported archive formats and planned features have grown/shrunk enough.
+Version 1.0.0 of this script will be released when I am satisfied that the interface behaviour has stabilized 
+	and that the list of supported archive formats and planned features have grown/shrunk enough.
 The changelog may now be found in the ChangeLog file.
 
 ==== Installation: ====
 
 To install unball system-wide, just run `./install.sh` as root.
 For details on alternate uses of install.sh, run `./install.sh --help`.
+
+If you want a manpage for unball, make sure you have the help2man command installed before running install.sh
 
 ==== Usage: ====
 
