@@ -63,8 +63,12 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 	install src/unball "$DESTDIR/$UNBALL_TARGET"
 	
 	# Install manpages
-	[ -d "$DESTDIR/$MANPAGES_TARGET" ] || mkdir -p "$DESTDIR/$MANPAGES_TARGET"
-	which help2man > /dev/null && help2man -N unball | gzip > "$DESTDIR/$MANPAGES_TARGET/unball.1.gz"
+	if which help2man > /dev/null; then
+		echo "help2man found. Generating manpage."
+		[ -d "$DESTDIR/$MANPAGES_TARGET" ] || mkdir -p "$DESTDIR/$MANPAGES_TARGET"
+		help2man -N unball | gzip > "$DESTDIR/$MANPAGES_TARGET/unball.1.gz"
+	else
+		echo "help2man not found. No manpage will be generated."
 
 	# Install the Konqueror hooks
 	if [ -n "$SERVICEMENU_DIR" ]; then
