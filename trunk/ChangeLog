@@ -1,26 +1,27 @@
 Version 0.2.10
-- Added support for --version and altered unball to play nice with help2man (which install.sh will try to use)
-- Added an easy-install script. (Includes Konqueror and Nautilus integration)
-- Fixed support for ACE archives (again, but I think I finally got it)
-- Fixed a previously unknown problem where lzop would refuse to extract if stdin, stdout, or stderr were 
-  closed. (which is true when unball is called from Konqueror)
-- Confirmed that 0.2.9 emptied the list of known bugs. (though some more have been discovered since then)
-- Improved the automated handling of RAR archives. (eg. ensured it won't freeze on passworded archives)
-- Found and fixed a bug where extracting single-file/folder archives which 
-  preserved the name of the files inside (eg. a single-file zip or rar) would 
-  discard the preserved name of the contents, overwriting it with the name of
-  the archive, sans extension.
-- Added a .desktop file to generate a KDE Service Menu
-- Added a KDE Service Menu for "Move to Zip" which will appear for directories.
-- Made sure unball returns a nonzero exit code on error
+- Added an easy-install script. (Includes Konqueror and Nautilus integration for both scripts)
+- Added a moveToZip script for easily converting folders that were created by unballing RAR and ACE files.
+- Added support for --version and altered unball to play nice with help2man (which install.sh will try)
 - Moved ChangeLog to it's own file and clarified a few things.
-- Got rid of the meaningless "realpath not found errors" from richiefrich's pastebin dump.
-- Fixed header detection for a few formats.
-- Added untested support for ADF, ADZ, ALZ, and DMS files.
-- Added support for the macunpack utility as an alternative to unstuff for extracting MacBinary.
-- Began working on the internal changes needed for recursive support.
-- Fixed support for extensionless archives with --samedir
 - Made unball and install.sh more compatible with the original Bourne shell, but it's not ready yet.
+- Began working on the internal changes needed for recursive support.
+- Format Support:
+ - Added untested support for ADF, ADZ, ALZ, and DMS files.
+ - Added support for the macunpack utility as an alternative to unstuff for extracting MacBinary.
+- Bug Fixes:
+ - Confirmed that 0.2.9 emptied the old list of known bugs.
+ - Got rid of the meaningless "realpath not found errors" from richiefrich's pastebin dump.
+ - Fixed header detection for a few formats.
+ - Fixed support for extensionless archives with --samedir
+ - Made sure unball returns a nonzero exit code on error
+ - Found and fixed a bug where extracting single-file/folder archives which 
+   preserved the name of the files inside (eg. a single-file zip or rar) would 
+   discard the preserved name of the contents, overwriting it with the name of
+   the archive, sans extension.
+ - Fixed a previously unknown problem where lzop would refuse to extract if stdin, stdout, or stderr were 
+   closed. (which is true when unball is called from Konqueror)
+ - Fixed support for ACE archives (again, but I think I finally got it)
+ - Improved the automated handling of RAR archives. (eg. ensured it won't freeze on passworded archives)
 - Unit Tests:
  - Added unit tests for the header-based format detection.
  - Pruned out some duplicate tests and added tests for Windows zip, rar, and 7-zip self-extractors.
@@ -39,7 +40,7 @@ Version 0.2.10
 
 Version 0.2.9
 - Added support for unball being sourced via a `source unball --source` command
- in preparation for my automated RAR/ACE/CBR/EXE-to-Zip converter.
+  in preparation for my automated RAR/ACE/CBR/EXE-to-Zip converter.
 - Added support for base64 encoded files with a .b64 extension.
 - Fixed an "always extracts to the source dir" bug I hadn't noticed.
 - Wrote some Python-based unit tests and cleaned out a bunch of other annoyances.
@@ -82,7 +83,8 @@ Version 0.2.1 changes:
 - Added some entries which will identify unsupported formats without unpacking them.
 - Added recognition and messages for CloneCD and ISO9660 CD images.
 - Corrected a TODO. "lha for UNIX" is now open source and hosted on SourceForge Japan.
-- Added a more helpful failure message to the routine which attempts to extract self-extractors without running them.
+- Added a more helpful failure message to the routine which attempts to extract self-extractors 
+  without running them.
 - unball will now exit with error code 2 if the target directory is not writeable.
 
 Version 0.2.0 changes:
@@ -104,7 +106,8 @@ Unball 0.1.0 enhancements over maitre's script as of version 1.0.0:
 - Works with filenames containing spaces.
 - Support for a great many more formats. (In fact, more formats than most people even know of)
 - Ignores case when matching  archive extensions to programs. (I can't find any reason not to)
-- Creates containing folders as needed regardless of archive format and only when necessary. (Much better than the old method)
+- Creates containing folders as needed regardless of archive format and only when necessary. 
+  (Much better than the old method)
 - Silencing extraction tools is now centralized. (And adds support for --verbose)
 - Code is much cleaner (once you compensate for it's greater complexity)
 - Should work as a drop-in replacement for maitre's unball script.

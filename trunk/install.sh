@@ -3,7 +3,7 @@
 [ -z "$PREFIX" ] && PREFIX="/usr/local" && export PREFIX
 NAUTILUS_SCRIPT_SUFFIX="" # Set this to use hierarchical categories for Nautilus scripts.
 UNBALL_TARGET="$PREFIX/bin/unball"
-MOVETOZIP_TARGET="$PREFIX/bin/moveToZip.sh"
+MOVETOZIP_TARGET="$PREFIX/bin/moveToZip"
 MANPAGES_TARGET="$PREFIX/man/man1"
 
 
@@ -77,7 +77,7 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 		echo "Konqueror present. Installing service menus."
 		[ -d "$SERVICEMENU_DIR" ] || mkdir -p "$SERVICEMENU_DIR"
 		install --mode 0644 src/servicemenus/*.desktop "$SERVICEMENU_DIR"
-		install src/moveToZip.sh "$DESTDIR/$MOVETOZIP_TARGET"
+		install src/moveToZip "$DESTDIR/$MOVETOZIP_TARGET"
 	fi
 
 	# Install the Nautilus hook, but only if it doesn't already exist.

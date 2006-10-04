@@ -6,5 +6,5 @@ Icon=zip
 [Desktop Action moveToZip]
 Name=Move to Zip Archive
 Icon=zip
-Exec=moveToZip.sh %F
+Exec=moveToZip %F
 

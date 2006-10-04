@@ -8,8 +8,6 @@ Publicity:
 Known Bugs:
 - If there's a gzip/bzip2-compressed tarball which is named something.gz or something.bz2, it won't check
   whether the contents are a tar archive and the user will have to run unball a second time.
-- moveToZip.sh is MUCH too fragile with regards to input format and shouldn't end in .sh because it's a
-  hassle for console users.
 - The non-verbose restrictions don't apply to supplementary commands like cp
   and mv. This is a problem because the newest set of GNU Userland tools
   provides visual feedback for things that take longer than some limit. (I
