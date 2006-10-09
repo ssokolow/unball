@@ -23,6 +23,8 @@
 
 MY_VERSION="0.2.10" # For easy change of the version number provided by --version
 
+if grep "GNU tar" <<< `tar --version` > /dev/null ; then TAR_OPTS="--no-same-permissions"; fi
+
 function exists()    { type "$@" &> /dev/null ; }
 function isprog()    { which "$@" &> /dev/null ; }
 function lower()     { tr [:upper:] [:lower:] <<< "$@"; }
