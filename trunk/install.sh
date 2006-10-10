@@ -59,6 +59,7 @@ fi
 # Do the install.
 if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 	# Install unball
+	echo "Installing unball to $DESTDIR/$PREFIX/bin"
 	[ -d "$DESTDIR/$PREFIX/bin" ] || mkdir -p "$DESTDIR/$PREFIX/bin"
 	install src/unball "$DESTDIR/$UNBALL_TARGET"
 	
@@ -69,9 +70,11 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 		help2man -N unball | gzip > "$DESTDIR/$MANPAGES_TARGET/unball.1.gz"
 	else
 		echo "help2man not found. No manpage will be generated."
+	fi
 
 	# Install the Konqueror hooks
 	if [ -n "$SERVICEMENU_DIR" ]; then
+		echo "Konqueror present. Installing service menus."
 		[ -d "$SERVICEMENU_DIR" ] || mkdir -p "$SERVICEMENU_DIR"
 		install --mode 0644 src/servicemenus/*.desktop "$SERVICEMENU_DIR"
 		install src/moveToZip.sh "$DESTDIR/$MOVETOZIP_TARGET"
@@ -80,15 +83,18 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 	# Install the Nautilus hook, but only if it doesn't already exist.
 	# This ensures that users won't have unball re-added if they removed it after a previous install.
 	NAUTILUS_SKEL_TARGET="/etc/skel/.gnome2/nautilus-scripts"
-	if [ ! -L "$NAUTILUS_SKEL_TARGET/Unball" ]; then
+	if [ ! -L "$DESTDIR/$NAUTILUS_SKEL_TARGET/Unball" ]; then
+		echo "Installing Nautilus script links."
 		mkdir -p "$DESTDIR/$NAUTILUS_SKEL_TARGET"
 		ln -s "$UNBALL_TARGET" "$DESTDIR/$NAUTILUS_SKEL_TARGET/Unball"
 		ln -s "$MOVETOZIP_TARGET" "$DESTDIR/$NAUTILUS_SKEL_TARGET/Move to ZIP"
 		user_enum install_nautilus
 	fi
 
+	echo 
 	echo "unball installed. You can now type \"./run_test.py\" to run the unit tests. If tests fail, you probably are missing some extraction tools."
-	echo "Note: In this version of unball, there are six tests which always fail: Three for ziptest_bz2.zip, and three for ziptest_ppmd.zip."
+        echo
+	echo "Note: In this version of unball, there are six tests which always fail: Three for ziptest_bz2.zip and three for ziptest_ppmd.zip."
 else
 	[ "$1" != "--help" ] && echo "Sorry, it appears that you do not have write permissions for the chosen install location."
 	echo "The install location can be adjusted using the DESTDIR and PREFIX environment variables."
