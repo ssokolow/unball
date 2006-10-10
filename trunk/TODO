@@ -1,9 +1,10 @@
 ==== Programmer's TODO list: ====
 
 Publicity:
-- Write an ebuild and put it on bugs.gentoo.org
+- Debug the ebuild and put it on bugs.gentoo.org
 - Tell the g-scripts.sourceforge.net people about it
 - Put in on KDE-Apps
+- Get it mentioned on the Thunar website once integration is set up.
 	
 Known Bugs:
 - If there's a gzip/bzip2-compressed tarball which is named something.gz or something.bz2, it won't check
@@ -110,3 +111,4 @@ Miscellaneous:
 - Add signal handlers using `trap`
 - Audit the environment and the extractor manpages for variables I should be setting/unsetting
 - Check to see if there are any variables I should be marking read-only.
+- Make the installer copy the documentation into /usr/share/...

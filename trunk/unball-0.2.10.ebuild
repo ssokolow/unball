@@ -12,7 +12,6 @@ IUSE="usedeps"
 # Note: app-arch/sharutils, app-arch/macutil, and media-video/mkvtoolnix could replace uudeview if there were
 #	also an xxdecode command in the Portage tree.
 # TODO: Add support for app-arch/unmakeself
-# Tools not in the portage tree: paq6, sfarkxtc, and unace (2.x)
 
 RDEPEND="app-shells/bash
 	usedeps? (
@@ -30,7 +29,7 @@ RDEPEND="app-shells/bash
 		app-arch/rzip
 		app-arch/stuffit
 		app-arch/tar
-		app-arch/unace
+		|| ( app-arch/unace app-atch/unace-bin )
 		app-arch/unadf
 		|| ( app-arch/undms app-arch/xdms )
 		app-arch/unlzx
@@ -46,5 +45,13 @@ RDEPEND="app-shells/bash
 DEPEND="${RDEPEND}
         sys-apps/help2man"
 
-src_install() { DESTDIR="${D}" ./install.sh; }
+src_install() { 
+	DESTDIR="${D}" ./install.sh;
+
+	(use usedeps && has_version >=app-arch/unace-bin-2.0) || ewarn "WARNING: Your system lacks a version of unace capable of extracting ACE 2.x archives. Please see bug #102347."
+	(use usedeps && (has_version >=app-arch/unrar-3.0 || has_version >=app-arch/rar-3.0)) || ewarn "WARNING: Your system lacks a RAR extractor capable of extracting RAR 3.x archives. You may want to emerge app-arch/unrar."
+	which sfarkxtc > /dev/null || ewarn "Your system lacks sfarkxtc but unball requires it for unpacking SFArk-compressed SoundFonts."
+	which sfarkxtc > /dev/null || ewarn "Your system lacks paq6 but unball requires it for unpacking PAQ6 archives."
+}
+
 src_test()    { ./run_test.py; }

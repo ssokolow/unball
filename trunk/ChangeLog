@@ -1,5 +1,5 @@
 Version 0.2.10
-- Added an easy-install script. (Includes Konqueror and Nautilus integration for both scripts)
+- Added an easy-install script and ebuild. (will handle Konqueror/Nautilus integration)
 - Added a moveToZip script for easily converting folders that were created by unballing RAR and ACE files.
 - Added support for --version and altered unball to play nice with help2man (which install.sh will try)
 - Moved ChangeLog to it's own file and clarified a few things.
