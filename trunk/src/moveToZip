@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # moveToZip.sh v0.2
 # By: Stephan Sokolow (deitarion/SSokolow)
 # $Revision$
