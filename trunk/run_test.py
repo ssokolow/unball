@@ -163,7 +163,7 @@ def testdir(path):
     print "NOTE: stdin, stdout, and stderr are closed for these tests. If extraction of ACE files freezes, it's a regression."
 
     i, j, l = os.path.isdir, os.path.join, os.listdir
-    t = [unittest.makeSuite(makeTests(j(path, arch))) for arch in sorted(l(path)) if not (i(arch))]
+    t = [unittest.makeSuite(makeTests(j(path, arch))) for arch in l(path) if not (i(arch))]
     return unittest.TestSuite(t)
     
 if __name__ == '__main__':
