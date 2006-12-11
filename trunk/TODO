@@ -4,7 +4,7 @@ Publicity:
 - Debug the ebuild and put it on bugs.gentoo.org
 - Tell the g-scripts.sourceforge.net people about it
 - Put in on KDE-Apps
-- Get it mentioned on the Thunar website once integration is set up.
+- Get it mentioned on the Thunar website once integration is confirmed as bug-free.
 	
 Known Bugs:
 - If there's a gzip/bzip2-compressed tarball which is named something.gz or something.bz2, it won't check
@@ -37,7 +37,6 @@ Notes:
 
 System Integration:
 - The Konqueror script should give some kind of warning on failure.
-- Add integration for the new Xfce file manager.
 - Look into automating integration into ROX Filer through non-.desktop means.
 - Add a normal .desktop entry so unball can be the default double-click action if people prefer.
 - Improve moveToZip.sh so that help2man can be used with it.
@@ -65,6 +64,11 @@ Formats and Tools:
 - Whatever format the "pax" tool reads and writes.
 
 Unit Tests:
+- Write tests for the Thunar .tap integration script since it's just a shell script.
+  - Basic functionality (with spaced filenames)
+    - Create
+    - Extract
+    - Extract to
 - Figure out what the problem with my .NCO file is and ensure that there's a regression test.
 - Ensure that the extraction tool gets to pick the name when the archive only contains one file or folder.
 - Create test files for self-extracting ARJ, LHA, and ZOO. (DosBox/DosEmu if native doesn't work)

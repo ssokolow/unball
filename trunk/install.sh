@@ -5,11 +5,11 @@ NAUTILUS_SCRIPT_SUFFIX="" # Set this to use hierarchical categories for Nautilus
 UNBALL_TARGET="$PREFIX/bin/unball"
 MOVETOZIP_TARGET="$PREFIX/bin/moveToZip"
 MANPAGES_TARGET="$PREFIX/man/man1"
-
+THUNAR_HOOK_DIR="$PREFIX/libexec/thunar-archive-plugin"
 
 function install_nautilus() {
 	# Usage: install_nautilus <UID> <GID> <HOMEDIR>
-	# Purpose: Install unball and MoveToZip into the Nautilus scripts menu.
+	# Purpose: Install unball and MoveToZip into the Nautilus (GNOME) scripts menu.
 
 	# Find the script dir if it exists. Return if it doesn't.
 	if [ -d "$3/.gnome2/nautilus-scripts" ]; then NSCRIPT_PATH="$3/.gnome2/nautilus-scripts"
@@ -45,7 +45,7 @@ function user_enum() {
 # That way, we can just leave the checking to the last minute.
 [ ! -d "$DESTDIR/$PREFIX" ] && mkdir -p "$DESTDIR/$PREFIX" &> /dev/null
 
-# Support for installing the Konqueror service menu
+# Support for installing the Konqueror (KDE) service menu
 if which konqueror &> /dev/null; then
 	if [ -w "$DESTDIR" ]; then
 		[ -z "$KDEDIR" ] && KDEDIR="$DESTDIR/`cut -d: -f1 <<< \"$KDEDIRS\"`"
@@ -54,7 +54,7 @@ if which konqueror &> /dev/null; then
 		KDEDIR=~/.kde
 	fi
 	SERVICEMENU_DIR="${KDEDIR}/share/apps/konqueror/servicemenus"
-fi
+fi	
 
 # Do the install.
 if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
@@ -72,7 +72,7 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 		echo "help2man not found. No manpage will be generated."
 	fi
 
-	# Install the Konqueror hooks
+	# Install the Konqueror (KDE) hooks
 	if [ -n "$SERVICEMENU_DIR" ]; then
 		echo "Konqueror present. Installing service menus."
 		[ -d "$SERVICEMENU_DIR" ] || mkdir -p "$SERVICEMENU_DIR"
@@ -80,7 +80,7 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 		install src/moveToZip "$DESTDIR/$MOVETOZIP_TARGET"
 	fi
 
-	# Install the Nautilus hook, but only if it doesn't already exist.
+	# Install the Nautilus (GNOME) hook, but only if it doesn't already exist.
 	# This ensures that users won't have unball re-added if they removed it after a previous install.
 	NAUTILUS_SKEL_TARGET="/etc/skel/.gnome2/nautilus-scripts"
 	if [ ! -L "$DESTDIR/$NAUTILUS_SKEL_TARGET/Unball" ]; then
@@ -89,6 +89,12 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 		ln -s "$UNBALL_TARGET" "$DESTDIR/$NAUTILUS_SKEL_TARGET/Unball"
 		ln -s "$MOVETOZIP_TARGET" "$DESTDIR/$NAUTILUS_SKEL_TARGET/Move to ZIP"
 		user_enum install_nautilus
+	fi
+
+	# Install the Thunar (Xfce) hook if the Thunar archive plugin is installed.
+	if [ -d "$THUNAR_HOOK_DIR" ]; then
+		echo "Installing Thunar (Xfce) archive hooks"
+		install src/unball.tap "$DESTDIR/$THUNAR_HOOK_DIR/unball.tap"
 	fi
 
 	echo 

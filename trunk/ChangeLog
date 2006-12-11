@@ -5,6 +5,7 @@ Version 0.2.10
 - Moved ChangeLog to it's own file and clarified a few things.
 - Made unball and install.sh more compatible with the original Bourne shell, but it's not ready yet.
 - Began working on the internal changes needed for recursive support.
+- Integration with Xfce's Thunar file manager's archiver integration plugin.
 - Format Support:
  - Added untested support for ADF, ADZ, ALZ, and DMS files.
  - Added support for the macunpack utility as an alternative to unstuff for extracting MacBinary.

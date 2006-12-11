@@ -1,13 +1,11 @@
 #!/bin/sh
 #
-# template.tap - Template for a wrapper script to create and extract
-#                archive files in Thunar, via the thunar-archive-plugin.
-#                Use this file as a base to create .tap files for other
-#                archive managers.
+# unball.tap - thunar-archive-plugin integration for unball.
+#              (Warning: Uses moveToZip for the 'create' action)
 #
-# $Id: template.tap 1471 2006-07-04 14:16:54Z benny $
-#
-# Copyright (c) 2006 Benedikt Meurer <benny@xfce.org>.
+# Copyright (c) 2006 Stephan Sokolow <http://www.ssokolow.com/ContactMe>
+# Based on template.tap:
+#  Copyright (c) 2006 Benedikt Meurer <benny@xfce.org>.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -37,6 +35,7 @@ create)
 	# a new archive with the files in "$@". The $folder
 	# should be used as a suggestion for the user where
 	# to put the new archive to.
+	moveToZip "$@"
 	;;
 
 extract-here)
@@ -44,6 +43,7 @@ extract-here)
 	# the archive files in "$@" to the $folder. The archive
 	# manager should start extraction immediately and do not
 	# popup up any confirmation or file chooser dialogs.
+	unball --samedir "$@"
 	;;
 
 extract-to)
@@ -51,6 +51,7 @@ extract-to)
 	# the archive files in "$@". The archive manager should
 	# prompt the user with a folder chooser dialog, where
 	# $folder can be used as a suggestion.
+	TARGET=`zenity --file-selection --directory` && unball --dir "$TARGET" "$@" || exit 1
 	;;
 
 *)
