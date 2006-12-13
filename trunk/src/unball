@@ -25,6 +25,10 @@ MY_VERSION="0.2.10" # For easy change of the version number provided by --versio
 
 if grep "GNU tar" <<< `tar --version` > /dev/null ; then TAR_OPTS="--no-same-permissions"; fi
 
+FILE_OPTS="-binN"
+file -binNr /bin/sh &> /dev/null && FILE_OPTS="-binNr"
+file -binNpr /bin/sh &> /dev/null && FILE_OPTS="-binNpr"
+
 function exists()    { type "$@" &> /dev/null ; }
 function isprog()    { which "$@" &> /dev/null ; }
 function lower()     { tr [:upper:] [:lower:] <<< "$@"; }
@@ -60,7 +64,7 @@ function extract_gbzip() {
     cp "$2" "$TARGETFILE" || (echo "ERROR: Cannot create temporary copy of $2" && return 1)
     if [ ".${TARGETFILE##*.}" != ".gz" ] && [ "$1" = "gunzip" ]; then
         call $1 "-S .${TARGETFILE##*.}" "$TARGETFILE" || (echo "ERROR: Decompressor $1 failed." && return 1)
-    elif [ `file -binNpr $TARGETFILE` = "application/x-compress" ] && [ ".${TARGETFILE##*.}" != ".Z" ] && 
+    elif [ `file $FILE_OPTS $TARGETFILE` = "application/x-compress" ] && [ ".${TARGETFILE##*.}" != ".Z" ] && 
 		[ ".${TARGETFILE##*.}" != ".z" ]; then
 	"$1" -c "$TARGETFILE" > "$TARGETFILE.out"
 	rm "$TARGETFILE"
@@ -337,7 +341,7 @@ function extractify() {
 	    *.zz) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a ZZip archive. The code for ZZip is GPLed, but there appears to only be the Windows tool available..";;
 	    *.*_) extract extract_gbzip msexpand "$FILE" "Microsoft compress.exe-packed file";;
             *) echo "Unrecognized extension for $FILE. Attempting to determine type using file header..."
-                case `file -binNpr "$FILE"` in
+                case `file $FILE_OPTS "$FILE"` in
                     "application/java-archive") (exists jar && extract jar xf "$FILE" "jar archive") || extract unzip "" "$FILE" "jar archive";;
                     "application/mac-binhex40") extract decode_binhex "" "$FILE" "BinHex-encoded file";;
 		    "application/x-7z-compressed") extract 7z x "$FILE" "7zip archive";;
