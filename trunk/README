@@ -23,6 +23,10 @@ For the unit tests:
 - Python 2.3 or higher
 - (optional) testoob (provides more readable output)
 
+For the Xfce integration:
+- A version of Xfce which uses Thunar as it's file manager
+- Zenity (for the "Extract to..." option)
+
 Please let me know if I've missed anything.
 
 ==== Installation: ====
@@ -45,6 +49,9 @@ KDE:
 GNOME:
   Right-click any archive and "Unball" will be available in the Scripts menu.
   Right-click any file or folder and "Move to ZIP" will be available in the Scripts menu.
+
+Xfce:
+  thunar-archive-plugin will offer unball (and moveToZip) as the backend for it's archive functions.
 
 The unit tests can be run by typing `./run_test.py` after installing unball. (preferrably not as root)
 
