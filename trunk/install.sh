@@ -59,7 +59,7 @@ fi
 # Do the install.
 if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 	# Install unball
-	echo "Installing unball to $DESTDIR/$PREFIX/bin"
+	echo `sed 's@//*@/@g' <<< "Installing unball to $DESTDIR/$PREFIX/bin"`
 	[ -d "$DESTDIR/$PREFIX/bin" ] || mkdir -p "$DESTDIR/$PREFIX/bin"
 	install src/unball "$DESTDIR/$UNBALL_TARGET"
 	

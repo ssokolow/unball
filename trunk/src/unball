@@ -30,7 +30,7 @@ function isprog()    { which "$@" &> /dev/null ; }
 function lower()     { tr [:upper:] [:lower:] <<< "$@"; }
 function pathjoin()  { ([[ "$2" != /* ]] && echo "$1"/"$2") || echo "$2"; }
 function pathsplit() { grep -Eo "[^/]*$" <<< "$@"; }
-function sizeInKiB()   { `du -k "$FILE" | grep -oE "^[0-9]*"`; }
+function sizeInKiB()   { `du -k "$FILE" | grep -oE "^[0-9]*"`; } #Note: Old OSX versions don't have grep -o.
 function abspath()   { (exists realpath && realpath -s "$@") || (exists readlink && readlink -f "$@") || pathjoin "`pwd`" "$@"; }
 
 function extract_cab() {
@@ -249,7 +249,8 @@ function show_version() {
 function extractify() {
     FILE="$1"
     if [ "$samedir" = 1 ]; then
-	OUTDIR=`egrep -o ".*/" <<< \`abspath "$FILE"\``
+	OUTDIR=$(abspath "$FILE")
+	OUTDIR="${OUTDIR%/*}"
     fi
     if [ -f "$FILE" ]; then
         case `lower "$FILE"` in

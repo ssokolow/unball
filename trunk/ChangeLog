@@ -23,6 +23,7 @@ Version 0.2.10
  - Fixed support for ACE archives (again, but I think I finally got it)
  - Improved the automated handling of RAR archives. (eg. ensured it won't freeze on passworded archives)
  - Removed a superfluous sorted() call that prevented the unit tests from working under Python 2.3.
+ - Removed the need for `egrep -o` for --samedir (should fix it for MacOS X 10.3)
 - Unit Tests:
  - Added a pre-test to ensure that unball is visible from the PATH.
  - Added unit tests for the header-based format detection.
