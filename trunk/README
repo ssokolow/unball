@@ -9,6 +9,14 @@ Version 1.0.0 of this script will be released when I am satisfied that the inter
 	and that the list of supported archive formats and planned features have grown/shrunk enough.
 The changelog may now be found in the ChangeLog file.
 
+==== Requirements: ====
+
+- A POSIX-compliant system (Linux, *BSD, MacOS X, etc.)
+- bash (Bourne Again Shell) 2.05 or newer.
+- The extraction tools for the formats you use, accessible via the PATH.
+
+Please let me know if I've missed anything.
+
 ==== Installation: ====
 
 To install unball system-wide, just run `./install.sh` as root.
