@@ -48,12 +48,13 @@ function user_enum() {
 # Support for installing the Konqueror (KDE) service menu
 if which konqueror &> /dev/null; then
 	if [ -w "$DESTDIR" ]; then
-		[ -z "$KDEDIR" ] && KDEDIR="$DESTDIR/`cut -d: -f1 <<< \"$KDEDIRS\"`"
-		[ -z "$KDEDIR" ] && KDEDIR="$DESTDIR/$PREFIX"
+		[ -z "$KDEDIR" ] && KDEDIR=`cut -d: -f1 <<< "$KDEDIRS"`
+		[ -z "$KDEDIR" ] && KDEDIR="$PREFIX"
 	else
 		KDEDIR=~/.kde
 	fi
-	SERVICEMENU_DIR="${KDEDIR}/share/apps/konqueror/servicemenus"
+	SERVICEMENU_DIR="${DESTDIR}/${KDEDIR}/share/apps/konqueror/servicemenus"
+	unset KDEDIR # Make sure nobody uses it afterwards since it's not prefixed with DESTDIR.
 fi	
 
 # Do the install.

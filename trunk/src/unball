@@ -434,9 +434,9 @@ for FILE in "$@"; do
     TMP="$?" && [ "$TMP" != 0 ] && LASTERROR="$TMP"
 done
 
-if isprog rar && [ \! "$I_AM_INCONSIDERATE" ]; then
-    echo "Please consider removing the \"rar\" command from your system. It's proprietary nature makes it difficult for people with esoteric hardware to extract rar archives and the unrar command can be installed separately from the rar command."
-fi
+#if isprog rar && [ \! "$I_AM_INCONSIDERATE" ]; then
+#    echo "Please consider removing the \"rar\" command from your system. It's proprietary nature makes it difficult for people with esoteric hardware to extract rar archives and the unrar command can be installed separately from the rar command."
+#fi
 
 (([ -n "$DELAYEDMESSAGES" ] && echo -e "$DELAYEDMESSAGES") &&
 ([ -n "$SKIPPED" ] && echo "Some of the given files were skipped because they were not archives or were in an unsupported format.")) ||
