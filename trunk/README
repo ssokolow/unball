@@ -54,6 +54,7 @@ Xfce:
   thunar-archive-plugin will offer unball (and moveToZip) as the backend for it's archive functions.
 
 The unit tests can be run by typing `./run_test.py` after installing unball. (preferrably not as root)
+For details on the options run_test.py accepts, use the --help option.
 
 ==== Tips: ====
 

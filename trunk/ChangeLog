@@ -1,4 +1,5 @@
 Version 0.2.10
+- Added an option parser to the unit test system for more flexibility.
 - Added an easy-install script and ebuild. (will handle Konqueror/Nautilus integration)
 - Added a moveToZip script for easily converting folders that were created by unballing RAR and ACE files.
 - Added support for --version and altered unball to play nice with help2man (which install.sh will try)
@@ -9,6 +10,7 @@ Version 0.2.10
 - Format Support:
  - Added untested support for ADF, ADZ, ALZ, and DMS files.
  - Added support for the macunpack utility as an alternative to unstuff for extracting MacBinary.
+ - Added support for unpacking bzip2-compressed zip files using p7zip.
 - Bug Fixes:
  - Confirmed that 0.2.9 emptied the old list of known bugs.
  - Got rid of the meaningless "realpath not found errors" from richiefrich's pastebin dump.

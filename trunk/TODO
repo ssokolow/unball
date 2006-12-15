@@ -43,7 +43,6 @@ System Integration:
 
 Formats and Tools:
 - There are a ton of unsupported formats in the midnight commander extensions file.
-- Add support for zip files using bzip2 compression. (p7zip can extract them)
 - Add support for using nomarch as an alternative to arc
 - Unball only supports Java .war files. (renamed zips) Konqueror .war files are renamed .tgz files.
 - Figure out what PC-BSD Installers (.pbi) MacOS X .dist files, .slp, and Ruby gems (.gem)  are, internally.
@@ -66,7 +65,6 @@ Formats and Tools:
 - Add support for ish (seems to be a Japanese uuencode-like format) via aish. (also works with .uu and .b64)
 
 Unit Tests:
-- The test framework should have an option to use the un-installed script rather than failing.
 - Write tests for the Thunar .tap integration script since it's just a shell script.
   - Basic functionality (with spaced filenames)
     - Create
@@ -76,7 +74,6 @@ Unit Tests:
 - Ensure that the extraction tool gets to pick the name when the archive only contains one file or folder.
 - Create test files for self-extracting ARJ, LHA, and ZOO. (DosBox/DosEmu if native doesn't work)
 - Make unball use stderr for error messages like it's supposed to.
-- Perhaps add --silent to unball and remove the /dev/null redirect in the unit tests?
 - Add unit tests for split archives (especially split ACE, split RAR using numbered extension (.r## and .###),
 	split RAR using numbered suffixes (.part#.rar), split ARJ, and split tar)
 - Add a check and a unit test for split ACE files where the first file (*.ACE) is uppercase and the 

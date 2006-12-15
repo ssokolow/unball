@@ -29,6 +29,12 @@ FILE_OPTS="-binN"
 file -binNr /bin/sh &> /dev/null && FILE_OPTS="-binNr"
 file -binNpr /bin/sh &> /dev/null && FILE_OPTS="-binNpr"
 
+# Prefer p7zip when installed. (support for bzip2-compressed zip files)
+if which 7z &> /dev/null; then UNZIPPER="7z x"
+elif which 7za &> /dev/null; then UNZIPPER="7za x"
+else UNZIPPER="unzip -q"
+fi
+
 function exists()    { type "$@" &> /dev/null ; }
 function isprog()    { which "$@" &> /dev/null ; }
 function lower()     { tr [:upper:] [:lower:] <<< "$@"; }
@@ -335,7 +341,7 @@ function extractify() {
 	    *.xpi) extract unzip "" "$FILE" "XPI install package";;
             *.xx | *.xxe) extract decode_xx "" "$FILE" "XXEncoded file";;
             *.ync) extract decode_ync "" "$FILE" "yEncoded file";;
-            *.zip) extract unzip "" "$FILE" "Zip archive";;
+            *.zip) extract $UNZIPPER "$FILE" "Zip archive";;
             *.zoo) extract zoo -extract "$FILE" "zoo archive";;
             *.z) extract extract_gbzip uncompress "$FILE" "UNIX compressed file";; #UNTESTED
 	    *.zz) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a ZZip archive. The code for ZZip is GPLed, but there appears to only be the Windows tool available..";;
@@ -369,7 +375,7 @@ function extractify() {
                     "application/x-stuffit") extract extract_sit "" "$FILE" "Stuffit archive";;
                     "application/x-sv4cpio") extract cpio "--force-local --quiet -idI" "$FILE" "SV4 cpio archive";;
                     "application/x-tar"*|"application/x-gtar") extract tar xf "$FILE" "tar archive";;
-                    "application/x-zip"|"application/zip") extract unzip "" "$FILE" "zip archive";;
+                    "application/x-zip"|"application/zip") extract $UNZIPPER "$FILE" "zip archive";;
                     "application/x-zoo") extract zoo -extract "$FILE" "zoo archive";;
                     "application/octet-stream") echo "The file is a generic binary file. It may be an archive but unball cannot be sure.";;
                     "application/x-uuencode"|"x-uuencode") extract decode_uu "" "$FILE" "UUEncoded file";;

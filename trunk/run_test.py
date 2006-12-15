@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 __author__ = "Stephan Sokolow (deitarion)"
 __revision__ = "$Revision$"
 
-import os, shutil, tempfile, unittest
+import os, shutil, sys, tempfile, unittest
 from optparse import OptionParser
 
 # Files which may be added to the test sources dir without being test sources.
@@ -42,7 +42,7 @@ retcodes = {
 
 count_omit = ['jartest.j', 'jartest.jar', 'eartest.ear', 'wartest.war', 'mscompress.tx_']
 
-def makeTests(path):
+def makeTests(path, unballCmd="unball", verbosity=0):
     """
     Dynamically generate a set of unball unit tests for a given file.
     Used to allow per-format testing of unball in a simple manner.
@@ -50,6 +50,7 @@ def makeTests(path):
     filename = os.path.split(path)[1]
     class UnballTestSet(unittest.TestCase):
         """Test unball with a specific archive"""
+	unballCmd = unballCmd
         def setUp(self):
             """Prepare a temporary test tree in the filesystem."""
             self.workdir = tempfile.mkdtemp('-unballtest')
@@ -75,8 +76,10 @@ def makeTests(path):
             """Testing unball %s with implicit destination"""
             os.chdir(self.destdir)
             
-            #callstring = 'unball "%s" &> /dev/null' % self.srcfile
-            callstring = 'unball "%s" <&- >&- 2>&-' % self.srcfile
+            if verbosity == 2: self.unballCmd += " --verbose "
+            callstring = self.unballCmd + ' "%s" ' % self.srcfile
+            if not verbosity: callstring += '<&- >&- 2>&-'
+
             retcode = os.system(callstring)
             if (len(retcodes) > retcode): 
                 retstring = retcodes[retcode]
@@ -108,8 +111,10 @@ def makeTests(path):
             
             os.chdir(self.pwd_dir)
             
-            #callstring = 'unball -d "%s" "%s" &> /dev/null' % (self.destdir, self.srcfile)
-            callstring = 'unball -d "%s" "%s" <&- >&- 2>&-' % (self.destdir, self.srcfile)
+            if verbosity == 2: self.unballCmd += " --verbose "
+            callstring = self.unballCmd + ' -d "%s" "%s" ' % (self.destdir, self.srcfile)
+            if not verbosity: callstring += '<&- >&- 2>&-'
+
             retcode = os.system(callstring)
             if (len(retcodes) > retcode): 
                 retstring = retcodes[retcode]
@@ -141,9 +146,11 @@ def makeTests(path):
         def testSameDestination(self):
             """Testing unball %s with samedir  destination"""
             os.chdir(self.pwd_dir)
+
+            if verbosity == 2: self.unballCmd += " --verbose "
+            callstring = self.unballCmd + ' -D "%s" ' % self.srcfile
+            if not verbosity: callstring += '<&- >&- 2>&-'
             
-            #callstring = 'unball -D "%s" &> /dev/null' % self.srcfile
-            callstring = 'unball -D "%s" <&- >&- 2>&-' % self.srcfile
             retcode = os.system(callstring)
             if (len(retcodes) > retcode): 
                 retstring = retcodes[retcode]
@@ -165,34 +172,45 @@ def makeTests(path):
     
     return UnballTestSet
 
-def testdir(path):
+def testdir(path, unballCmd="unball", verbosity=0):
     """Generate and run a set of tests for the given directory full of archives."""
     path = os.path.abspath(path)
     print 'Testing directory "%s" ...' % os.path.split(path)[1]
-    print "NOTE: stdin, stdout, and stderr are closed for these tests. If extraction of ACE files freezes, it's a regression."
+
+    if not verbosity:
+        print "NOTE: stdin, stdout, and stderr are closed for these tests. If extraction of ACE files freezes, it's a regression."
+    else:
+        print "WARNING: Verbose output defeats a regression test for unace. Please also run this in non-verbose mode."
 
     i, j, l = os.path.isdir, os.path.join, os.listdir
     f = [j(path, arch) for arch in l(path) if not (i(arch)) and not arch in excluded]
     f.sort()
-    t = [unittest.makeSuite(makeTests(path)) for path in f]
+    t = [unittest.makeSuite(makeTests(path, unballCmd, verbosity)) for path in f]
     return unittest.TestSuite(t)
     
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("--no_install", action="store_true", dest="no_install",
                   help="Test the copy of unball from the install package rather than the installed copy.")
+    parser.add_option("-v", "--verbose", action="count", dest="verbosity",
+		  help="Pass through unball's output. Twice to trigger verbosity in unball. Note that this sacrifices one of the unace regression tests.")
 
     (options, args) = parser.parse_args()
 
     if options.no_install:
-	pass #FIXME: There should be an option to use the un-installed unball for tests.
+        unballCmd = "bash %s" % os.path.join(os.getcwd(),"src/unball")
     elif os.system('which unball'):
         print "ERROR: Cannot find unball in your PATH."
 	print "Did you install to the default location and forget to add /usr/local/bin to the PATH?"
+        print "Did you intend to pass --no_install as an option to test the non-installed copy?"
+	sys.exit(1)
     else:
-        try:
-            import testoob
-            testoob.main(testdir('test sources'), verbose=True)
-        except ImportError:
-            tester = unittest.TextTestRunner(verbosity=2)
-            tester.run(testdir('test sources'))
+        unballCmd = "unball"
+
+    try:
+	sys.argv = [sys.argv[0]]
+        import testoob
+        testoob.main(testdir('test sources', unballCmd, options.verbosity), verbose=True)
+    except ImportError:
+    	tester = unittest.TextTestRunner(verbosity=2)
+    	tester.run(testdir('test sources', unballCmd, options.verbosity))
