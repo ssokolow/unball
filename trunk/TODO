@@ -1,9 +1,9 @@
 ==== Programmer's TODO list: ====
 
 Publicity:
-- Debug the ebuild and put it on bugs.gentoo.org
-- Tell the g-scripts.sourceforge.net people about it
-- Put in on KDE-Apps
+- Finish and debug the ebuild and put it on bugs.gentoo.org
+- Tell the g-scripts.sourceforge.net people about this.
+- Put my unball on KDE-Apps
 - Get it mentioned on the Thunar website once integration is confirmed as bug-free.
 	
 Known Bugs:
@@ -36,10 +36,10 @@ Notes:
 - MacOS X .pkg packages are actually just directories and .mpkg files are data files which aren't archives.
 
 System Integration:
-- The Konqueror script should give some kind of warning on failure.
+- GUI-integrated scripts should give some kind of warning on failure.
 - Look into automating integration into ROX Filer through non-.desktop means.
 - Add a normal .desktop entry so unball can be the default double-click action if people prefer.
-- Improve moveToZip.sh so that help2man can be used with it.
+- Improve moveToZip so that help2man can be used with it.
 
 Formats and Tools:
 - There are a ton of unsupported formats in the midnight commander extensions file.
@@ -62,8 +62,11 @@ Formats and Tools:
 - Add support for using base64tool
 - Ruby gems are tar files containing a gzipped tarball and a gzipped metadata file
 - Whatever format the "pax" tool reads and writes.
+- Add support for "unzoo" as an alternative to "zoo".
+- Add support for ish (seems to be a Japanese uuencode-like format) via aish. (also works with .uu and .b64)
 
 Unit Tests:
+- The test framework should have an option to use the un-installed script rather than failing.
 - Write tests for the Thunar .tap integration script since it's just a shell script.
   - Basic functionality (with spaced filenames)
     - Create

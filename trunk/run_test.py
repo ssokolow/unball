@@ -180,6 +180,7 @@ if __name__ == '__main__':
     if os.system('which unball'):
         print "ERROR: Cannot find unball in your PATH."
 	print "Did you install to the default location and forget to add /usr/local/bin to the PATH?"
+	#FIXME: There should be an option to use the un-installed unball for tests.
     else:
         try:
             import testoob
