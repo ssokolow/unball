@@ -5,6 +5,15 @@
 
 source unball --source # Why keep two copies of the abspath() function?
 
+function show_help() {
+    echo "Usage: $0 directory ..."
+    echo "Safely move one or more directories into ZIP archives with the same parent directory."
+    exit 0;
+}
+
+# Check whether we should display help
+([ "$1" = '-h' ] || [ "$1" = '-?' ] || [ "$1" = '--help' ] || [ "$#" = 0 ]) && show_help
+
 for FILE in "$@"; do
 	srcdir=`realpath "${FILE%/}"`
 	pushd "${srcdir%/*}" > /dev/null
