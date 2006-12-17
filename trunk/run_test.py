@@ -23,13 +23,21 @@ __revision__ = "$Revision$"
 
 import os, shutil, tempfile, unittest
 
-# Maps return codes to their meanings via list indices.
-retcodes = [
-            'Extracted OK', 'A bug trap was triggered', 'Could not make temp dir',
-            'Could not change directories', 'Could not find requested unarchiving tool',
-            'Archive tool returned an error', 'Could not move files to target dir',
-            'Could not delete temporary files/dirs'
-           ]
+# Files which may be added to the test sources dir without being test sources.
+excluded = ['.DS_Store']
+
+# Maps return codes to their meanings.
+retcodes = {
+            0: 'Extracted OK', 
+            1: 'A bug trap was triggered',
+            2: 'Could not make temp dir',
+            3: 'Could not change directories', 
+            4: 'Could not find requested unarchiving tool',
+            5: 'Archive tool returned an error', 
+            6: 'Could not move files to target dir',
+            7: 'Could not delete temporary files/dirs',
+            32512: 'Unknown. Could not find a required command in PATH?'
+           }
 
 count_omit = ['jartest.j', 'jartest.jar', 'eartest.ear', 'wartest.war', 'mscompress.tx_']
 
@@ -163,13 +171,19 @@ def testdir(path):
     print "NOTE: stdin, stdout, and stderr are closed for these tests. If extraction of ACE files freezes, it's a regression."
 
     i, j, l = os.path.isdir, os.path.join, os.listdir
-    t = [unittest.makeSuite(makeTests(j(path, arch))) for arch in l(path) if not (i(arch))]
+    f = [j(path, arch) for arch in l(path) if not (i(arch)) and not arch in excluded]
+    f.sort()
+    t = [unittest.makeSuite(makeTests(path)) for path in f]
     return unittest.TestSuite(t)
     
 if __name__ == '__main__':
-    try:
-        import testoob
-        testoob.main(testdir('test sources'), verbose=True)
-    except ImportError:
-        tester = unittest.TextTestRunner(verbosity=2)
-        tester.run(testdir('test sources'))
+    if os.system('which unball'):
+        print "ERROR: Cannot find unball in your PATH."
+	print "Did you install to the default location and forget to add /usr/local/bin to the PATH?"
+    else:
+        try:
+            import testoob
+            testoob.main(testdir('test sources'), verbose=True)
+        except ImportError:
+            tester = unittest.TextTestRunner(verbosity=2)
+            tester.run(testdir('test sources'))

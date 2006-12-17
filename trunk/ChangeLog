@@ -22,7 +22,9 @@ Version 0.2.10
    closed. (which is true when unball is called from Konqueror)
  - Fixed support for ACE archives (again, but I think I finally got it)
  - Improved the automated handling of RAR archives. (eg. ensured it won't freeze on passworded archives)
+ - Removed a superfluous sorted() call that prevented the unit tests from working under Python 2.3.
 - Unit Tests:
+ - Added a pre-test to ensure that unball is visible from the PATH.
  - Added unit tests for the header-based format detection.
  - Pruned out some duplicate tests and added tests for Windows zip, rar, and 7-zip self-extractors.
  - Added unit tests for -D and immediately caught a bug. (ignoring the first argument)
