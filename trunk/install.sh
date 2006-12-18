@@ -7,6 +7,21 @@ MOVETOZIP_TARGET="$PREFIX/bin/moveToZip"
 MANPAGES_TARGET="$PREFIX/man/man1"
 THUNAR_HOOK_DIR="$PREFIX/libexec/thunar-archive-plugin"
 
+function gen_manpages() {
+	# Usage: gen_manpages <command> ...
+	# Purpose: If help2man is installed, generate and install manpages from --help and --version
+	if which help2man > /dev/null; then
+		echo "help2man found. Generating manpages."
+		[ -d "$DESTDIR/$MANPAGES_TARGET" ] || mkdir -p "$DESTDIR/$MANPAGES_TARGET"
+		for CMD in "$@"; do
+			help2man -N "$CMD" | gzip > "$DESTDIR/$MANPAGES_TARGET/${CMD##*/}.1.gz"
+		done
+	else
+		echo "help2man not found. No manpages will be generated."
+	fi
+
+}
+
 function install_nautilus() {
 	# Usage: install_nautilus <UID> <GID> <HOMEDIR>
 	# Purpose: Install unball and MoveToZip into the Nautilus (GNOME) scripts menu.
@@ -59,26 +74,20 @@ fi
 
 # Do the install.
 if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
-	# Install unball
+	# Install unball and moveToZip
 	echo `sed 's@//*@/@g' <<< "Installing unball to $DESTDIR/$PREFIX/bin"`
 	[ -d "$DESTDIR/$PREFIX/bin" ] || mkdir -p "$DESTDIR/$PREFIX/bin"
 	install src/unball "$DESTDIR/$UNBALL_TARGET"
+	install src/moveToZip "$DESTDIR/$MOVETOZIP_TARGET"
 	
 	# Install manpages
-	if which help2man > /dev/null; then
-		echo "help2man found. Generating manpage."
-		[ -d "$DESTDIR/$MANPAGES_TARGET" ] || mkdir -p "$DESTDIR/$MANPAGES_TARGET"
-		help2man -N unball | gzip > "$DESTDIR/$MANPAGES_TARGET/unball.1.gz"
-	else
-		echo "help2man not found. No manpage will be generated."
-	fi
+	gen_manpages src/unball src/moveToZip
 
 	# Install the Konqueror (KDE) hooks
 	if [ -n "$SERVICEMENU_DIR" ]; then
 		echo "Konqueror present. Installing service menus."
 		[ -d "$SERVICEMENU_DIR" ] || mkdir -p "$SERVICEMENU_DIR"
 		install --mode 0644 src/servicemenus/*.desktop "$SERVICEMENU_DIR"
-		install src/moveToZip "$DESTDIR/$MOVETOZIP_TARGET"
 	fi
 
 	# Install the Nautilus (GNOME) hook, but only if it doesn't already exist.
