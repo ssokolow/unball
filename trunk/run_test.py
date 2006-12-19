@@ -22,6 +22,7 @@ __author__ = "Stephan Sokolow (deitarion)"
 __revision__ = "$Revision$"
 
 import os, shutil, tempfile, unittest
+from optparse import OptionParser
 
 # Files which may be added to the test sources dir without being test sources.
 excluded = ['.DS_Store']
@@ -177,10 +178,17 @@ def testdir(path):
     return unittest.TestSuite(t)
     
 if __name__ == '__main__':
-    if os.system('which unball'):
+    parser = OptionParser()
+    parser.add_option("--no_install", action="store_true", dest="no_install",
+                  help="Test the copy of unball from the install package rather than the installed copy.")
+
+    (options, args) = parser.parse_args()
+
+    if options.no_install:
+	pass #FIXME: There should be an option to use the un-installed unball for tests.
+    elif os.system('which unball'):
         print "ERROR: Cannot find unball in your PATH."
 	print "Did you install to the default location and forget to add /usr/local/bin to the PATH?"
-	#FIXME: There should be an option to use the un-installed unball for tests.
     else:
         try:
             import testoob
