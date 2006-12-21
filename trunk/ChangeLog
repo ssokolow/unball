@@ -11,6 +11,7 @@ Version 0.2.10
  - Added untested support for ADF, ADZ, ALZ, and DMS files.
  - Added support for the macunpack utility as an alternative to unstuff for extracting MacBinary.
  - Added support for unpacking bzip2-compressed zip files using p7zip.
+ - Added support for the "unace-bin" binary from Gentoo Linux's Sunrise overlay as an ACE extractor.
 - Bug Fixes:
  - Confirmed that 0.2.9 emptied the old list of known bugs.
  - Got rid of the meaningless "realpath not found errors" from richiefrich's pastebin dump.

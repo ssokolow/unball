@@ -93,6 +93,7 @@ Unit Tests:
 - Test unball's behaviour when handed multiple arguments in the same run.
 - Make it so that nonexistant extractors don't trigger a full-blown failure. Instead, display a list of skipped tests at the end with missing required binaries in brackets.
 - Add an option to test only certain formats. (eg. for quick re-running while trying to fix a regression)
+- Add a unit test for 1.x ACE archives so tests can check whether the problem is an old unace tool.
 - Add a "check hard" option which runs the test suite once for each installed shell it finds.
   (Supporting ash, bash, dash, ksh, mksh, pdksh, posh, sash, shish, and zsh)
 

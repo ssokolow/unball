@@ -35,6 +35,11 @@ elif which 7za &> /dev/null; then UNZIPPER="7za x"
 else UNZIPPER="unzip -q"
 fi
 
+# Support the renamed binary from the Gentoo Sunrise ebuild for unace.
+if which unace-bin &> /dev/null; then UNACE="unace-bin"
+else UNACE="unace"
+fi
+
 function exists()    { type "$@" &> /dev/null ; }
 function isprog()    { which "$@" &> /dev/null ; }
 function lower()     { tr [:upper:] [:lower:] <<< "$@"; }
@@ -59,7 +64,7 @@ function extract_exe() {
     # unrar and lha don't have proper return values with regards to "cannot extract..."
     # unace just can't be called anything earlier than last because it's unreliable
     [ "`ls -1`" = "" ] && (exists lha && call lha x "$2")
-    [ "`ls -1`" = "" ] && (exists unace && call unace "x -y" "$2" )
+    [ "`ls -1`" = "" ] && (exists $UNACE && call $UNACE "x -y" "$2" )
     [ "`ls -1`" = "" ] && echo "Cannot extract $2. If you are certain it is a self-extracting archive and that it does not contain malicious code, try running it inside Wine" && return 1 # Unrar and lha always say "everything's dandy" so we have to check manually.
     return 0
 }
@@ -131,7 +136,7 @@ function call() {
 		$1 "$3"
 	fi
     else
-	if [ "$1" = "unace" ] || [ "$1" = "lzop" ]; then
+	if [ "$1" = "$UNACE" ] || [ "$1" = "lzop" ]; then
 		if [ -n "$2" ]; then
 			$1 $2 "$3" < /dev/random &> /dev/null
 		else
@@ -153,7 +158,7 @@ function new_call() {
 	[ "$1" = "cpio" ] || [ "$1" = "uncompress" ]; then
         "$@"
     else
-	if [ "$1" = "unace" ]; then 
+	if [ "$1" = "$UNACE" ]; then 
 		"$@" < /dev/random &> /dev/null
 	else 
 		"$@" &> /dev/null
@@ -281,7 +286,7 @@ function extractify() {
 	    *.sitx) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a StuffitX archive. As of this writing, there is no tool in the Gentoo Portage tree which can extract such files and the author of unball is too lazy to install one manually without a request from a user.";;
             
             *.7z) extract 7z "x -o%OUTDIR%" "$FILE" "7zip archive";;
-            *.ace) extract unace "x -y" "$FILE" "ace archive";;
+            *.ace) extract "$UNACE" "x -y" "$FILE" "ace archive";;
 	    *.adf) extract extract_adf "adf" "$FILE" "Amiga ADF disk image";;
 	    *.adz) extract extract_adf "adz" "$FILE" "GZipped Amiga ADF disk image";;
 	    *.alz) extract unalz "" "$FILE" "ALZip Archive";;
@@ -351,7 +356,7 @@ function extractify() {
                     "application/java-archive") (exists jar && extract jar xf "$FILE" "jar archive") || extract unzip "" "$FILE" "jar archive";;
                     "application/mac-binhex40") extract decode_binhex "" "$FILE" "BinHex-encoded file";;
 		    "application/x-7z-compressed") extract 7z x "$FILE" "7zip archive";;
-                    "application/x-ace") extract unace "x -y" "$FILE" "ace archive";;
+                    "application/x-ace") extract "$UNACE" "x -y" "$FILE" "ace archive";;
                     "application/x-ar"| "application/x-archive") extract ar x "$FILE" "ar archive";;
                     "application/x-arc"*) extract arc x "$FILE" "arc archive";;
                     "application/arj"|"application/x-arj") extract arj "x -y" "$FILE" "arj archive";;
