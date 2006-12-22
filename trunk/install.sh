@@ -100,8 +100,6 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 
 	echo 
 	echo "unball installed. You can now type \"./run_test.py\" to run the unit tests. If tests fail, you probably are missing some extraction tools."
-        echo
-	echo "Note: In this version of unball, there are three tests which always fail, all for ziptest_ppmd.zip."
 else
 	[ "$1" != "--help" ] && echo "Sorry, it appears that you do not have write permissions for the chosen install location."
 	echo "The install location can be adjusted using the DESTDIR and PREFIX environment variables."

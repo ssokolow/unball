@@ -42,7 +42,7 @@ retcodes = {
 
 count_omit = ['jartest.j', 'jartest.jar', 'eartest.ear', 'wartest.war', 'mscompress.tx_']
 
-def makeTests(path, unballCmd="unball", verbosity=0):
+def makeTests(path, unballCmd="unball", verbosity=0, skip_count_test=False):
     """
     Dynamically generate a set of unball unit tests for a given file.
     Used to allow per-format testing of unball in a simple manner.
@@ -102,7 +102,7 @@ def makeTests(path, unballCmd="unball", verbosity=0):
                             "%s created a wrapper dir without needing to" % callstring)
                 self.failIf(newdir.endswith('.tar'), 
                             "%s didn't strip .tar from the name of the newly created dir." % callstring)
-                if not filename in count_omit:
+                if not filename in count_omit and not skip_count_test:
                     self.failIf(len(os.listdir(newdir)) != 9, 
                                 "%s did not extract the correct number of files. Got %s but expected %s" % (callstring, len(os.listdir(newdir)), 9))
             
@@ -139,7 +139,7 @@ def makeTests(path, unballCmd="unball", verbosity=0):
                             "%s created a wrapper dir without needing to." % callstring)
                 self.failIf(newdir.endswith('.tar'), 
                             "%s didn't strip .tar from the name of the newly created dir." % callstring)
-                if not filename in count_omit:
+                if not filename in count_omit and not skip_count_test:
                     self.failIf(len(os.listdir(newdir)) != 9, 
                                 "%s did not extract the correct number of files. Got %s but expected %s" % (callstring, len(os.listdir(newdir)), 9))
         
@@ -172,7 +172,7 @@ def makeTests(path, unballCmd="unball", verbosity=0):
     
     return UnballTestSet
 
-def testdir(path, unballCmd="unball", verbosity=0):
+def testdir(path, unballCmd="unball", verbosity=0, skip_count_test=False):
     """Generate and run a set of tests for the given directory full of archives."""
     path = os.path.abspath(path)
     print 'Testing directory "%s" ...' % os.path.split(path)[1]
@@ -185,13 +185,15 @@ def testdir(path, unballCmd="unball", verbosity=0):
     i, j, l = os.path.isdir, os.path.join, os.listdir
     f = [j(path, arch) for arch in l(path) if not (i(arch)) and not arch in excluded]
     f.sort()
-    t = [unittest.makeSuite(makeTests(path, unballCmd, verbosity)) for path in f]
+    t = [unittest.makeSuite(makeTests(path, unballCmd, verbosity, skip_count_test)) for path in f]
     return unittest.TestSuite(t)
     
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("--no_install", action="store_true", dest="no_install",
                   help="Test the copy of unball from the install package rather than the installed copy.")
+    parser.add_option("--skip_count_test", action="store_true", dest="skip_count_test",
+                  help="Skip the test for whether multi-file test archives extract to no more and no less than 9 files.")
     parser.add_option("-v", "--verbose", action="count", dest="verbosity",
 		  help="Pass through unball's output. Twice to trigger verbosity in unball. Note that this sacrifices one of the unace regression tests.")
 
@@ -207,10 +209,14 @@ if __name__ == '__main__':
     else:
         unballCmd = "unball"
 
+    #FIXME: This crappy hack needs to be replaced with proper code.
+    if len(args): test_src_dir = args[0]
+    else: test_src_dir = 'test sources'
+
     try:
 	sys.argv = [sys.argv[0]]
         import testoob
-        testoob.main(testdir('test sources', unballCmd, options.verbosity), verbose=True)
+        testoob.main(testdir(test_src_dir, unballCmd, options.verbosity, options.skip_count_test), verbose=True)
     except ImportError:
     	tester = unittest.TextTestRunner(verbosity=2)
-    	tester.run(testdir('test sources', unballCmd, options.verbosity))
+    	tester.run(testdir(test_src_dir, unballCmd, options.verbosity, options.skip_count_test))
