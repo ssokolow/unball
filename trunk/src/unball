@@ -59,7 +59,7 @@ function extract_exe() {
     echo "Attempting to extract EXE file without running it's untrusted executable code..."
     (exists unzip && call unzip "" "$2") ||
     (exists 7z && call 7z "x" "$2") ||
-    (exists arj && call arj x "$2") ||
+    (exists arj && call arj x -y "$2") ||
     (exists unrar && call unrar "x -y -p-" "$2")
     # unrar and lha don't have proper return values with regards to "cannot extract..."
     # unace just can't be called anything earlier than last because it's unreliable

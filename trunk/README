@@ -27,7 +27,8 @@ For the Xfce integration:
 - A version of Xfce which uses Thunar as it's file manager
 - Zenity (for the "Extract to..." option)
 
-Please let me know if I've missed anything.
+Please let me know if I've missed anything not on the list below:
+- Gentoo's app-arch/unarj isn't supported because app-arch/arj is GPLed and better in every way.
 
 ==== Installation: ====
 

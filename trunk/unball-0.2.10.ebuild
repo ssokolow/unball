@@ -12,12 +12,13 @@ IUSE="usedeps"
 # Note: app-arch/sharutils, app-arch/macutil, and media-video/mkvtoolnix could replace uudeview if there were
 #	also an xxdecode command in the Portage tree.
 # TODO: Add support for app-arch/unmakeself
+# Note: app-arch/arj is GPLed while app-arch/unarj is freeware, older, and lacking features.
 
 RDEPEND="app-shells/bash
 	usedeps? (
 		app-arch/alien
 		app-arch/arc
-		|| ( app-arch/unarj app-arch/arj )
+		app-arch/arj
 		app-arch/bzip2
 		app-arch/cabextract
 		app-arch/cpio
