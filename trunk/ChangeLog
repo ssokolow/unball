@@ -1,12 +1,9 @@
 Version 0.2.10
-- Added an option parser to the unit test system for more flexibility.
-- Added an easy-install script and ebuild. (will handle Konqueror/Nautilus integration)
+- Moved ChangeLog to it's own file and clarified a few things.
+- Added an easy-install script and ebuild. (will handle Konqueror/Nautilus/Thunar integration)
 - Added a moveToZip script for easily converting folders that were created by unballing RAR and ACE files.
 - Added support for --version and altered unball to play nice with help2man (which install.sh will try)
-- Moved ChangeLog to it's own file and clarified a few things.
-- Made unball and install.sh more compatible with the original Bourne shell, but it's not ready yet.
 - Began working on the internal changes needed for recursive support.
-- Integration with Xfce's Thunar file manager's archiver integration plugin.
 - Format Support:
  - Added untested support for ADF, ADZ, ALZ, and DMS files.
  - Added support for the macunpack utility as an alternative to unstuff for extracting MacBinary.
@@ -29,6 +26,7 @@ Version 0.2.10
  - Removed a superfluous sorted() call that prevented the unit tests from working under Python 2.3.
  - Removed the need for `egrep -o` for --samedir (should fix it for MacOS X 10.3)
 - Unit Tests:
+ - Added an option parser to the unit test system for more flexibility.
  - Added a pre-test to ensure that unball is visible from the PATH.
  - Added unit tests for the header-based format detection.
  - Pruned out some duplicate tests and added tests for Windows zip, rar, and 7-zip self-extractors.

@@ -60,6 +60,13 @@ Formats and Tools:
 - Whatever format the "pax" tool reads and writes.
 - Add support for "unzoo" as an alternative to "zoo".
 - Add support for ish (seems to be a Japanese uuencode-like format) via aish. (also works with .uu and .b64)
+- Add support for *-to-ISO conversion starting with the following tools:
+  - b5i2iso (BlindWrite 5)
+  - bin2iso (.bin/.cue)
+  - ccd2iso (CloneCD)
+  - mdf2iso (Alcohol 120%)
+  - nrg2iso (Nero Burning ROM)
+  - poweriso (PowerISO DAA images)
 
 Unit Tests:
 - Write tests for the Thunar .tap integration script since it's just a shell script.
@@ -94,7 +101,7 @@ Unit Tests:
 - Add a "check hard" option which runs the test suite once for each installed shell it finds.
   (Supporting ash, bash, dash, ksh, mksh, pdksh, posh, sash, shish, and zsh)
 
-For Version 0.3.0 (next after 0.2.10):
+For Version 0.3.0:
 - Make detection by header default so that Zip files with .rar extensions will extract.
 - Add support for using GNU screen to split apart the unball-generated and subprocess-generated portions of
   verbose-mode output.
