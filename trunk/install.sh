@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # The basic framework for adjusting the install location.
 [ -z "$DESTDIR" ] && DESTDIR="/" && export DESTDIR
 [ -z "$PREFIX" ] && PREFIX="/usr/local" && export PREFIX

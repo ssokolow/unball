@@ -319,6 +319,7 @@ function extractify() {
             *.ipk) extract tar xzf "$FILE" "itsy package";;
 	    *.iso) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is an ISO9660 CD or DVD image. To access it's contents, mount it using a loopback device, or burn it to a disc.";;
             *.j | *.jar) (exists jar && extract jar xf "$FILE" "jar archive") || extract unzip "" "$FILE" "jar archive";; # A jar is just a zip file with a different extension and a specific folder layout inside
+            *.kgb) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be an archive. If so, it can be extracted using the KGB archive tool.";;
             *.lzh | *.lha) extract lha x "$FILE" "lzh archive";;
             *.lzo) extract lzop -x "$FILE" "lzop archive";;
             *.lzx) extract unlzx -x "$FILE" "Amiga LZX archive";;

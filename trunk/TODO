@@ -7,6 +7,7 @@ Publicity:
 - Get it mentioned on the Thunar website once integration is confirmed as bug-free.
 	
 Known Bugs:
+- This filename breaks unball --> "-= Sierra Online Quests =-.rar" I should prefix all relative paths with ./ ( -- isn't portable)
 - Unball doesn't clean up if you send SIGINT. (The trap command should be used)
 - Extracting tar archives can create files that only root can delete. (doesn't ignore stored permissions)
 - If there's a gzip/bzip2-compressed tarball which is named something.gz or something.bz2, it won't check
@@ -67,6 +68,8 @@ Formats and Tools:
   - mdf2iso (Alcohol 120%)
   - nrg2iso (Nero Burning ROM)
   - poweriso (PowerISO DAA images)
+- Add detection for .pae files. (PowerArchiver Encrypted Archives)
+- Add the unsupported formats at http://www.wotsit.org/list.asp?fc=4
 
 Unit Tests:
 - Write tests for the Thunar .tap integration script since it's just a shell script.
@@ -107,6 +110,8 @@ For Version 0.3.0:
   verbose-mode output.
 
 Miscellaneous:
+- Add options to moveToZip to convert spaces and other potentially problematic characters into underscores.
+  - It should offer any combination of the following three problem sets: DOS/Windows, UNIX shell, and URLs.
 - Add optional use of the Gentoo Portage sandbox to ensure nothing gets changed outside of the target dir.
 - Add support for recursively unpacking nested archives
 - IDEA: Use a while loop and the -k option for the file command to allow properly robust extraction of files with ambiguous headers.
