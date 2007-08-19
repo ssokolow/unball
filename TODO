@@ -7,7 +7,9 @@ Publicity:
 - Get it mentioned on the Thunar website once integration is confirmed as bug-free.
 	
 Known Bugs:
-- This filename breaks unball --> "-= Sierra Online Quests =-.rar" I should prefix all relative paths with ./ ( -- isn't portable)
+- I suspect the zoo 2.10 extractor of not being 64-bit compatible. zootest.* unit test failures on amd64 aren't my fault.
+  (I may go poking around in the zoo code and submit a patch if I can ever find the time)
+- This filename breaks unball --> "-= Foo =-.rar" I should prefix all relative paths with ./ ( -- isn't portable)
 - Unball doesn't clean up if you send SIGINT. (The trap command should be used)
 - Extracting tar archives can create files that only root can delete. (doesn't ignore stored permissions)
 - If there's a gzip/bzip2-compressed tarball which is named something.gz or something.bz2, it won't check
