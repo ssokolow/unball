@@ -16,6 +16,7 @@ function gen_manpages() {
 		echo "help2man found. Generating manpages."
 		[ -d "$DESTDIR/$MANPAGES_TARGET" ] || mkdir -p "$DESTDIR/$MANPAGES_TARGET"
 		for CMD in "$@"; do
+			chmod +x "$CMD"
 			help2man -N "$CMD" | gzip > "$DESTDIR/$MANPAGES_TARGET/${CMD##*/}.1.gz"
 		done
 	else
