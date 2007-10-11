@@ -7,6 +7,7 @@ Publicity:
 - Get it mentioned on the Thunar website once integration is confirmed as bug-free.
 	
 Known Bugs:
+- Un-intended behaviour when a passworded zip file is passed in and 7-zip is the chosen extractor.
 - I suspect the zoo 2.10 extractor of not being 64-bit compatible. zootest.* unit test failures on amd64 aren't my fault.
   (I may go poking around in the zoo code and submit a patch if I can ever find the time)
 - This filename breaks unball --> "-= Foo =-.rar" I should prefix all relative paths with ./ ( -- isn't portable)
@@ -31,11 +32,14 @@ Known Bugs:
   http://www.gnu.org/software/tar/manual/html_node/Using-Multiple-Tapes.html for reference)
 - It's almost guaranteed that there are cases where files beginning with a dash (-) break unball.
 - unball uses some Bourne-incompatible scripting constructs. (requires bash or possibly ksh)
+- Remove testoob and set up a similar system based on the base unittest classes which won't break integration 
+  for things like Eric3.
 
 Notes:
 - MacOS X .pkg packages are actually just directories and .mpkg files are data files which aren't archives.
 
 System Integration:
+- Add a bash-completion script for unball and tie it into the install.sh script.
 - GUI-integrated scripts should give some kind of warning on failure.
 - Look into automating integration into ROX Filer through non-.desktop means.
 - Add a normal .desktop entry so unball can be the default double-click action if people prefer.
