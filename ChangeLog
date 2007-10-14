@@ -1,3 +1,6 @@
+Version 0.2.11
+- Added a message for GCF files.
+
 Version 0.2.10
 - Moved ChangeLog to it's own file and clarified a few things.
 - Added an easy-install script and ebuild. (will handle Konqueror/Nautilus/Thunar integration)

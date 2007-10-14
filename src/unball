@@ -314,6 +314,7 @@ function extractify() {
             *.egg) extract unzip "" "$FILE" "Python install package (egg)";;
             *.exe) extract extract_exe "" "$FILE" "Potential Windows self-extracting archive";;
 	    *.gca) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a GCA archive, but since the only known site is in Japanese, the author of unball cannot tell much beyond the fact that the only complete tool seems to be Windows-only.";;
+	    *.gcf) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a WinXComp Grouped Compressed File, but odds are it's a Half-Life Game Cache File. Either way, there's no Linux tool to extract it.";;
             *.gz) extract extract_gbzip gunzip "$FILE" "gzipped file";;
             *.hqx|*.bhx) extract decode_binhex "" "$FILE" "BinHex-encoded file";; #UNTESTED for lack of a non-stuffit BinHex file.
             *.ipk) extract tar xzf "$FILE" "itsy package";;
