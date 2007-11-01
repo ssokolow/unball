@@ -1,4 +1,5 @@
 Version 0.2.11
+- Oops! Looks like I accidentally wiped the contents of the Konqueror ServiceMenu definition before releasing 0.2.10. Fixed!
 - Added a message for GCF files.
 
 Version 0.2.10
