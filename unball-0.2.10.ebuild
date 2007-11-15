@@ -13,6 +13,7 @@ IUSE="usedeps"
 #	also an xxdecode command in the Portage tree.
 # TODO: Add support for app-arch/unmakeself
 # Note: app-arch/arj is GPLed while app-arch/unarj is freeware, older, and lacking features.
+# Note: app-arch/zoo doesn't work properly on x86_64. Try http://archives.math.utk.edu/software/multi-platform/gap/util/unzoo.c
 
 RDEPEND="app-shells/bash
 	usedeps? (
@@ -39,6 +40,10 @@ RDEPEND="app-shells/bash
 		app-arch/unzip
 		app-arch/xar
 		app-arch/zoo
+		games-util/biounzip
+		games-util/umodpack
+		games-util/uz2unpack
+		games-util/dzip
 		net-news/uudeview
 		|| ( net-news/yencode net-news/yydecode )
 	)"

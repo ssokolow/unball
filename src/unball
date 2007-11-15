@@ -298,6 +298,7 @@ function extractify() {
 	    *.bh) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a BlakHole archive, but the author of unball could barely find any non-Linux programs which can handle this format. Supporting it is currently beyond the capabilities of unball.";;
             *.bin) extract extract_macbin "" "$FILE" "Potential MacBinary-encoded file";;
             *.bz2) extract extract_gbzip bunzip2 "$FILE" "bzip2-compressed file";;
+			*.bzf) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a BioWare BioZip file. Until unball gains support, you can directly use the biounzip tool to extract these.";;
             *.cab) extract extract_cab "" "$FILE" "Microsoft or InstallShield 'cabinet'";;
             *.cbr) extract unrar "x -y -p-" "$FILE" "RAR-compressed comic bundle";;
 	    *.cbz) extract unzip "" "$FILE" "ZIP-compressed comic bundle";;
@@ -310,6 +311,7 @@ function extractify() {
 	    *.dgc) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a DGCA archive, but since the only known site is in Japanese, the author of unball cannot tell much beyond the fact that the only complete tool seems to be Windows-only.";;
             *.dms) extract decode_dms "" "$FILE" "DMS-packed ADF disk image";;
 	    *.dmg) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is an Apple MacOS X disk image. To access it's contents, mount it using a loopback device. It's just an HFS, HFS+, UFS, or other Linux-readable filesystem in a file.";;
+			*.dz) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be a DZip archive. Until unball gains support, you can directly use the dzip tool (http://speeddemosarchive.com/dzip/) to extract these.";;
             *.ear) (exists jar && extract jar xf "$FILE" "potential Java Enterprise Archive (.ear)") || extract unzip "" "$FILE" "Potential Java Enterprise Archive (.ear)";;
             *.egg) extract unzip "" "$FILE" "Python install package (egg)";;
             *.exe) extract extract_exe "" "$FILE" "Potential Windows self-extracting archive";;
@@ -342,7 +344,9 @@ function extractify() {
             *.slp) extract alien -g  "$FILE" "Stampede Linux slp package";; #Untested for lack of a .slp file
 	    *.sqx) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is apparently a Squeez archive (.sqx) but as of this writing, there is no known Linux tool which can extract Squeez files. However, the format is detailed at http://www.sqx-archiver.org/ and you can probably run the Squeez extractor for DOS or Windows inside Wine.";;
             *.tar) extract tar xf "$FILE" "tar archive";;
+			*.umod) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE is probably an Unreal Tournament umod archive. Until unball gains support, you can directly use the umod tool (from umodpack) to extract these.";;
             *.uu | *.uue) extract decode_uu "" "$FILE" "UUEncoded file";;
+			*.uz2) DELAYEDMESSAGES="$DELAYEDMESSAGES\n$FILE may be an Unreal Tournament 2003/2004 resource archive. Until unball gains support, you can directly use the uz2unpack tool to extract these.";;
             *.war) (exists jar && extract jar xf "$FILE" "Potential Java Web Archive (.war)") || extract unzip "" "$FILE" "Potential Java Web Archive (.war)";;
 	    *.xar) extract xar -xf "$FILE" "Potential XAR archive";;
 	    *.xpi) extract unzip "" "$FILE" "XPI install package";;

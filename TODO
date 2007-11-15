@@ -46,6 +46,7 @@ System Integration:
 - Improve moveToZip so that help2man can be used with it.
 
 Formats and Tools:
+- Support extraction of .umod, BioZip, Uz2, and Dzip files.
 - There are a ton of unsupported formats in the midnight commander extensions file.
 - Add support for using nomarch as an alternative to arc
 - Unball only supports Java .war files. (renamed zips) Konqueror .war files are renamed .tgz files.

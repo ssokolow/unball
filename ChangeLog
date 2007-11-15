@@ -1,4 +1,7 @@
 Version 0.2.11
+- Started bundling unzoo.c for the benefit of x86_64 users. Support for it by unball will hopefully be added before this
+  version is released.
+- Added support for extension-based recognition of UMOD, BioZip, Uz2, and Dzip files. (Extraction support still pending)
 - Oops! Looks like I accidentally wiped the contents of the Konqueror ServiceMenu definition before releasing 0.2.10. Fixed!
 - Added a message for GCF files.
 
