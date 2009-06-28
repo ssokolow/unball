@@ -1,10 +1,6 @@
-TODO:
-- Decide on a name for a unified "test this package" shell script.
-
 Python:
-- pychecker
-- pylint
-- run_test.py (Unit Tests)
+- pyflakes, pychecker, pylint (Ocassionally)
+- run_test.py (Unit Tests, Constantly)
 
 Shell:
 - bash -n (syntax check (short for "noexec"))

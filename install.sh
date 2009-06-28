@@ -35,17 +35,19 @@ function install_nautilus() {
 	elif [ -d "$3/Nautilus/scripts" ]; then NSCRIPT_PATH="$3/Nautilus/scripts"
 	else return 1
 	fi
-	
+
 	# Make the script category dir if it doesn't exist
 	NSCRIPT_FULL_PATH="$DESTDIR/$NSCRIPT_PATH/$NAUTILUS_SCRIPT_SUFFIX"
 	[ ! -d "$NSCRIPT_FULL_PATH" ] && mkdir -p "$NSCRIPT_FULL_PATH" &> /dev/null
-	
+
 	# Install the symlinks
 	pushd "$NSCRIPT_FULL_PATH" > /dev/null
 		ln -s "$UNBALL_TARGET" ./Unball
-		chown "$1:$2" ./Unball
 		ln -s "$MOVETOZIP_TARGET" "./Move to ZIP"
-		chown "$1:$2" "./Move to ZIP"
+		if [ -z "$NO_CHOWN" ]; then
+			chown "$1:$2" ./Unball
+			chown "$1:$2" "./Move to ZIP"
+		fi
 	popd > /dev/null
 }
 
@@ -73,7 +75,7 @@ if which konqueror &> /dev/null; then
 	fi
 	SERVICEMENU_DIR="${DESTDIR}/${KDEDIR}/share/apps/konqueror/servicemenus"
 	unset KDEDIR # Make sure nobody uses it afterwards since it's not prefixed with DESTDIR.
-fi	
+fi
 
 # Do the install.
 if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
@@ -82,7 +84,7 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 	[ -d "$DESTDIR/$PREFIX/bin" ] || mkdir -p "$DESTDIR/$PREFIX/bin"
 	install src/unball "$DESTDIR/$UNBALL_TARGET"
 	install src/moveToZip "$DESTDIR/$MOVETOZIP_TARGET"
-	
+
 	# Install manpages
 	gen_manpages src/unball src/moveToZip
 
@@ -110,7 +112,7 @@ if [ -w "$DESTDIR/$PREFIX" ] && [ "$1" != "--help" ] ; then
 		install src/unball.tap "$DESTDIR/$THUNAR_HOOK_DIR/unball.tap"
 	fi
 
-	echo 
+	echo
 	echo "unball installed. You can now type \"./run_test.py\" to run the unit tests. If tests fail, you probably are missing some extraction tools."
 else
 	[ "$1" != "--help" ] && echo "Sorry, it appears that you do not have write permissions for the chosen install location."
