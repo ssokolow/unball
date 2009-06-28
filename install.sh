@@ -44,7 +44,7 @@ function install_nautilus() {
 	pushd "$NSCRIPT_FULL_PATH" > /dev/null
 		ln -s "$UNBALL_TARGET" ./Unball
 		ln -s "$MOVETOZIP_TARGET" "./Move to ZIP"
-		if [ -z "$NO_CHOWN" ]; then
+		if [ -z "$DESTDIR" ]; then
 			chown "$1:$2" ./Unball
 			chown "$1:$2" "./Move to ZIP"
 		fi
