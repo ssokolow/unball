@@ -29,12 +29,12 @@ excluded = ['.DS_Store']
 
 # Maps return codes to their meanings.
 retcodes = {
-            0: 'Extracted OK', 
+            0: 'Extracted OK',
             1: 'A bug trap was triggered',
             2: 'Could not make temp dir',
-            3: 'Could not change directories', 
+            3: 'Could not change directories',
             4: 'Could not find requested unarchiving tool',
-            5: 'Archive tool returned an error', 
+            5: 'Archive tool returned an error',
             6: 'Could not move files to target dir',
             7: 'Could not delete temporary files/dirs',
             32512: 'Unknown. Could not find a required command in PATH?'
@@ -60,89 +60,89 @@ def makeTests(path, unballCmd="unball", verbosity=0, skip_count_test=False):
             self.srcdir  = os.path.join(self.workdir, 'src dir')
             self.srcfile = os.path.join(self.srcdir , filename)
             self.destdir = os.path.join(self.workdir, 'dest dir')
-            
+
             os.makedirs(self.srcdir)
             os.makedirs(self.destdir)
             os.makedirs(self.pwd_dir)
             shutil.copyfile(path, self.srcfile)
-            
+
             self.oldcwd = os.getcwdu()
         def tearDown(self):
             """Make sure the test tree gets deleted."""
             os.chdir(self.oldcwd)
             shutil.rmtree(self.workdir)
-        
+
         def testImplicitDestination(self):
             """Testing unball %s with implicit destination"""
             os.chdir(self.destdir)
-            
+
             if verbosity == 2: self.unballCmd += " --verbose "
             callstring = self.unballCmd + ' "%s" ' % self.srcfile
             if not verbosity: callstring += '<&- >&- 2>&-'
 
             retcode = os.system(callstring)
-            if (len(retcodes) > retcode): 
+            if (len(retcodes) > retcode):
                 retstring = retcodes[retcode]
-            else: 
+            else:
                 retstring = "Unknown code"
 
             self.failIf(retcode, "Unball returned error code %s (%s)" % (retcode, retstring))
-            self.failUnless(len(os.listdir(self.srcdir)) == 1, 
+            self.failUnless(len(os.listdir(self.srcdir)) == 1,
                             "%s extracted to the source dir without being asked to." % callstring)
-            self.failUnless(os.path.exists(self.srcfile), 
+            self.failUnless(os.path.exists(self.srcfile),
                             "%s didn't prevent the original archive from being destroyed." % callstring)
-            self.failIf(len(os.listdir(self.destdir)) > 1, 
+            self.failIf(len(os.listdir(self.destdir)) > 1,
                             "%s didn't bundle a multi-file archive into one folder." % callstring)
-            self.failIf(len(os.listdir(self.destdir)) < 1, 
+            self.failIf(len(os.listdir(self.destdir)) < 1,
                             "%s didn't extract anything to the target dir." % callstring)
-            
+
             newdir = os.path.join(self.destdir, os.listdir(self.destdir)[0])
             if os.path.isdir(newdir):
-                self.failIf(len(os.listdir(newdir)) <= 1, 
+                self.failIf(len(os.listdir(newdir)) <= 1,
                             "%s created a wrapper dir without needing to" % callstring)
-                self.failIf(newdir.endswith('.tar'), 
+                self.failIf(newdir.endswith('.tar'),
                             "%s didn't strip .tar from the name of the newly created dir." % callstring)
                 if not filename in count_omit and not skip_count_test:
-                    self.failIf(len(os.listdir(newdir)) != 9, 
+                    self.failIf(len(os.listdir(newdir)) != 9,
                                 "%s did not extract the correct number of files. Got %s but expected %s" % (callstring, len(os.listdir(newdir)), 9))
-            
+
         def testExplicitDestination(self):
             """Testing unball %s with explicit destination"""
-            
+
             os.chdir(self.pwd_dir)
-            
+
             if verbosity == 2: self.unballCmd += " --verbose "
             callstring = self.unballCmd + ' -d "%s" "%s" ' % (self.destdir, self.srcfile)
             if not verbosity: callstring += '<&- >&- 2>&-'
 
             retcode = os.system(callstring)
-            if (len(retcodes) > retcode): 
+            if (len(retcodes) > retcode):
                 retstring = retcodes[retcode]
-            else: 
+            else:
                 retstring = "Unknown code"
-            
+
             self.failIf(retcode, "Unball returned error code %s (%s)" % (retcode, retstring))
-            self.failIf(len(os.listdir(self.pwd_dir))  > 0, 
+            self.failIf(len(os.listdir(self.pwd_dir))  > 0,
                         "%s extracted to $PWD dir when given an explicit destination." % callstring)
-            self.failUnless(len(os.listdir(self.srcdir))  == 1, 
+            self.failUnless(len(os.listdir(self.srcdir))  == 1,
                             "%s extracted to the source dir without being asked to." % callstring)
-            self.failUnless(os.path.exists(self.srcfile), 
+            self.failUnless(os.path.exists(self.srcfile),
                             "%s didn't prevent the original archive from being destroyed." % callstring)
-            self.failIf(len(os.listdir(self.destdir))  > 1, 
+            self.failIf(len(os.listdir(self.destdir))  > 1,
                             "%s didn't bundle a multi-file archive into one folder." % callstring)
-            self.failIf(len(os.listdir(self.destdir))  < 1, 
+            self.failIf(len(os.listdir(self.destdir))  < 1,
                             "%s didn't extract anything to the target dir." % callstring)
-            
+
             newdir = os.path.join(self.destdir, os.listdir(self.destdir)[0])
             if os.path.isdir(newdir):
-                self.failIf(len(os.listdir(newdir)) <= 1, 
+                self.failIf(len(os.listdir(newdir)) <= 1,
                             "%s created a wrapper dir without needing to." % callstring)
-                self.failIf(newdir.endswith('.tar'), 
+                self.failIf(newdir.endswith('.tar'),
                             "%s didn't strip .tar from the name of the newly created dir." % callstring)
                 if not filename in count_omit and not skip_count_test:
-                    self.failIf(len(os.listdir(newdir)) != 9, 
+                    self.failIf(len(os.listdir(newdir)) != 9,
                                 "%s did not extract the correct number of files. Got %s but expected %s" % (callstring, len(os.listdir(newdir)), 9))
-        
+
         def testSameDestination(self):
             """Testing unball %s with samedir  destination"""
             os.chdir(self.pwd_dir)
@@ -150,26 +150,26 @@ def makeTests(path, unballCmd="unball", verbosity=0, skip_count_test=False):
             if verbosity == 2: self.unballCmd += " --verbose "
             callstring = self.unballCmd + ' -D "%s" ' % self.srcfile
             if not verbosity: callstring += '<&- >&- 2>&-'
-            
+
             retcode = os.system(callstring)
-            if (len(retcodes) > retcode): 
+            if (len(retcodes) > retcode):
                 retstring = retcodes[retcode]
-            else: 
+            else:
                 retstring = "Unknown code"
-            
+
             self.failIf(retcode, "Unball returned error code %s (%s)" % (retcode, retstring))
-            self.failUnless(os.path.exists(self.srcfile), 
+            self.failUnless(os.path.exists(self.srcfile),
                             "%s didn't prevent the original archive from being destroyed." % callstring)
-            self.failIf(len(os.listdir(self.srcdir)) > 2, 
+            self.failIf(len(os.listdir(self.srcdir)) > 2,
                             "%s didn't bundle a multi-file archive into one folder." % callstring)
             self.failIf(len(os.listdir(self.srcdir)) < 2, "%s didn't extract anything." % callstring)
 
-            #TODO: Duplicate the newdir test here with the necessary extra complexity.        
-                    
+            #TODO: Duplicate the newdir test here with the necessary extra complexity.
+
         testImplicitDestination.__doc__ = testImplicitDestination.__doc__ % filename
         testExplicitDestination.__doc__ = testExplicitDestination.__doc__ % filename
         testSameDestination.__doc__ = testSameDestination.__doc__ % filename
-    
+
     return UnballTestSet
 
 def testdir(path, unballCmd="unball", verbosity=0, skip_count_test=False):
@@ -187,9 +187,11 @@ def testdir(path, unballCmd="unball", verbosity=0, skip_count_test=False):
     f.sort()
     t = [unittest.makeSuite(makeTests(path, unballCmd, verbosity, skip_count_test)) for path in f]
     return unittest.TestSuite(t)
-    
+
 if __name__ == '__main__':
     parser = OptionParser()
+    parser.add_option("--custom_cmd", action="store", dest="custom_cmd",
+                  help="Used to specify an explicit command to test. Overrides --no_install")
     parser.add_option("--no_install", action="store_true", dest="no_install",
                   help="Test the copy of unball from the install package rather than the installed copy.")
     parser.add_option("--skip_count_test", action="store_true", dest="skip_count_test",
@@ -199,7 +201,9 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args()
 
-    if options.no_install:
+    if options.custom_cmd:
+        unballCmd = options.custom_cmd
+    elif options.no_install:
         unballCmd = "bash %s" % os.path.join(os.getcwd(),"src/unball")
     elif os.system('which unball'):
         print "ERROR: Cannot find unball in your PATH."
@@ -213,10 +217,6 @@ if __name__ == '__main__':
     if len(args): test_src_dir = args[0]
     else: test_src_dir = 'test sources'
 
-    try:
-	sys.argv = [sys.argv[0]]
-        import testoob
-        testoob.main(testdir(test_src_dir, unballCmd, options.verbosity, options.skip_count_test), verbose=True)
-    except ImportError:
-    	tester = unittest.TextTestRunner(verbosity=2)
-    	tester.run(testdir(test_src_dir, unballCmd, options.verbosity, options.skip_count_test))
+    #TODO: Find that article explaining why things like testoob are pointless and how to do it properly.
+    tester = unittest.TextTestRunner(verbosity=2)
+    tester.run(testdir(test_src_dir, unballCmd, options.verbosity, options.skip_count_test))
