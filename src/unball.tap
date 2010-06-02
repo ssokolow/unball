@@ -3,7 +3,7 @@
 # unball.tap - thunar-archive-plugin integration for unball.
 #              (Warning: Uses moveToZip for the 'create' action)
 #
-# Copyright (c) 2006 Stephan Sokolow <http://www.ssokolow.com/ContactMe>
+# Copyright (c) 2008 Stephan Sokolow <http://www.ssokolow.com/ContactMe>
 # Based on template.tap:
 #  Copyright (c) 2006 Benedikt Meurer <benny@xfce.org>.
 #

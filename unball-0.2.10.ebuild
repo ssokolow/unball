@@ -1,19 +1,18 @@
+# Copyright 2009 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+# Note: app-arch/zoo doesn't work properly on x86_64. Try contrib/unzoo.c
+# Note: app-arch/arj is GPLed while app-arch/unarj is freeware, older, and lacking features.
 
 DESCRIPTION="The only extraction wrapper you should ever need"
-HOMEPAGE="http://www.ssokolow.com/MyPrograms/Gentoo"
-SRC_URI=""
+HOMEPAGE="https://launchpad.net/unball"
+SRC_URI="http://launchpad.net/unball/0.2-legacy/${PV}/+download/${P}.tbz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~hppa ~mips ~ppc ~ppc64 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~hppa ~mips ~ppc ~ppc64 ~sparc ~x86"
 IUSE="usedeps"
-
-# Note: In some cases, app-arch/macutil will suffice in place of app-arch/stuffit, but not all.
-# Note: app-arch/sharutils, app-arch/macutil, and media-video/mkvtoolnix could replace uudeview if there were
-#	also an xxdecode command in the Portage tree.
-# TODO: Add support for app-arch/unmakeself
-# Note: app-arch/arj is GPLed while app-arch/unarj is freeware, older, and lacking features.
-# Note: app-arch/zoo doesn't work properly on x86_64. Try http://archives.math.utk.edu/software/multi-platform/gap/util/unzoo.c
 
 RDEPEND="app-shells/bash
 	usedeps? (
@@ -32,7 +31,7 @@ RDEPEND="app-shells/bash
 		app-arch/stuffit
 		app-arch/tar
 		|| ( app-arch/unace app-arch/unace-bin )
-		app-arch/unadf
+		x86? ( app-arch/unadf )
 		|| ( app-arch/undms app-arch/xdms )
 		app-arch/unlzx
 		|| ( app-arch/unrar app-arch/unrar-gpl app-arch/rar )
@@ -43,21 +42,15 @@ RDEPEND="app-shells/bash
 		games-util/biounzip
 		games-util/umodpack
 		games-util/uz2unpack
-		games-util/dzip
-		net-news/uudeview
-		|| ( net-news/yencode net-news/yydecode )
+		x86? ( games-util/dzip )
+		app-text/uudeview
 	)"
 
 DEPEND="${RDEPEND}
         sys-apps/help2man"
 
-src_install() { 
+src_install() {
 	DESTDIR="${D}" ./install.sh;
-
-	(use usedeps && has_version >=app-arch/unace-bin-2.0) || ewarn "WARNING: Your system lacks a version of unace capable of extracting ACE 2.x archives. Please see bug #102347."
-	(use usedeps && (has_version >=app-arch/unrar-3.0 || has_version >=app-arch/rar-3.0)) || ewarn "WARNING: Your system lacks a RAR extractor capable of extracting RAR 3.x archives. You may want to emerge app-arch/unrar."
-	which sfarkxtc > /dev/null || ewarn "Your system lacks sfarkxtc but unball requires it for unpacking SFArk-compressed SoundFonts."
-	which FOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO > /dev/null || ewarn "Your system lacks paq6 but unball requires it for unpacking PAQ6 archives."
 }
 
 src_test()    { ./run_test.py; }

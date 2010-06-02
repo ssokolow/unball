@@ -1,15 +1,9 @@
 TODO:
-- Decide on a name for a unified "test this package" shell script.
+- Decide on a more unified approach to testing.
 
 Python:
-- pychecker
-- pylint
-- run_test.py (Unit Tests)
-
-Shell:
-- bash -n (syntax check (short for "noexec"))
-- run_test.py or run_test.sh (Unit Tests)
-- bash --debugger -xv (for debugging only)
+- pyflakes, pychecker, pylint (Occasionally)
+- run_test.py (Unit Tests, Constantly)
 
 ebuilds:
 - bash -n (syntax check (short for "noexec"))

@@ -1,9 +1,23 @@
+Version 0.2.99.0
+- Complete rewrite in Python to make unball more extensible, maintainable, and flexible.
+- Addition of a fallback system for extractors. (Unit tests still being updated to test fallbacks as well as the first available choice)
+- Experimental built-in extractors for Zip, Tar, BZip2, GZip, UUEncode, Base64, and BinHex.
+- Temporary directories are now created in the target so extraction completion doesn't risk an inter-partition copy operation.
+- Elusive tr-related filename-handling bug fixed by Python rewrite
+- Cleanup routines made more resilient using try/finally and subprocess.Popen (most of the original unball in three or four lines)
+- Switched stdin for subprocesses over to an internal /bin/yes clone. (Safer than feeding /dev/urandom to unace and less prone to subprocesses stopping for input)
+- Proper handling of Ctrl+C in unball and all signals in subprocesses. (Other signals within unball still to be tested)
+- Full, test-verified support and preferential use of unzoo for extracting .zoo archives.
+- Python rewrite should fix portability issues with BSD-based userland tools but not yet tested.
+- Beginnings of a plan to rework unball's internals for use as an extraction library for arbitrary Python programs.
+- Noticed that COPYING had been emptied somewhere along the way. Re-downloaded the GPL 2.0.
+
 Version 0.2.11
-- Started bundling unzoo.c for the benefit of x86_64 users. Support for it by unball will hopefully be added before this
-  version is released.
+- Started bundling unzoo.c for the benefit of x86_64/IA64 users. Unfortunately, actual support didn't make it in.
 - Added support for extension-based recognition of UMOD, BioZip, Uz2, and Dzip files. (Extraction support still pending)
 - Oops! Looks like I accidentally wiped the contents of the Konqueror ServiceMenu definition before releasing 0.2.10. Fixed!
 - Added a message for GCF files.
+- Fixed the header detection so it gets priority.
 
 Version 0.2.10
 - Moved ChangeLog to it's own file and clarified a few things.
@@ -22,11 +36,11 @@ Version 0.2.10
  - Fixed header detection for a few formats.
  - Fixed support for extensionless archives with --samedir
  - Made sure unball returns a nonzero exit code on error
- - Found and fixed a bug where extracting single-file/folder archives which 
-   preserved the name of the files inside (eg. a single-file zip or rar) would 
+ - Found and fixed a bug where extracting single-file/folder archives which
+   preserved the name of the files inside (eg. a single-file zip or rar) would
    discard the preserved name of the contents, overwriting it with the name of
    the archive, sans extension.
- - Fixed a previously unknown problem where lzop would refuse to extract if stdin, stdout, or stderr were 
+ - Fixed a previously unknown problem where lzop would refuse to extract if stdin, stdout, or stderr were
    closed. (which is true when unball is called from Konqueror)
  - Fixed support for ACE archives (again, but I think I finally got it)
  - Improved the automated handling of RAR archives. (eg. ensured it won't freeze on passworded archives)
@@ -63,7 +77,7 @@ Version 0.2.8
 - Switched from sed-based extension removal to internal bash functions.
 
 Version 0.2.7
-- Added recognition of PackIt (.pit) and Compact Pro archives (.cpt), MacOS Disk Images (.dmg), 
+- Added recognition of PackIt (.pit) and Compact Pro archives (.cpt), MacOS Disk Images (.dmg),
   PAQ6 (.pq6), GCA, DGCA (.dgc), ZZip (.zz), and DAR archives, Microsoft Installers (.msi),
   BlakHole (.bh) archives, WinRK (.rk) archives, and PartImage (.partimg) disk images.
 - Added support for rzip-compressed (.rz) files.
@@ -95,7 +109,7 @@ Version 0.2.1 changes:
 - Added some entries which will identify unsupported formats without unpacking them.
 - Added recognition and messages for CloneCD and ISO9660 CD images.
 - Corrected a TODO. "lha for UNIX" is now open source and hosted on SourceForge Japan.
-- Added a more helpful failure message to the routine which attempts to extract self-extractors 
+- Added a more helpful failure message to the routine which attempts to extract self-extractors
   without running them.
 - unball will now exit with error code 2 if the target directory is not writeable.
 
@@ -107,7 +121,7 @@ Version 0.2.0 changes:
   and KOffice documents without needing an explicit entry for them.
 
 Version 0.1.2 bugfixes:
-- Now the old abspath() is just a fallback and it will try two proven path 
+- Now the old abspath() is just a fallback and it will try two proven path
   canonicalization tools before resorting to my code.
 
 Version 0.1.1 bugfixes:
@@ -118,7 +132,7 @@ Unball 0.1.0 enhancements over maitre's script as of version 1.0.0:
 - Works with filenames containing spaces.
 - Support for a great many more formats. (In fact, more formats than most people even know of)
 - Ignores case when matching  archive extensions to programs. (I can't find any reason not to)
-- Creates containing folders as needed regardless of archive format and only when necessary. 
+- Creates containing folders as needed regardless of archive format and only when necessary.
   (Much better than the old method)
 - Silencing extraction tools is now centralized. (And adds support for --verbose)
 - Code is much cleaner (once you compensate for it's greater complexity)

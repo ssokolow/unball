@@ -1,0 +1,322 @@
+#!/bin/sh
+# This is a shell archive (produced by GNU sharutils 4.6.3).
+# To extract the files from this archive, save it to some FILE, remove
+# everything before the `#!/bin/sh' line above, then type `sh FILE'.
+#
+lock_dir=_sh08965
+# Made on 2009-06-28 08:45 EDT by <ssokolow@monolith>.
+# Source directory was `/home/ssokolow/src/unball/trunk'.
+#
+# Existing files will *not* be overwritten, unless `-c' is specified.
+#
+# This shar contains:
+# length mode       name
+# ------ ---------- ------------------------------------------
+#      0 -rw-r--r-- tartest/tarballtest9
+#      0 -rw-r--r-- tartest/tarballtest6
+#      0 -rw-r--r-- tartest/tarballtest2
+#      0 -rw-r--r-- tartest/tarballtest7
+#      0 -rw-r--r-- tartest/tarballtest1
+#      0 -rw-r--r-- tartest/tarballtest8
+#      0 -rw-r--r-- tartest/tarballtest4
+#      0 -rw-r--r-- tartest/tarballtest5
+#      0 -rw-r--r-- tartest/tarballtest3
+#
+MD5SUM=${MD5SUM-md5sum}
+f=`${MD5SUM} --version | egrep '^md5sum .*(core|text)utils'`
+test -n "${f}" && md5check=true || md5check=false
+${md5check} || \
+  echo 'Note: not verifying md5sums.  Consider installing GNU coreutils.'
+save_IFS="${IFS}"
+IFS="${IFS}:"
+gettext_dir=FAILED
+locale_dir=FAILED
+first_param="$1"
+for dir in $PATH
+do
+  if test "$gettext_dir" = FAILED && test -f $dir/gettext \
+     && ($dir/gettext --version >/dev/null 2>&1)
+  then
+    case `$dir/gettext --version 2>&1 | sed 1q` in
+      *GNU*) gettext_dir=$dir ;;
+    esac
+  fi
+  if test "$locale_dir" = FAILED && test -f $dir/shar \
+     && ($dir/shar --print-text-domain-dir >/dev/null 2>&1)
+  then
+    locale_dir=`$dir/shar --print-text-domain-dir`
+  fi
+done
+IFS="$save_IFS"
+if test "$locale_dir" = FAILED || test "$gettext_dir" = FAILED
+then
+  echo=echo
+else
+  TEXTDOMAINDIR=$locale_dir
+  export TEXTDOMAINDIR
+  TEXTDOMAIN=sharutils
+  export TEXTDOMAIN
+  echo="$gettext_dir/gettext -s"
+fi
+if (echo "testing\c"; echo 1,2,3) | grep c >/dev/null
+then if (echo -n test; echo 1,2,3) | grep n >/dev/null
+     then shar_n= shar_c='
+'
+     else shar_n=-n shar_c= ; fi
+else shar_n= shar_c='\c' ; fi
+f=shar-touch.$$
+st1=200112312359.59
+st2=123123592001.59
+st2tr=123123592001.5 # old SysV 14-char limit
+st3=1231235901
+
+if touch -am -t ${st1} ${f} >/dev/null 2>&1 && \
+   test ! -f ${st1} && test -f ${f}; then
+  shar_touch='touch -am -t $1$2$3$4$5$6.$7 "$8"'
+
+elif touch -am ${st2} ${f} >/dev/null 2>&1 && \
+   test ! -f ${st2} && test ! -f ${st2tr} && test -f ${f}; then
+  shar_touch='touch -am $3$4$5$6$1$2.$7 "$8"'
+
+elif touch -am ${st3} ${f} >/dev/null 2>&1 && \
+   test ! -f ${st3} && test -f ${f}; then
+  shar_touch='touch -am $3$4$5$6$2 "$8"'
+
+else
+  shar_touch=:
+  echo
+  ${echo} 'WARNING: not restoring timestamps.  Consider getting and'
+  ${echo} 'installing GNU `touch'\'', distributed in GNU coreutils...'
+  echo
+fi
+rm -f ${st1} ${st2} ${st2tr} ${st3} ${f}
+#
+if test ! -d ${lock_dir}
+then : ; else ${echo} 'lock directory '${lock_dir}' exists'
+  exit 1
+fi
+if mkdir ${lock_dir}
+then ${echo} 'x - created lock directory `'${lock_dir}\''.'
+else ${echo} 'x - failed to create lock directory `'${lock_dir}\''.'
+  exit 1
+fi
+# ============= tartest/tarballtest9 ==============
+if test ! -d 'tartest'; then
+  mkdir 'tartest'
+if test $? -eq 0
+then ${echo} 'x - created directory `tartest'\''.'
+else ${echo} 'x - failed to create directory `tartest'\''.'
+  exit 1
+fi
+fi
+if test -f 'tartest/tarballtest9' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING tartest/tarballtest9 (file already exists)'
+else
+${echo} 'x - extracting tartest/tarballtest9 (empty)'
+  > 'tartest/tarballtest9' &&
+  (set 20 06 05 09 10 34 43 'tartest/tarballtest9'; eval "$shar_touch") &&
+  chmod 0644 'tartest/tarballtest9'
+if test $? -ne 0
+then ${echo} 'restore of tartest/tarballtest9 failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'tartest/tarballtest9: MD5 check failed'
+       ) << SHAR_EOF
+d41d8cd98f00b204e9800998ecf8427e  tartest/tarballtest9
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'tartest/tarballtest9'` -ne 0 && \
+  ${echo} 'restoration warning:  size of tartest/tarballtest9 is not 0'
+  fi
+fi
+# ============= tartest/tarballtest6 ==============
+if test ! -d 'tartest'; then
+  mkdir 'tartest'
+if test $? -eq 0
+then ${echo} 'x - created directory `tartest'\''.'
+else ${echo} 'x - failed to create directory `tartest'\''.'
+  exit 1
+fi
+fi
+if test -f 'tartest/tarballtest6' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING tartest/tarballtest6 (file already exists)'
+else
+${echo} 'x - extracting tartest/tarballtest6 (empty)'
+  > 'tartest/tarballtest6' &&
+  (set 20 06 05 09 10 34 43 'tartest/tarballtest6'; eval "$shar_touch") &&
+  chmod 0644 'tartest/tarballtest6'
+if test $? -ne 0
+then ${echo} 'restore of tartest/tarballtest6 failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'tartest/tarballtest6: MD5 check failed'
+       ) << SHAR_EOF
+d41d8cd98f00b204e9800998ecf8427e  tartest/tarballtest6
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'tartest/tarballtest6'` -ne 0 && \
+  ${echo} 'restoration warning:  size of tartest/tarballtest6 is not 0'
+  fi
+fi
+# ============= tartest/tarballtest2 ==============
+if test -f 'tartest/tarballtest2' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING tartest/tarballtest2 (file already exists)'
+else
+${echo} 'x - extracting tartest/tarballtest2 (empty)'
+  > 'tartest/tarballtest2' &&
+  (set 20 06 05 09 10 34 43 'tartest/tarballtest2'; eval "$shar_touch") &&
+  chmod 0644 'tartest/tarballtest2'
+if test $? -ne 0
+then ${echo} 'restore of tartest/tarballtest2 failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'tartest/tarballtest2: MD5 check failed'
+       ) << SHAR_EOF
+d41d8cd98f00b204e9800998ecf8427e  tartest/tarballtest2
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'tartest/tarballtest2'` -ne 0 && \
+  ${echo} 'restoration warning:  size of tartest/tarballtest2 is not 0'
+  fi
+fi
+# ============= tartest/tarballtest7 ==============
+if test -f 'tartest/tarballtest7' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING tartest/tarballtest7 (file already exists)'
+else
+${echo} 'x - extracting tartest/tarballtest7 (empty)'
+  > 'tartest/tarballtest7' &&
+  (set 20 06 05 09 10 34 43 'tartest/tarballtest7'; eval "$shar_touch") &&
+  chmod 0644 'tartest/tarballtest7'
+if test $? -ne 0
+then ${echo} 'restore of tartest/tarballtest7 failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'tartest/tarballtest7: MD5 check failed'
+       ) << SHAR_EOF
+d41d8cd98f00b204e9800998ecf8427e  tartest/tarballtest7
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'tartest/tarballtest7'` -ne 0 && \
+  ${echo} 'restoration warning:  size of tartest/tarballtest7 is not 0'
+  fi
+fi
+# ============= tartest/tarballtest1 ==============
+if test -f 'tartest/tarballtest1' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING tartest/tarballtest1 (file already exists)'
+else
+${echo} 'x - extracting tartest/tarballtest1 (empty)'
+  > 'tartest/tarballtest1' &&
+  (set 20 06 05 09 10 34 43 'tartest/tarballtest1'; eval "$shar_touch") &&
+  chmod 0644 'tartest/tarballtest1'
+if test $? -ne 0
+then ${echo} 'restore of tartest/tarballtest1 failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'tartest/tarballtest1: MD5 check failed'
+       ) << SHAR_EOF
+d41d8cd98f00b204e9800998ecf8427e  tartest/tarballtest1
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'tartest/tarballtest1'` -ne 0 && \
+  ${echo} 'restoration warning:  size of tartest/tarballtest1 is not 0'
+  fi
+fi
+# ============= tartest/tarballtest8 ==============
+if test -f 'tartest/tarballtest8' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING tartest/tarballtest8 (file already exists)'
+else
+${echo} 'x - extracting tartest/tarballtest8 (empty)'
+  > 'tartest/tarballtest8' &&
+  (set 20 06 05 09 10 34 43 'tartest/tarballtest8'; eval "$shar_touch") &&
+  chmod 0644 'tartest/tarballtest8'
+if test $? -ne 0
+then ${echo} 'restore of tartest/tarballtest8 failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'tartest/tarballtest8: MD5 check failed'
+       ) << SHAR_EOF
+d41d8cd98f00b204e9800998ecf8427e  tartest/tarballtest8
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'tartest/tarballtest8'` -ne 0 && \
+  ${echo} 'restoration warning:  size of tartest/tarballtest8 is not 0'
+  fi
+fi
+# ============= tartest/tarballtest4 ==============
+if test -f 'tartest/tarballtest4' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING tartest/tarballtest4 (file already exists)'
+else
+${echo} 'x - extracting tartest/tarballtest4 (empty)'
+  > 'tartest/tarballtest4' &&
+  (set 20 06 05 09 10 34 43 'tartest/tarballtest4'; eval "$shar_touch") &&
+  chmod 0644 'tartest/tarballtest4'
+if test $? -ne 0
+then ${echo} 'restore of tartest/tarballtest4 failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'tartest/tarballtest4: MD5 check failed'
+       ) << SHAR_EOF
+d41d8cd98f00b204e9800998ecf8427e  tartest/tarballtest4
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'tartest/tarballtest4'` -ne 0 && \
+  ${echo} 'restoration warning:  size of tartest/tarballtest4 is not 0'
+  fi
+fi
+# ============= tartest/tarballtest5 ==============
+if test -f 'tartest/tarballtest5' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING tartest/tarballtest5 (file already exists)'
+else
+${echo} 'x - extracting tartest/tarballtest5 (empty)'
+  > 'tartest/tarballtest5' &&
+  (set 20 06 05 09 10 34 43 'tartest/tarballtest5'; eval "$shar_touch") &&
+  chmod 0644 'tartest/tarballtest5'
+if test $? -ne 0
+then ${echo} 'restore of tartest/tarballtest5 failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'tartest/tarballtest5: MD5 check failed'
+       ) << SHAR_EOF
+d41d8cd98f00b204e9800998ecf8427e  tartest/tarballtest5
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'tartest/tarballtest5'` -ne 0 && \
+  ${echo} 'restoration warning:  size of tartest/tarballtest5 is not 0'
+  fi
+fi
+# ============= tartest/tarballtest3 ==============
+if test -f 'tartest/tarballtest3' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING tartest/tarballtest3 (file already exists)'
+else
+${echo} 'x - extracting tartest/tarballtest3 (empty)'
+  > 'tartest/tarballtest3' &&
+  (set 20 06 05 09 10 34 43 'tartest/tarballtest3'; eval "$shar_touch") &&
+  chmod 0644 'tartest/tarballtest3'
+if test $? -ne 0
+then ${echo} 'restore of tartest/tarballtest3 failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'tartest/tarballtest3: MD5 check failed'
+       ) << SHAR_EOF
+d41d8cd98f00b204e9800998ecf8427e  tartest/tarballtest3
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'tartest/tarballtest3'` -ne 0 && \
+  ${echo} 'restoration warning:  size of tartest/tarballtest3 is not 0'
+  fi
+fi
+if rm -fr ${lock_dir}
+then ${echo} 'x - removed lock directory `'${lock_dir}\''.'
+else ${echo} 'x - failed to remove lock directory `'${lock_dir}\''.'
+  exit 1
+fi
+exit 0
