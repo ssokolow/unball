@@ -151,7 +151,7 @@ def makeTests(path, verbosity=0):
                         self.failIf(len(os.listdir(newdir)) != 9,
                                     "%s did not extract the correct number of files. Got %s but expected %s" % (callstring, len(os.listdir(newdir)), 9))
                 else:
-                    self.failIf(filename not in compress_only, "Archive extracted a single file when a folder was expected: %s" % filename)
+                    self.failIf(filename not in compress_only, "Archive extracted a single file when a folder was expected: %s -> %s" % (filename, newdir))
                 pass
             finally:
                 os.chdir(oldcwd)
@@ -289,6 +289,18 @@ if __name__ == '__main__':
                   "Note that this sacrifices one of the unace regression tests.")
 
     (opts, args) = parser.parse_args()
+
+    print "Platform: %s" % (sys.platform,)
+    try:
+        print "uname: %s" % ' '.join(os.uname())
+    except AttributeError:
+        try:
+            print "Windows Version: %s" % (sys.getwindowsversion(),)
+        except AttributeError:
+            print "Detailed system version information unavailable"
+    print "Runtime Version: %s" % sys.version
+    print
+
     print "Using %s" % unball.__file__
     tests = get_tests(opts.unball_verbosity, args and args[0] or None)
 

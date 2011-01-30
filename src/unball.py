@@ -21,6 +21,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 --snip--
+@todo: Use the following to set up an internal header matcher:
+    - http://www.fileformat.info/format/arc/corion.htm
+    - http://www.fileformat.info/format/zoo/corion.htm
 @todo: Add a command-line option for forcing the archive's name on the generated
        directory.
 @todo: Re-implement the "Found <filetype>, unballing <path>" message.
@@ -116,7 +119,7 @@ except ImportError: # TODO: Can magic.open or mime_checker.load() fail?
 
         @todo: When can the C{file} command return non-zero error codes?
         @todo: Polish this code and copy it to nonstdlib.
-        """
+        """ #TODO: Implement a completely internal version of this.
         _sp, _cmd = subprocess, ['file', '-bi', path]
         try:
             mime = _sp.Popen(_cmd, stdout=_sp.PIPE).stdout.read().strip()
@@ -129,7 +132,7 @@ class UnballError(Exception):
     """Base class for all Unball-internal exceptions."""
 class NoExtractorError(UnballError):
     """Raised when no viable extractor can be found for a supported mimetype."""
-class NothingExtractedError(UnballError):
+class NothingProducedError(UnballError):
     """The extractor (usually a subprocess) didn't return an error condition but
     also didn't extract anything."""
 class UnsupportedFiletypeError(UnballError):
@@ -540,6 +543,9 @@ class TryAll(Extractor):
         extractors."""
         self.isViable() # Make sure self.extractors has been built.
 
+        if not self.extractors:
+            raise NoExtractorError("No extractors for file: %s" % path)
+
         for potential_extractor in self.extractors:
             try:
                 before = len(os.listdir(target))
@@ -560,10 +566,11 @@ class TryAll(Extractor):
         self.extractors = []
         for mime in self.mimes:
             if isinstance(mime, Extractor):
-                self.extractors.append(mime)
+                if mime.isViable():
+                    self.extractors.append(mime)
                 continue
             potentials = mimeToExtractor(mime)
-            if potentials:
+            if potentials and potentials[0].isViable():
                 self.extractors.append(potentials[0])
 
         return bool(self.extractors)
@@ -867,6 +874,130 @@ def pathToMimetype(path):
 
     return mime
 
+class TempTarget(object):
+    """
+    Context manager for atomic archive extraction.
+     - On enter: Generate a temporary directory with C{tempfile.mkdtemp}
+     - On clean exit: Rename temporary directory to target name with C{os.rename}
+     - On exception: Delete temporary directory with C{shutil.rmtree}
+
+    @param target: Target path to rename to on successful completion.
+    @param suffix: See C{tempfile.mkstemp}
+    @param prefix: See C{tempfile.mkstemp}
+    @param collapse: If C{True} and the temporary directory contains only one
+      entry when the context manager exits, rename that file or folder to the
+      target path rather than the temporary directory.
+    @param prefer_contained_name: If this and L{collapse} are C{True}, preserve
+      the name of the contained file by replacing the last path component of
+      L{target} before the rename operation.
+
+    @type target: C{str}
+    @type collapse: C{bool}
+    @type prefer_contained_name: C{bool}
+
+    @note: Because of the fixed C{target} value, the recommended use of this
+      context manager is to instantiate it within the C{with} statement.
+
+    @todo: Figure out how to get rid of the "src" parameter.
+
+    @raises IOError: The target directory is invalid or requires additional
+      permissions.
+    @raises OSError: At the time the context is entered, the specified target
+      isn't a directory.
+    @raises NothingProducedError: The context exited cleanly but the temp
+      directory contained no files.
+    """
+    def __init__(self, src, target, suffix="", prefix=tempfile.template,
+            collapse=False, prefer_contained_name=False):
+        self.src = src
+        self.target = target
+        self.suffix = suffix
+        self.prefix = prefix
+        self.collapse = collapse
+        self.prefer_contained_name = prefer_contained_name
+        self.tmp = None  # Filled in __enter__
+
+    def __enter__(self):
+        """
+        @returns: The path to the temporary directory.
+        @rtype: C{str}
+        """
+        tmpdir = self._checkTarget(path)
+
+        self.tmp = tempfile.mkdtemp(suffix=self.suffix, prefix=self.prefix, dir=tmpdir)
+        return self.tmp
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            if not exc_type: # If no exception was raised
+                # Determine whether an added containing folder is necessary.
+                src, target = self._getRealDirs()
+
+                # If the input file is extensionless and --samedir is set.
+                # (Or the input file contains a single file of the same name and it's
+                # either a non-archive, corrupt, or the recursion limit for catching
+                # archive-based quines was reached)
+                if srcFile == targetPath:
+                    targetPath = targetPath + '.out'
+
+                if os.path.exists(targetPath):
+                    #TODO: How should I offer --overwrite?
+                    # Consider using OSError(errno.EEXIST, os.strerror(errno.EEXIST),
+                    # path) for reduced clarity but free localization.
+                    raise OSError(errno.EEXIST, "Target path already exists", targetPath)
+                else:
+                    os.rename(srcPath, targetPath)
+
+                # You have to set the umask to retrieve it. :(
+                umask = os.umask(022)
+                os.umask(umask)
+
+                # The target directory was created by mkdtemp, so loosen the
+                # permissions according to the umask.
+                if os.path.isdir(targetPath):
+                    os.chmod(targetPath, 0777 & (~umask))
+                else:
+                    os.chmod(targetPath, 0666 & (~umask))
+        finally:
+            if os.path.exists(self.tmp):
+                shutil.rmtree(self.tmp)
+        #TODO: Unit test to verify that returning none passes exceptions through.
+
+    def _getRealDirs(self):
+        """
+        @note: Raises OSError if called outside a C{with} block.
+        @todo: Decide how to implement this properly.
+        """
+        contents = os.listdir(self.tmp)
+        if self.collapse and len(contents) == 1:
+            src = os.path.join(self.tmp, contents[0])
+            if self.prefer_contained_name:
+                target = os.path.join(os.path.split(self.target)[0], contents[0])
+            else:
+                target = self.target
+        elif len(contents) > 1:
+            src, target = self.tmp, self.target
+        else:
+            raise NothingProducedError("Operation completed but temp folder is empty for %s" % self.target)
+        return src, target
+
+    def _checkTarget(self, path):
+        """
+        Code common to L{__enter__} and L{setTarget} for testing the
+        viability of a given target path.
+        """
+        tmpdir = os.path.split(self.target)[0]
+        if not os.path.isdir(tmpdir):
+            raise OSError(errno.ENOTDIR, "Target's parent is not a directory", tmpdir)
+        elif not os.access(tmpdir, os.W_OK | os.X_OK):
+            raise IOError(errno.EACCES, "Target directory is not writable", tmpdir)
+        return tmpdir
+
+    def setTarget(self, path):
+        """TODO: Re-implement this as a property"""
+        self._checkTarget(path)
+        self.target = path
+
 def tryExtract(srcFile, targetDir=None, level=0):
     """Attempt to extract the given archive.
 
@@ -891,7 +1022,7 @@ def tryExtract(srcFile, targetDir=None, level=0):
     instance returned a non-zero exit code.
     @raises NoExtractorError: The mimetype of the given filetype is
     supported but no viable extractors were found.
-    @raises NothingExtractedError: The L{Extractor} exited cleanly but no
+    @raises NothingProducedError: The L{Extractor} exited cleanly but no
     files or directories were extracted. (eg. unace when it fails)
     @raises UnsupportedFiletypeError: The mimetype of the given file has no
     L{Extractor} mappings.
@@ -907,27 +1038,26 @@ def tryExtract(srcFile, targetDir=None, level=0):
         raise IOError(errno.EISDIR, "Source file is a directory", srcFile)
     elif not os.access(srcFile, os.R_OK):
         raise IOError(errno.EACCES, "Access denied to source file", srcFile)
-    elif not os.path.isdir(targetDir):
-        raise OSError(errno.ENOTDIR, "Specified target not a directory", targetDir)
-    elif not os.access(targetDir, os.W_OK | os.X_OK):
-        raise IOError(errno.EACCES, "Target directory not writable", targetDir)
 
     # Check for viable extractors for the given file
     mime = pathToMimetype(srcFile)
     extractors = mimeToExtractor(mime)
     if not extractors:
         if mime in FALLBACK_DESCRIPTIONS:
-            print "%s seems to be a(n) %s" % FALLBACK_DESCRIPTIONS[mime]
+            #TODO: Replace this with a logging call for easy disabling
+            print "%s seems to be a(n) %s" % (srcFile, FALLBACK_DESCRIPTIONS[mime])
+            raise UnsupportedFiletypeError("Filetype recognized but unsupported: %s" % srcFile)
         elif mime in EXTRACTORS:
             raise NoExtractorError("Filetype supported but no viable extractors found: %s" % srcFile)
         else:
             raise UnsupportedFiletypeError("Not a known archive type: %s" % srcFile)
 
-    try:
-        # Create it in the target directory so an instant, atomic os.rename can
-        # be used on success.
-        tempTarget = tempfile.mkdtemp(prefix='unball-', dir=targetDir)
+    #TODO: Rewrite all this temp directory handling as a context manager.
 
+    context = TempTarget(srcFile, targetDir, prefix='unball-', dir=targetDir,
+            collapse=True, prefer_contained_name=True)
+
+    with context as tempTarget:
         extractors[0](srcFile, tempTarget) # Raises an exception on non-zero exit code.
 
         # Ensure that unball can't create files and dirs with 000 permissions.
@@ -952,49 +1082,7 @@ def tryExtract(srcFile, targetDir=None, level=0):
             else:
                 os.remove(os.path.join(tempTarget, contents[0]))
 
-        # Determine whether an added containing folder is necessary.
-        tempContents = os.listdir(tempTarget)
-        if len(tempContents) == 1:
-            srcPath    = os.path.join(tempTarget, tempContents[0])
-            targetPath = os.path.join(targetDir, tempContents[0])
-        elif len(tempContents) > 1: # The archive didn't provide its own containing folder.
-                srcPath    = tempTarget
-                targetPath = os.path.join(targetDir, os.path.splitext(os.path.basename(srcFile))[0])
-        else:                       # Nothing was extracted
-            raise NothingExtractedError("Extractor for %s produced no files." % srcFile)
-
-        # If the input file is extensionless and --samedir is set.
-        # (Or the input file contains a single file of the same name and it's
-        # either a non-archive, corrupt, or the recursion limit for catching
-        # archive-based quines was reached)
-        if srcFile == targetPath:
-            targetPath = targetPath + '.out'
-
-        if os.path.exists(targetPath):
-            #TODO: How should I offer --overwrite?
-            # Consider using OSError(errno.EEXIST, os.strerror(errno.EEXIST),
-            # path) for reduced clarity but free localization.
-            raise OSError(errno.EEXIST, "Target path already exists", targetPath)
-        else:
-            os.rename(srcPath, targetPath)
-
-        # You have to set the umask to retrieve it. :(
-        umask = os.umask(022)
-        os.umask(umask)
-
-        # The target directory was created by mkdtemp, so loosen the
-        # permissions according to the umask.
-        if os.path.isdir(targetPath):
-            os.chmod(targetPath, 0777 & (~umask))
-        else:
-            os.chmod(targetPath, 0666 & (~umask))
-
-        return targetPath
-
-    finally:
-        # (This try/finally was most of the shell script code)
-        if os.path.exists(tempTarget):
-            shutil.rmtree(tempTarget)
+    return targetPath
 
 def self_test(silent=False):
     """Verify the integrity of the internal mapping tables.
@@ -1075,7 +1163,7 @@ def main_func():
             #TODO: Do this in a way which produces nicer output.
         except UnsupportedFiletypeError, err:
             cautions.append(archive)
-        except NothingExtractedError, err: # Bug trap triggered
+        except NothingProducedError, err: # Bug trap triggered
             failures.append(str(err))
             last_errcode = 1
         except IOError, err: # Permissions error

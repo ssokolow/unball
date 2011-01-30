@@ -53,6 +53,8 @@ System Integration:
 - Improve moveToZip so that help2man can be used with it.
 
 Formats and Tools:
+- Add support for using TheUnarchiver for almost anything... especially Mac
+  formats like Stuffit and the old stuff I don't currently support.
 - Add support for using lrzip instead of rzip.
 - Look into supporting app-arch/macutil and media-video/mkvtoolnix.
 - At least identify .UC2 files. (http://filext.com/file-extension/uc2)

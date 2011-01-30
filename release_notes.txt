@@ -1,0 +1,17 @@
+Unball 0.3.0 has been completely rewritten in Python. This solves various known problems, probably some unknown ones, and the unit tests should minimize introduction of new ones.
+
+Improvements:
+- Fallback system (Full support for using alternative extractors if the preferred ones are unavailable)
+- Experimental built-in extractors for Zip, Tar, BZip2, GZip, UUEncode, Base64, and BinHex.
+- Proper portability (No more uncertainty because I can only test against GNU coreutils and bash)
+- First step toward making unball's internals a proper Python module so other Python programs can use them directly.
+- More thorough unit tests
+
+Fixes:
+- Mimetype detection is now done first and extensions only used as a fallback (fixes .war extraction among other things)
+- Temporary directory is now created in the target folder to avoid the risk of needing to copy between partitions.
+- Switched to using Python's internal string processing routines (Fixes elusive bug in case-sensitivity)
+- Proper cleanup using try/finally so temp files don't get left laying around if you Ctrl+C
+- Switched from piping /dev/urandom to unace to using an internal /bin/yes implementation
+- Proper handling of subprocesses being killed by signals (eg. SIGINT/Ctrl+C)
+- Support for using unzoo (Fixes zoo extraction on amd64)
