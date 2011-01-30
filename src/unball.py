@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Unball 0.3.0
+"""Unball 0.2.99.0
 Copyright 2005-2009 Stephan Sokolow
 
 See the README file in the distribution archive for details.
