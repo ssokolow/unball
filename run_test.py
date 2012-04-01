@@ -132,26 +132,26 @@ def makeTests(path, verbosity=0):
                                     "%s extracted to the source dir without being asked to." % callstring)
 
                 if realDest != cwd:
-                    self.failIf(len(os.listdir(cwd))  > len(old_cwd),
+                    self.assertFalse(len(os.listdir(cwd))  > len(old_cwd),
                         "%s extracted to working dir when given a different destination." % callstring)
 
                 self.failUnless(os.path.exists(self.srcfile),
                                 "%s didn't prevent the original archive from being destroyed." % callstring)
-                self.failIf(len(os.listdir(realDest)) < (len(old_dest) + 1),
+                self.assertFalse(len(os.listdir(realDest)) < (len(old_dest) + 1),
                                 "%s didn't extract anything to the target dir." % callstring)
 
                 added_files = [x for x in os.listdir(realDest) if x not in old_dest]
                 newdir = os.path.join(realDest, added_files[0])
                 if os.path.isdir(newdir):
-                    self.failIf(len(os.listdir(newdir)) <= 1,
+                    self.assertFalse(len(os.listdir(newdir)) <= 1,
                                 "%s created a wrapper dir without needing to" % callstring)
-                    self.failIf(newdir.endswith('.tar'),
+                    self.assertFalse(newdir.endswith('.tar'),
                                 "%s didn't strip .tar from the name of the newly created dir." % callstring)
                     if not filename in count_omit:
-                        self.failIf(len(os.listdir(newdir)) != 9,
+                        self.assertFalse(len(os.listdir(newdir)) != 9,
                                     "%s did not extract the correct number of files. Got %s but expected %s" % (callstring, len(os.listdir(newdir)), 9))
                 else:
-                    self.failIf(filename not in compress_only, "Archive extracted a single file when a folder was expected: %s -> %s" % (filename, newdir))
+                    self.assertFalse(filename not in compress_only, "Archive extracted a single file when a folder was expected: %s -> %s" % (filename, newdir))
                 pass
             finally:
                 os.chdir(oldcwd)
@@ -176,7 +176,7 @@ class GlobalTests(unittest.TestCase):
         present = [os.path.splitext(x)[1].lower() for x in os.listdir(self.testdir)]
         missing = [ext for ext in unball.EXTENSIONS if not ext in present]
         missing.sort()
-        self.failIf(missing, "The following supported extensions have no testcases: %s" % ', '.join(missing))
+        self.assertFalse(missing, "The following supported extensions have no testcases: %s" % ', '.join(missing))
 
     def testMimetypeCoverage(self):
         """Checking for mimetypes without testcases (prone to false negatives)"""
@@ -201,11 +201,11 @@ class GlobalTests(unittest.TestCase):
                 present.extend(mimetype)
 
         missing = [mime for mime in unball.EXTENSIONS.values() if not isPresent(mime)]
-        self.failIf(missing, "The following supported mimetypes have no testcases: %s" % ', '.join(missing))
+        self.assertFalse(missing, "The following supported mimetypes have no testcases: %s" % ', '.join(missing))
 
     def testSelfTests(self):
         """Running unball's internal self-tests"""
-        self.failUnless(unball.self_test(silent=True),
+        self.assertTrue(unball.self_test(silent=True),
             "Unball's internal self-tests reported errors")
 
     def _check_mimetype(self, mime, test):
@@ -221,7 +221,7 @@ class GlobalTests(unittest.TestCase):
         """Checking for orphaned extension-mime mappings"""
         orphaned_exts = [ext for ext in unball.EXTENSIONS if not self._check_mimetype(unball.EXTENSIONS[ext],
                             lambda x: x in unball.EXTRACTORS or x in unball.FALLBACK_DESCRIPTIONS)]
-        self.failIf(orphaned_exts, "EXTENSIONS lines must be paired with EXTRACTORS or FALLBACK_DESCRIPTIONS lines:" +
+        self.assertFalse(orphaned_exts, "EXTENSIONS lines must be paired with EXTRACTORS or FALLBACK_DESCRIPTIONS lines:" +
                     '\n'.join('%s: %s' % (ext, unball.EXTENSIONS[ext]) for ext in orphaned_exts))
 
     def testOrphanedMimes(self):
@@ -237,20 +237,20 @@ class GlobalTests(unittest.TestCase):
 
         # Add in any extensionless FALLBACK_DESCRIPTIONS entries.
         orphan_mimes += [mime for mime in unball.FALLBACK_DESCRIPTIONS if not mime in unball.EXTENSIONS.values()]
-        self.failIf(orphan_mimes, "Mimetypes without extension mappings detected:" +
+        self.assertFalse(orphan_mimes, "Mimetypes without extension mappings detected:" +
                         '\n'.join(orphan_mimes))
 
     def testExtensionCases(self):
         """Checking for extension mappings which use non-lowercase alphas"""
         upper_exts = [ext for ext in unball.EXTENSIONS if ext.lower() != ext]
-        self.failIf(upper_exts, "Extension mappings must be case-insensitive. Violations detected:" +
+        self.assertFalse(upper_exts, "Extension mappings must be case-insensitive. Violations detected:" +
                     '\n'.join("%s: %s" % (ext, unball.EXTENSIONS[ext]) for ext in upper_exts))
 
     def testMimetypeCases(self):
         """Checking for extractor/message mappings which use non-lowercase alphas"""
         upper_mimes = [mime for mime in unball.EXTRACTORS.keys() + unball.FALLBACK_DESCRIPTIONS.keys() if mime.lower() != mime]
         upper_mimes += [mime for mime in unball.EXTENSIONS.values() if self._check_mimetype(mime, lambda x: x.lower() != x)]
-        self.failIf(upper_mimes, "Mimetype-extractor/message mappings must be case-insensitive. Violations detected:" +
+        self.assertFalse(upper_mimes, "Mimetype-extractor/message mappings must be case-insensitive. Violations detected:" +
                     '\n'.join(upper_mimes))
 
 
