@@ -907,7 +907,7 @@ class TempTarget(object):
     @raises NothingProducedError: The context exited cleanly but the temp
       directory contained no files.
     """
-    def __init__(self, src, target, suffix="", prefix=tempfile.template,
+    def __init__(self, src, target, suffix="", prefix=tempfile.template, dir=None,
             collapse=False, prefer_contained_name=False):
         self.src = src
         self.target = target
@@ -915,6 +915,7 @@ class TempTarget(object):
         self.prefix = prefix
         self.collapse = collapse
         self.prefer_contained_name = prefer_contained_name
+        self.tmpdir = dir or tempfile.gettempdir()
         self.tmp = None  # Filled in __enter__
 
     def __enter__(self):
@@ -922,7 +923,7 @@ class TempTarget(object):
         @returns: The path to the temporary directory.
         @rtype: C{str}
         """
-        tmpdir = self._checkTarget(path)
+        tmpdir = self._checkTarget(self.tmpdir)
 
         self.tmp = tempfile.mkdtemp(suffix=self.suffix, prefix=self.prefix, dir=tmpdir)
         return self.tmp
