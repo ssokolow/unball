@@ -55,6 +55,7 @@ System Integration:
 Formats and Tools:
 - Add support for using TheUnarchiver for almost anything... especially Mac
   formats like Stuffit and the old stuff I don't currently support.
+- https://code.google.com/p/libarchive/wiki/LibarchiveFormats
 - Add support for using lrzip instead of rzip.
 - Look into supporting app-arch/macutil and media-video/mkvtoolnix.
 - At least identify .UC2 files. (http://filext.com/file-extension/uc2)
@@ -92,6 +93,9 @@ Formats and Tools:
 - Support dmg2img and dmg2iso (http://vu1tur.eu.org/tools/)
 - Java Resource Adaptor aRchives are .zip files with .rar extensions. Make sure .zip can always be recognized by the header check.
 - Look into using python-lzo to provide a non-subprocess fallback for lzop.
+- http://innounp.sourceforge.net/
+- http://legroom.net/software/uniextract
+- http://www.peazip.org/
 
 Unit Tests:
 - Write tests for the Thunar .tap integration script since it's just a shell script.
