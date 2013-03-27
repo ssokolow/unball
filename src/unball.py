@@ -631,7 +631,8 @@ EXTRACTORS = {
         'application/cab'              : TryAll(Extractor('cabextract'),
                                           Extractor('unshield'),
                                           Extractor('sqc', 'x')),
-        'application/x-compress'       :  PipeExtractor('uncompress', '.z'),
+        'application/x-compress'       : (PipeExtractor('uncompress.real', '.z'),
+                                          PipeExtractor('uncompress', '.z')),
         'application/x-cpio'           :  Extractor('cpio', '--force-local', '--quiet', '-idI'),
         'application/x-deb'            :  Extractor('ar', 'x'),
         'application/x-dosexec'        :  [],    # See below for how this works
