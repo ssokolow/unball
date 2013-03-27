@@ -24,15 +24,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 @todo: Use the following to set up an internal header matcher:
     - http://www.fileformat.info/format/arc/corion.htm
     - http://www.fileformat.info/format/zoo/corion.htm
-@todo: Add a command-line option for forcing the archive's name on the generated
-       directory.
+@todo: Add a command-line option for forcing the archive's name on the
+       generated directory.
 @todo: Re-implement the "Found <filetype>, unballing <path>" message.
 @todo: Decide how to implement --overwrite and --verbose
 @todo: Do the exception handling in a way which produces nicer output.
 @todo: Consider switching to the logging module for error messages.
 @todo: Will unstuff and cabextract handle self-extracting cabs?
        (If so, add application/cab to the .exe list)
-@todo: Fix this so it handles "one ext to multiple mimetypes" mappings properly.
+@todo: Fix this so it handles "one ext to multiple mimetypes" mappings properly
 @todo: Now that this is in Python, restructure the code so it provides a proper
        API for being imported by other Python programs.
 @todo: Add password-protected archive tests to ensure subprocesses don't pause
@@ -76,9 +76,10 @@ __author__  = "Stephan Sokolow (deitarion/SSokolow)"
 __version__ = "0.2.99.0"
 __license__ = "GNU GPL 2.0 or later"
 
-RECURSION_LIMIT = 5 #: Controls the anti-quine check.
+RECURSION_LIMIT = 5  #: Controls the anti-quine check.
 
-import errno, os, subprocess, shutil, stat, sys, tempfile
+import errno, os, subprocess, shutil, sys, tempfile
+from stat import S_IRUSR, S_IXUSR
 
 try:
     import magic
@@ -89,11 +90,11 @@ try:
         """Given a path, attempt to determine the file's mimetype by examining
         the file's contents.
 
-        @param checker: Ignore this. It's only present if "import magic" succeeded.
+        @param checker: Ignore this. Only present if "import magic" succeeded.
         @param path: The path to the file to be inspected.
         @type path: C{str}
 
-        @return: The mimetype of the file or application/octet-stream on failure.
+        @return: Mimetype of the file or application/octet-stream on failure.
         @rtype: C{str}
         @raises IOError: The file does not exist or cannot be read.
 
@@ -107,19 +108,19 @@ try:
             return checker(path).decode('string_escape').split()[0].rstrip(',')
 
     del mime_checker
-except ImportError: # TODO: Can magic.open or mime_checker.load() fail?
+except ImportError:  # TODO: Can magic.open or mime_checker.load() fail?
     def headerToMimetype(path):
         """Given a path, attempt to determine the file's mimetype by examining
         the file's contents.
 
         @param path: The path to the file to be inspected.
         @type path: C{str}
-        @return: The mimetype of the file or application/octet-stream on failure.
+        @return: Mimetype of the file or application/octet-stream on failure.
         @rtype: C{str}
 
         @todo: When can the C{file} command return non-zero error codes?
         @todo: Polish this code and copy it to nonstdlib.
-        """ #TODO: Implement a completely internal version of this.
+        """  # TODO: Implement a completely internal version of this.
         _sp, _cmd = subprocess, ['file', '-bi', path]
         try:
             mime = _sp.Popen(_cmd, stdout=_sp.PIPE).stdout.read().strip()
@@ -131,10 +132,10 @@ except ImportError: # TODO: Can magic.open or mime_checker.load() fail?
 class UnballError(Exception):
     """Base class for all Unball-internal exceptions."""
 class NoExtractorError(UnballError):
-    """Raised when no viable extractor can be found for a supported mimetype."""
+    """Raised when no viable extractor can be found for a supported mimetype"""
 class NothingProducedError(UnballError):
-    """The extractor (usually a subprocess) didn't return an error condition but
-    also didn't extract anything."""
+    """The extractor (usually a subprocess) didn't return an error condition
+    but also didn't extract anything."""
 class UnsupportedFiletypeError(UnballError):
     """Raised when the given mimetype is completely unsupported regardless of
     conditions."""
@@ -145,6 +146,7 @@ class BinYes(object):
     @staticmethod
     def read(*args):
         return "y\n"
+
     @staticmethod
     def fileno():
         return None
@@ -156,9 +158,11 @@ class Extractor(object):
     def __init__(self, *base_args):
         """Store the provided commandline for extracting archives."""
         self._args = list(base_args)
+
     def __repr__(self):
         return "<%s(%s)>" % (self.__class__.__name__,
                 ', '.join(repr(x) for x in getattr(self, '_args', [])))
+
     def __call__(self, path, target):
         """Use the command provided in the constructor to extract the given
         archive to the given destination directory.
@@ -170,7 +174,7 @@ class Extractor(object):
         @type target: C{str}
         """
 
-        if False: # --verbose test goes here
+        if False:  # --verbose test goes here
             _out = None
             _err = None
         else:
@@ -184,6 +188,7 @@ class Extractor(object):
         subprocess.check_call(self._args + [path], stdin=BinYes,
                     stdout=_out, stderr=_err, close_fds=_fds,
                     cwd=target, universal_newlines=True)
+
     def isViable(self):
         """Check to see if the extractor binary can be found in the PATH."""
         return bool(which(self._args[0]))
@@ -198,27 +203,31 @@ class NamedOutputExtractor(Extractor):
      - C{path=foo.goz, src_ext=.gz , target_ext=.out: foo.goz.out}
      - C{path=foo.lol, src_ext=None, target_ext=.wut: foo.lol.wut}
      """
-    def __init__(self, args, src_ext=None, target_ext=None, outfile_option=None):
+    def __init__(self, args, src_ext=None, target_ext=None,
+                 outfile_option=None):
         """
         @param src_ext: An extension to strip from the target path if found.
         @param target_ext: An extension to add to the target path.
-        @param outfile_option: If present, the command-line option with which to
-            prefix the output filename. Whether or not it ends with a space is
-            significant.
+        @param outfile_option: If present, the command-line option with which
+            to prefix the output filename. Whether or not it ends with a space
+            is significant.
         @type src_ext: C{str}
         @type target_ext: C{str}
         @type outfile_option: C{str}
 
-        @raises SyntaxError: You failed to provide at least one of src_ext or target_ext
+        @raises SyntaxError: You failed to provide at least one of src_ext or
+            target_ext
         """
         if isinstance(args, basestring):
             args = [args]
         Extractor.__init__(self, *args)
         if not (src_ext or target_ext):
-            raise SyntaxError("NamedOutputExtractor requires at least one of src_ext and target_ext")
+            raise SyntaxError("NamedOutputExtractor requires at least one of "
+                              "src_ext and target_ext")
         self.src_ext = src_ext
         self.target_ext = target_ext
         self.outfile_option = outfile_option
+
     def __call__(self, path, target):
         """Use the command provided in the constructor to extract the given
         archive to the given destination directory.
@@ -230,7 +239,7 @@ class NamedOutputExtractor(Extractor):
         @type target: C{str}
         """
 
-        if False: # --verbose test goes here
+        if False:  # --verbose test goes here
             _out = None
             _err = None
         else:
@@ -240,7 +249,8 @@ class NamedOutputExtractor(Extractor):
         # Can't redirect on Windows if the FDs are closed.
         _fds = (os.name != 'nt')
 
-        _outname = self._make_target_filename(path, target, self.src_ext, self.target_ext)
+        _outname = self._make_target_filename(path, target, self.src_ext,
+                                              self.target_ext)
         args = [path]
 
         if self.outfile_option:
@@ -255,6 +265,7 @@ class NamedOutputExtractor(Extractor):
         subprocess.check_call(self._args + args, stdin=BinYes,
                     stdout=_out, stderr=_err, close_fds=_fds,
                     cwd=target, universal_newlines=True)
+
     def _make_target_filename(self, srcPath, destDir, srcExt=None, destExt=None):
         """A pseudo-protected function for generating a target filename when
         wrapping an extractor that does not provide one on its own.
@@ -290,13 +301,14 @@ class PipeExtractor(NamedOutputExtractor):
 
     @note: C{outfile_option} is ignored.
     """
-    CHUNK_SIZE = 4096 #: Provided for subclasses which do their own C{read}ing.
+    CHUNK_SIZE = 4096  #: Provided for subclasses which do their own C{read}ing
 
     def __call__(self, path, target):
-        target_path = self._make_target_filename(path, target, self.src_ext, self.target_ext)
+        target_path = self._make_target_filename(path, target, self.src_ext,
+                                                 self.target_ext)
         _out = open(target_path, 'wb')
 
-        if False: # --verbose test goes here
+        if False:  # --verbose test goes here
             _err = None
         else:
             _err = open(os.devnull, 'w')
@@ -317,8 +329,8 @@ class ZipExtractor(Extractor):
     def __call__(self, path, target):
         """Extract C{path} into C{target} using the C{zipfile} module.
 
-        @note: No need to use C{zipfile.is_zipfile} because we want an exception
-        on failure anyway.
+        @note: No need to use C{zipfile.is_zipfile} because we want an
+        exception on failure anyway.
 
         @todo: Write a fallback implementation.
         C{ZipFile.extractall} was added in Python 2.6
@@ -329,10 +341,12 @@ class ZipExtractor(Extractor):
         else:
             raise NotImplementedError("Fallback zip extraction currently " +
                     "requires Python 2.6 or higher for ZipFile.extractall")
+
     def isViable(self):
         """Check to see if Python stdlib was built with zipfile support."""
         try:
             import zipfile
+            zipfile  # Silence flake8 complaint about unused import
             return True
         except ImportError:
             return False
@@ -344,6 +358,7 @@ class TarExtractor(Extractor):
     def __init__(self):
         """no-op"""
         pass
+
     def __call__(self, path, target):
         """Extract C{path} into C{target} using the C{zipfile} module.
 
@@ -351,10 +366,12 @@ class TarExtractor(Extractor):
         exception on failure anyway."""
         import tarfile
         tarfile.open(path, 'r').extractall(target)
+
     def isViable(self):
         """Check to see if Python stdlib was built with tarfile support."""
         try:
             import tarfile
+            tarfile  # Silence flake8 complaint about unused import
             return True
         except ImportError:
             return False
@@ -372,10 +389,12 @@ class GZipExtractor(PipeExtractor):
             out_handle.write(block)
         in_handle.close()
         out_handle.close()
+
     def isViable(self):
         """Check to see if Python stdlib was built with gzip support."""
         try:
             import gzip
+            gzip  # Silence flake8 complaint about unused import
             return True
         except ImportError:
             return False
@@ -388,15 +407,17 @@ class BZip2Extractor(PipeExtractor):
         """Decompress C{path} into C{target} using the C{bz2} module."""
         import bz2
         target_path = self._make_target_filename(path, target, '.bz2')
-        in_handle, out_handle = bz2.BZ2File(path,'r'), open(target_path, 'wb')
+        in_handle, out_handle = bz2.BZ2File(path, 'r'), open(target_path, 'wb')
         for block in iter(lambda: in_handle.read(self.CHUNK_SIZE), ''):
             out_handle.write(block)
         in_handle.close()
         out_handle.close()
+
     def isViable(self):
         """Check to see if Python stdlib was built with bzip2 support."""
         try:
             import bz2
+            bz2  # Silence flake8 complaint about unused import
             return True
         except ImportError:
             return False
@@ -412,13 +433,15 @@ class UUDecoder(Extractor):
         cwd = os.getcwd()
         try:
             os.chdir(target)
-            uu.decode(file(path,'rb'))
+            uu.decode(file(path, 'rb'))
         finally:
             os.chdir(cwd)
+
     def isViable(self):
         """Check to see if Python stdlib was built with uudecode support."""
         try:
             import uu
+            uu  # Silence flake8 complaint about unused import
             return True
         except ImportError:
             return False
@@ -428,6 +451,7 @@ class B64Decoder(NamedOutputExtractor):
     def __init__(self):
         """@todo: Rework this so it doesn't hard-code the extensions. (DRY)"""
         NamedOutputExtractor.__init__(self, [], ('.b64', '.mim'))
+
     def __call__(self, path, target):
         """Decode C{path} into C{target} using the C{base64} module."""
         import base64
@@ -438,10 +462,12 @@ class B64Decoder(NamedOutputExtractor):
             base64.decode(path, out)
         finally:
             os.chdir(cwd)
+
     def isViable(self):
         """Check to see if Python stdlib was built with base64 support."""
         try:
             import base64
+            base64  # Silence flake8 complaint about unused import
             return True
         except ImportError:
             return False
@@ -460,10 +486,12 @@ class BinhexDecoder(Extractor):
             binhex.hexbin(path)
         finally:
             os.chdir(cwd)
+
     def isViable(self):
         """Check to see if Python stdlib was built with binhex support."""
         try:
             import binhex
+            binhex  # Silence flake8 complaint about unused import
             return True
         except ImportError:
             return False
@@ -481,11 +509,12 @@ class SitExtractor(Extractor):
 
         path = os.environ.get('PATH', os.defpath).split(os.pathsep)
         self.path = os.pathsep.join(path + self.prefixes)
+
     def __call__(self, path, target):
         """Use unstuff to extract the given Stuffit archive.
         @note: If I read my old shell script correctly, unstuff only accepts
-        relative paths and that's why I break from the convention of not relying
-        on the working directory being correctly set.
+        relative paths and that's why I break from the convention of not
+        relying on the working directory being correctly set.
 
         @param path: The archive to be extracted.
         @param target: The directory into which the extracted files should be
@@ -493,7 +522,7 @@ class SitExtractor(Extractor):
         @type path: C{str}
         @type target: C{str}
         """
-        if False: # --verbose test goes here
+        if False:  # --verbose test goes here
             _out = None
             _err = None
         else:
@@ -521,8 +550,9 @@ class SitExtractor(Extractor):
                     stdin=BinYes, stdout=_out, stderr=_err,
                     close_fds=_fds, cwd=target, env=_env,
                     universal_newlines=True)
+
     def isViable(self):
-        """Check to see if the PATH plus the given addition provides unstuff."""
+        """Check to see if the PATH plus the given addition provides unstuff"""
         return bool(which('unstuff', self.path))
 
 class TryAll(Extractor):
@@ -535,13 +565,15 @@ class TryAll(Extractor):
         @note: Order is significant."""
         self.mimes = mimes
         self.extractors = []
+
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__,
                 ', '.join(repr(x) for x in self.mimes))
+
     def __call__(self, path, target):
         """Attempt to decompress C{path} to C{target} using one of the given
         extractors."""
-        self.isViable() # Make sure self.extractors has been built.
+        self.isViable()  # Make sure self.extractors has been built.
 
         if not self.extractors:
             raise NoExtractorError("No extractors for file: %s" % path)
@@ -553,9 +585,9 @@ class TryAll(Extractor):
                 after = len(os.listdir(target))
 
                 if before < after:
-                    return # Success
+                    return  # Success
             except subprocess.CalledProcessError:
-                pass # Better luck next time?
+                pass  # Better luck next time?
 
     def isViable(self):
         """Check whether any of the sub-extractors are viable.
@@ -625,7 +657,7 @@ EXTRACTORS = {
         'application/x-extension-sfark':  Extractor('sfarkxtc'),
         'application/x-shar'           : TryAll(Extractor('unmakeself'),
                                           Extractor('unshar')),
-        'application/x-slp'            :  Extractor('alien', '-g'), #Untested for lack of a .slp file
+        'application/x-slp'            :  Extractor('alien', '-g'),  # Untested for lack of a .slp file
         'application/x-squeeze'        :  Extractor('sqc', 'x'),
         'application/x-stuffit'        :  SitExtractor(),
         'application/x-tar'            : (Extractor('tar', 'xf'),
@@ -639,7 +671,7 @@ EXTRACTORS = {
         'application/x-yenc-encoded'   : (Extractor('uudeview', '-i'),
                                           Extractor('ydecode'),
                                           Extractor('yydecode')),
-        'application/zip'              : (Extractor('7z',  'x'),
+        'application/zip'              : (Extractor('7z', 'x'),
                                           Extractor('7za', 'x'),
                                           Extractor('unzip', '-q'),
                                           ZipExtractor(),
@@ -809,8 +841,9 @@ command work.
 """
 
 def which(execName, execpath=None):
-    """Like the UNIX which command, this function attempts to find the given executable in the
-    system's search path. Returns C{None} if it cannot find anything.
+    """Like the UNIX which command, this function attempts to find the given
+    executable in the system's search path. Returns C{None} if it cannot find
+    anything.
 
     @todo: Find the copy I extended with win32all and use it here."""
     if 'nt' in os.name:
@@ -830,7 +863,7 @@ def which(execName, execpath=None):
         for suffix in suffixes:
             if os.path.exists(fullPath + suffix):
                 return fullPath + suffix
-    return None # Couldn't find anything.
+    return None  # Couldn't find anything.
 
 def mimeToExtractor(mime):
     """Given a mimetype, return a list of possible extraction tools.
@@ -987,8 +1020,9 @@ def tryExtract(srcFile, targetDir=None, level=0):
         should be made.
     @param targetDir: The directory in which the containing folder for the
         contents should appear. (Use C{None} for "same as source file")
-    @param level: Recursion level. Used to protect the nested extractor/decompressor
-        from quines. (Proven possible in zipfiles. I don't know about others.)
+    @param level: Recursion level. Used to protect the nested
+        extractor/decompressor from quines. (Proven possible in zipfiles.
+        I don't know about others.)
     @type srcFile: C{str} | C{unicode}
     @type targetDir: C{str} | C{unicode}
     @type level: C{int}
@@ -1027,12 +1061,16 @@ def tryExtract(srcFile, targetDir=None, level=0):
     if not extractors:
         if mime in FALLBACK_DESCRIPTIONS:
             #TODO: Replace this with a logging call for easy disabling
-            print "%s seems to be a(n) %s" % (srcFile, FALLBACK_DESCRIPTIONS[mime])
-            raise UnsupportedFiletypeError("Filetype recognized but unsupported: %s" % srcFile)
+            print("%s seems to be a(n) %s" % (
+                    srcFile, FALLBACK_DESCRIPTIONS[mime]))
+            raise UnsupportedFiletypeError("Filetype recognized but "
+                                           "unsupported: %s" % srcFile)
         elif mime in EXTRACTORS:
-            raise NoExtractorError("Filetype supported but no viable extractors found: %s" % srcFile)
+            raise NoExtractorError("Filetype supported but no viable "
+                                   "extractors found: %s" % srcFile)
         else:
-            raise UnsupportedFiletypeError("Not a known archive type: %s" % srcFile)
+            raise UnsupportedFiletypeError(
+                    "Not a known archive type: %s" % srcFile)
 
     #TODO: Rewrite all this temp directory handling as a context manager.
 
@@ -1041,16 +1079,16 @@ def tryExtract(srcFile, targetDir=None, level=0):
             prefix='unball-', parent=targetDir, collapse=True)
 
     with context as tempTarget:
-        extractors[0](srcFile, tempTarget) # Raises an exception on non-zero exit code.
+        extractors[0](srcFile, tempTarget)  # Raises exception on non-zero exit
 
         # Ensure that unball can't create files and dirs with 000 permissions.
         for fldr, dirs, files in os.walk(tempTarget):
             for dirname in dirs:
                 path = os.path.join(fldr, dirname)
-                os.chmod(path, os.stat(path).st_mode | stat.S_IRUSR | stat.S_IXUSR)
+                os.chmod(path, os.stat(path).st_mode | S_IRUSR | S_IXUSR)
             for filename in files:
                 path = os.path.join(fldr, filename)
-                os.chmod(path, os.stat(path).st_mode | stat.S_IRUSR)
+                os.chmod(path, os.stat(path).st_mode | S_IRUSR)
 
         contents = os.listdir(tempTarget)
         if len(contents) == 0:
@@ -1062,7 +1100,8 @@ def tryExtract(srcFile, targetDir=None, level=0):
             #TODO: Should I go as far as explicitly collapsing nested
             #      containing folders?
             try:
-                tryExtract(os.path.join(tempTarget, contents[0]), None, level+1)
+                tryExtract(os.path.join(tempTarget, contents[0]), None,
+                           level + 1)
             except UnsupportedFiletypeError:
                 pass
             else:
@@ -1096,12 +1135,13 @@ def self_test(silent=False):
     OK = True
 
     # Check for FALLBACK_DESCRIPTIONS messages which will never be used
-    mixed_messages = [mime for mime in EXTRACTORS if mime in FALLBACK_DESCRIPTIONS]
+    mixed_messages = [x for x in EXTRACTORS if x in FALLBACK_DESCRIPTIONS]
     if mixed_messages:
         OK = False
         if not silent:
-            print "\nEXTRACTORS currently overrides FALLBACK_DESCRIPTIONS. Mimetypes should only appear in one:"
-            print '\n'.join(mixed_messages)
+            print("\nEXTRACTORS currently overrides FALLBACK_DESCRIPTIONS. "
+                  "Mimetypes should only appear in one:")
+            print('\n'.join(mixed_messages))
 
     untestables = []
     for mimetype in sorted(EXTRACTORS):
@@ -1138,9 +1178,9 @@ def get_opt_parser():
         help="Extract to the directory containing the source file (default is "
         "the current working directory)")
     parser.add_option('--strict', action="store_true", dest="strict_return",
-        help="Don't return success if one or more input files were non-archives.")
+        help="Don't return success unless all input files were archives.")
     parser.add_option("--self-test", action="store_true", dest="self_test",
-        help="Test the referential integrity of the archive identification tables.")
+        help="Test the referential integrity of the filetype lookup tables.")
 
     return parser
 
@@ -1155,10 +1195,10 @@ def main_func():
 
     if not len(args):
         parser.print_help()
-        parser.exit(errno.ENOENT) #Apparently it's standard to use ENOENT.
+        parser.exit(errno.ENOENT)  # Apparently it's standard to use ENOENT.
 
     if opts.outdir and not os.access(opts.outdir, os.W_OK):
-        print "FATAL: No write permissions for specified destination directory."
+        print "FATAL: No write permissions for specified destination directory"
         parser.exit(errno.EPERM)
 
     failures, cautions = [], []
@@ -1169,16 +1209,16 @@ def main_func():
             #TODO: Do this in a way which produces nicer output.
         except UnsupportedFiletypeError, err:
             cautions.append(archive)
-        except NothingProducedError, err: # Bug trap triggered
+        except NothingProducedError, err:  # Bug trap triggered
             failures.append(str(err))
             last_errcode = 1
-        except IOError, err: # Permissions error
+        except IOError, err:  # Permissions error
             failures.append(str(err))
             last_errcode = 2
-        except OSError, err: # Path error (eg. target already exists or not a dir)
+        except OSError, err:  # Path error (eg. target exists or not a dir)
             failures.append(str(err))
             last_errcode = 3
-        except NoExtractorError, err: # Could not find suitable extractor
+        except NoExtractorError, err:  # Could not find suitable extractor
             failures.append(str(err))
             last_errcode = 4
         except subprocess.CalledProcessError, err:  # Extractor failed
@@ -1208,4 +1248,3 @@ def main_func():
 
 if __name__ == '__main__':
     main_func()
-
