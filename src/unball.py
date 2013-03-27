@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Unball 0.2.99.0
-Copyright 2005-2009 Stephan Sokolow
+Copyright 2005-2009, 2013 Stephan Sokolow
 
 See the README file in the distribution archive for details.
 If unball came pre-installed, the archive can be obtained from https://launchpad.net/unball
@@ -874,130 +874,111 @@ def pathToMimetype(path):
 
     return mime
 
-class TempTarget(object):
+class NamedTemporaryFolder(object):
+    """Context manager wrapping C{tempfile.mkdtemp} with automatic cleanup.
+
+    @todo: Look into using the version from http://bugs.python.org/issue5178
     """
-    Context manager for atomic archive extraction.
-     - On enter: Generate a temporary directory with C{tempfile.mkdtemp}
-     - On clean exit: Rename temporary directory to target name with C{os.rename}
-     - On exception: Delete temporary directory with C{shutil.rmtree}
 
-    @param target: Target path to rename to on successful completion.
-    @param suffix: See C{tempfile.mkstemp}
-    @param prefix: See C{tempfile.mkstemp}
-    @param collapse: If C{True} and the temporary directory contains only one
-      entry when the context manager exits, rename that file or folder to the
-      target path rather than the temporary directory.
-    @param prefer_contained_name: If this and L{collapse} are C{True}, preserve
-      the name of the contained file by replacing the last path component of
-      L{target} before the rename operation.
+    tmp = None  # Path to created folder. Filled in __enter__
 
-    @type target: C{str}
-    @type collapse: C{bool}
-    @type prefer_contained_name: C{bool}
-
-    @note: Because of the fixed C{target} value, the recommended use of this
-      context manager is to instantiate it within the C{with} statement.
-
-    @todo: Figure out how to get rid of the "src" parameter.
-
-    @raises IOError: The target directory is invalid or requires additional
-      permissions.
-    @raises OSError: At the time the context is entered, the specified target
-      isn't a directory.
-    @raises NothingProducedError: The context exited cleanly but the temp
-      directory contained no files.
-    """
-    def __init__(self, src, target, suffix="", prefix=tempfile.template, dir=None,
-            collapse=False, prefer_contained_name=False):
-        self.src = src
-        self.target = target
+    def __init__(self, suffix='', prefix=tempfile.template, dir=None):
+        """
+        @param suffix: See C{tempfile.mkstemp}
+        @param prefix: See C{tempfile.mkstemp}
+        @param dir: See C{tempfile.mkstemp}
+        """
         self.suffix = suffix
         self.prefix = prefix
-        self.collapse = collapse
-        self.prefer_contained_name = prefer_contained_name
-        self.tmpdir = dir or tempfile.gettempdir()
-        self.tmp = None  # Filled in __enter__
+        self.parent = dir or tempfile.gettempdir()
 
     def __enter__(self):
         """
         @returns: The path to the temporary directory.
         @rtype: C{str}
+        @raises OSError: Errors returned by C{mkdtemp} on failure.
         """
-        tmpdir = self._checkTarget(self.tmpdir)
-
-        self.tmp = tempfile.mkdtemp(suffix=self.suffix, prefix=self.prefix, dir=tmpdir)
+        self.tmp = tempfile.mkdtemp(suffix=self.suffix,
+                                    prefix=self.prefix,
+                                    dir=self.parent)
         return self.tmp
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        @raises OSError: Failed to delete temporary directory.
+        @note: This will not follow the directory across renames.
+        """
+        if os.path.exists(self.tmp):
+            shutil.rmtree(self.tmp)
+
+class TempTarget(NamedTemporaryFolder):
+    """
+    Context manager for atomic archive extraction.
+
+    Extends L{NamedTemporaryFolder} to rename and preserve the folder on a
+    clean exit.
+
+    @note: Because of the fixed C{target} value, the recommended use of this
+      context manager is to instantiate it within the C{with} statement.
+
+    """
+    def __init__(self, target, suffix="", prefix=tempfile.template,
+                 parent=None, collapse=False):
+        """
+        @param suffix: See C{tempfile.mkstemp(suffix)}
+        @param prefix: See C{tempfile.mkstemp(prefix)}
+        @param parent: See C{tempfile.mkstemp(dir)}
+
+        @param target: Target directory to move to on successful completion.
+        @param collapse: If C{True} and the temporary directory contains only
+            one entry when the context manager exits, rename that file or
+            folder to the target path rather than the temporary directory.
+
+        @type target: C{basestring}
+        @type collapse: C{bool}
+
+        @todo: Figure out how to get rid of the "src" parameter.
+        """
+        super(TempTarget, self).__init__(suffix, prefix, parent)
+
+        self.target = target
+        self.collapse = collapse
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        @raises OSError: Target path exists.
+        @raises OSError: Failed to delete temporary directory
+        @raises NothingProducedError: The context exited cleanly but the temp
+          directory contained no files.
+        """
         try:
-            if not exc_type: # If no exception was raised
-                # Determine whether an added containing folder is necessary.
-                src, target = self._getRealDirs()
+            #TODO: Unit test to ensure exception are always passed through.
+            if exc_type:
+                return  # Just let the "finally" clause fire on errors
 
-                # If the input file is extensionless and --samedir is set.
-                # (Or the input file contains a single file of the same name and it's
-                # either a non-archive, corrupt, or the recursion limit for catching
-                # archive-based quines was reached)
-                if srcFile == targetPath:
-                    targetPath = targetPath + '.out'
+            move_from = self.tmp
+            if self.collapse:
+                contents = os.listdir(self.tmp)
+                if len(contents) == 1:
+                    move_from = os.path.join(self.tmp, contents[0])
 
-                if os.path.exists(targetPath):
-                    #TODO: How should I offer --overwrite?
-                    # Consider using OSError(errno.EEXIST, os.strerror(errno.EEXIST),
-                    # path) for reduced clarity but free localization.
-                    raise OSError(errno.EEXIST, "Target path already exists", targetPath)
-                else:
-                    os.rename(srcPath, targetPath)
-
-                # You have to set the umask to retrieve it. :(
-                umask = os.umask(022)
-                os.umask(umask)
-
-                # The target directory was created by mkdtemp, so loosen the
-                # permissions according to the umask.
-                if os.path.isdir(targetPath):
-                    os.chmod(targetPath, 0777 & (~umask))
-                else:
-                    os.chmod(targetPath, 0666 & (~umask))
-        finally:
-            if os.path.exists(self.tmp):
-                shutil.rmtree(self.tmp)
-        #TODO: Unit test to verify that returning none passes exceptions through.
-
-    def _getRealDirs(self):
-        """
-        @note: Raises OSError if called outside a C{with} block.
-        @todo: Decide how to implement this properly.
-        """
-        contents = os.listdir(self.tmp)
-        if self.collapse and len(contents) == 1:
-            src = os.path.join(self.tmp, contents[0])
-            if self.prefer_contained_name:
-                target = os.path.join(os.path.split(self.target)[0], contents[0])
+            #TODO: --overwrite handling should probably go here?
+            if os.path.exists(self.target):
+                raise OSError(errno.EEXIST, os.strerror(errno.EEXIST),
+                              self.target)
             else:
-                target = self.target
-        elif len(contents) > 1:
-            src, target = self.tmp, self.target
-        else:
-            raise NothingProducedError("Operation completed but temp folder is empty for %s" % self.target)
-        return src, target
+                shutil.move(move_from, self.target)
 
-    def _checkTarget(self, path):
-        """
-        Code common to L{__enter__} and L{setTarget} for testing the
-        viability of a given target path.
-        """
-        tmpdir = os.path.split(self.target)[0]
-        if not os.path.isdir(tmpdir):
-            raise OSError(errno.ENOTDIR, "Target's parent is not a directory", tmpdir)
-        elif not os.access(tmpdir, os.W_OK | os.X_OK):
-            raise IOError(errno.EACCES, "Target directory is not writable", tmpdir)
-        return tmpdir
+            # You have to set the umask to retrieve it. :(
+            umask = os.umask(022)
+            os.umask(umask)
 
-    def setTarget(self, path):
-        """TODO: Re-implement this as a property"""
-        self._checkTarget(path)
-        self.target = path
+            # The target directory was created by mkdtemp, so loosen the
+            # permissions according to the umask.
+            perms = os.path.isdir(self.target) and 0777 or 0666
+            os.chmod(self.target, perms & (~umask))
+        finally:
+            super(TempTarget, self).__exit__(exc_type, exc_value, traceback)
 
 def tryExtract(srcFile, targetDir=None, level=0):
     """Attempt to extract the given archive.
@@ -1055,8 +1036,9 @@ def tryExtract(srcFile, targetDir=None, level=0):
 
     #TODO: Rewrite all this temp directory handling as a context manager.
 
-    context = TempTarget(srcFile, targetDir, prefix='unball-', dir=targetDir,
-            collapse=True, prefer_contained_name=True)
+    prefer_contained_name = True  # TODO: Make this configurable
+    context = TempTarget(os.path.join(targetDir, os.path.basename(srcFile)),
+            prefix='unball-', parent=targetDir, collapse=True)
 
     with context as tempTarget:
         extractors[0](srcFile, tempTarget) # Raises an exception on non-zero exit code.
@@ -1070,12 +1052,15 @@ def tryExtract(srcFile, targetDir=None, level=0):
                 path = os.path.join(fldr, filename)
                 os.chmod(path, os.stat(path).st_mode | stat.S_IRUSR)
 
-        # Handle nested archives like .tar.bz2.
         contents = os.listdir(tempTarget)
-        if (len(contents) == 1 and
-                os.path.isfile(os.path.join(tempTarget, contents[0])) and
-                level < RECURSION_LIMIT):
-            #TODO: Should I go as far as explicitly collapsing nested containing folders?
+        if len(contents) == 0:
+            raise NothingProducedError("Operation completed but temp "
+                "folder is empty for %s" % context.target)
+        elif (len(contents) == 1 and level < RECURSION_LIMIT and
+                os.path.isfile(os.path.join(tempTarget, contents[0]))):
+                # Handle nesting like .tar.7z
+            #TODO: Should I go as far as explicitly collapsing nested
+            #      containing folders?
             try:
                 tryExtract(os.path.join(tempTarget, contents[0]), None, level+1)
             except UnsupportedFiletypeError:
@@ -1083,7 +1068,27 @@ def tryExtract(srcFile, targetDir=None, level=0):
             else:
                 os.remove(os.path.join(tempTarget, contents[0]))
 
-    return targetPath
+        # TODO: Unit test that nested extraction doesn't break this
+        contents = os.listdir(tempTarget)
+        if len(contents) == 1 and prefer_contained_name:
+            context.target = os.path.join(
+                    os.path.dirname(context.target), contents[0])
+
+        #@param prefer_contained_name: If this and L{collapse} are C{True} and
+        #  only one file/folder exists in the temporary folder on L{__exit__},
+        #  preserve its name by replacing the last path component of L{target}
+        #  before the rename operation.
+
+        # If the input file is extensionless and --samedir is set.
+        # (Or the input file contains a single file of the same name
+        # and it's either a non-archive, corrupt, or the recursion
+        # limit for catching archive-based quines was reached)
+        # XXX: How is this relevant to the recursion limit again?
+        if srcFile == context.target:
+            context.target = context.target + '.out'
+
+    return context.target
+
 
 def self_test(silent=False):
     """Verify the integrity of the internal mapping tables.
