@@ -731,6 +731,8 @@ aliases = {
         'x-uuencode'                        : 'application/x-uuencode',
 }
 for key in aliases:
+    if key in EXTRACTORS:
+        raise Exception("OVERWRITE: %s -> %s" % (aliases[key], key))
     EXTRACTORS[key] = EXTRACTORS[aliases[key]]
 del aliases, key
 
