@@ -125,17 +125,17 @@ def makeTests(path, verbosity=0):
                 callstring="tryExtract(%r, %r)" % (self.srcfile, dest)
 
                 if realDest == self.srcdir:
-                    self.failUnless(len(os.listdir(self.srcdir)) > len(old_src),
+                    self.assertTrue(len(os.listdir(self.srcdir)) > len(old_src),
                                     "%s didn't extract to the source dir when asked to." % callstring)
                 else:
-                    self.failUnless(len(os.listdir(self.srcdir)) == len(old_src),
+                    self.assertTrue(len(os.listdir(self.srcdir)) == len(old_src),
                                     "%s extracted to the source dir without being asked to." % callstring)
 
                 if realDest != cwd:
                     self.assertFalse(len(os.listdir(cwd))  > len(old_cwd),
                         "%s extracted to working dir when given a different destination." % callstring)
 
-                self.failUnless(os.path.exists(self.srcfile),
+                self.assertTrue(os.path.exists(self.srcfile),
                                 "%s didn't prevent the original archive from being destroyed." % callstring)
                 self.assertFalse(len(os.listdir(realDest)) < (len(old_dest) + 1),
                                 "%s didn't extract anything to the target dir." % callstring)
