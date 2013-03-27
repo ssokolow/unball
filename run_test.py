@@ -259,6 +259,10 @@ def testdir(path, verbosity=0):
     path = os.path.abspath(path)
     print 'Testing directory "%s" ...' % os.path.split(path)[1]
 
+    # Ensure interactive test runs mimic CI servers a bit more
+    if 'DISPLAY' in os.environ:
+        del os.environ['DISPLAY']
+
     if not verbosity:
         print "NOTE: stdin, stdout, and stderr are closed for these tests. If extraction of ACE files freezes, it's a regression."
     else:
