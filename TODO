@@ -3,6 +3,8 @@
 High Priority:
 - When unball unpacks a single file or directory, it should print its name.
 - For consistency, it should probably print something like "creating directory xxxxxxx" when it extracts multiple objects.
+- http://askubuntu.com/questions/52475/how-to-prepare-auto-updating-ppa
+- http://build.opensuse.org/
 
 Publicity:
 - Finish and debug the ebuild and put it on bugs.gentoo.org
@@ -46,6 +48,7 @@ Notes:
 - MacOS X .pkg packages are actually just directories and .mpkg files are data files which aren't archives.
 
 System Integration:
+- http://www.nautilus-actions.org/?q=node/377
 - Add a bash-completion script for unball and tie it into the install.sh script.
 - GUI-integrated scripts should give some kind of warning on failure.
 - Look into automating integration into ROX Filer through non-.desktop means.
@@ -53,6 +56,8 @@ System Integration:
 - Improve moveToZip so that help2man can be used with it.
 
 Formats and Tools:
+- Extractors with Debian/Ubuntu packages: unar lrzip unp orange
+- https://en.wikipedia.org/wiki/ARC_%28file_format%29
 - Add support for using TheUnarchiver for almost anything... especially Mac
   formats like Stuffit and the old stuff I don't currently support.
 - https://code.google.com/p/libarchive/wiki/LibarchiveFormats
