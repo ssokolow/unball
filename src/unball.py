@@ -4,7 +4,8 @@
 Copyright 2005-2009, 2013 Stephan Sokolow
 
 See the README file in the distribution archive for details.
-If unball came pre-installed, the archive can be obtained from https://launchpad.net/unball
+If unball came pre-installed, the README can be viewed at
+https://github.com/ssokolow/unball
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
