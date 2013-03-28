@@ -11,6 +11,7 @@ Version 0.2.99.0
 - Python rewrite should fix portability issues with BSD-based userland tools but not yet tested.
 - Beginnings of a plan to rework unball's internals for use as an extraction library for arbitrary Python programs.
 - Noticed that COPYING had been emptied somewhere along the way. Re-downloaded the GPL 2.0.
+- Now continuous integration tested by Travis-CI.
 
 Version 0.2.11
 - Started bundling unzoo.c for the benefit of x86_64/IA64 users. Unfortunately, actual support didn't make it in.

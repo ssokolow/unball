@@ -14,6 +14,9 @@ matrix:
 install:
 - sudo apt-get update -qq
 - xargs -a debian_test_deps.txt sudo apt-get install -qq --no-install-recommends
+- pip install flake8
 - if [[ $TRAVIS_PYTHON_VERSION == '2.5' ]]; then pip install unittest2; fi
 - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2; fi
-script: python run_test.py
+script:
+- python run_test.py
+- flake8
