@@ -109,7 +109,7 @@ try:
 
             # TODO: Unit test this. IF nothing else, ';' is needed for
             # arctest.header on Ubuntu 12.04 LTS.
-            mime = mime.rstrip(',;')
+            mime = mime.rstrip(',; \t\n')
             return mime
 
     del mime_checker
@@ -136,6 +136,7 @@ except ImportError:  # TODO: Can magic.open or mime_checker.load() fail?
             mime = mime.decode('string_escape').split()[0].rstrip(',')
         except OSError:
             mime = 'application/octet-stream'
+        mime = mime.rstrip(',; \t\n')
         return mime
 
 class UnballError(Exception):
@@ -1141,7 +1142,7 @@ def tryExtract(srcFile, targetDir=None, level=0):
                                    "extractors found: %s" % srcFile)
         else:
             raise UnsupportedFiletypeError(
-                    "Not a known archive type: %s" % srcFile)
+                    "Not a known archive type: %s (%s)" % (srcFile, mime))
 
     #TODO: Rewrite all this temp directory handling as a context manager.
 
