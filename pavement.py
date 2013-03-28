@@ -90,7 +90,8 @@ def clean():
                 except:
                     pass
 
-setup(name="Unball",
+setup(
+    name="Unball",
     version=unball.__version__,
     description="'Do what I mean' archive commands for your shell",
     long_description="""
@@ -100,7 +101,7 @@ setup(name="Unball",
         """,  # TODO: Rewrite this when I finish making this an API with
               # console reference implementations.
     author="Stephan Sokolow (deitarion/SSokolow)",
-    author_email="http://www.ssokolow.com/ContactMe",
+    author_email="http://www.ssokolow.com/ContactMe",  # No spam harvesting
     url='https://github.com/ssokolow/unball',
     license="License :: OSI Approved :: GNU General Public License (GPL)",
     classifiers=[
@@ -119,14 +120,13 @@ setup(name="Unball",
         "Topic :: Utilities",
     ],
 
-    package_dir={'': 'src'},
-    py_modules=['unball'],
+    packages=['unball'],
     scripts=['src/moveToZip'],
 
     #TODO: Forget setuptools. Just replace this with a stub script.
     entry_points={
         'console_scripts': [
-            'unball = unball:main_func',
+            'unball = unball.main:main_func',
         ],
     },
     data_files=[('share/man/man1', ['build/man/unball.1']),

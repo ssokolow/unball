@@ -51,7 +51,7 @@ else:                                                     # pragma: no cover
 
 
 sys.path.append(abspath('./src'))
-import unball
+from unball import main as unball
 
 # Files which may be added to the test sources dir without being test sources.
 excluded = ['.DS_Store']
