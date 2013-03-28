@@ -365,4 +365,7 @@ if __name__ == '__main__':
     ])
 
     tester = unittest.TextTestRunner(verbosity=opts.verbosity + 1)
-    tester.run(tests)
+    result = tester.run(tests)
+
+    # Let Travis-CI know whether there was success or failure
+    sys.exit(not result.wasSuccessful())
