@@ -696,10 +696,6 @@ EXTRACTORS = {
                                  outfile_option='-o '),
         'application/x-extension-sfark':
             Extractor('sfarkxtc'),
-        'application/x-shar':
-            TryAll(
-                Extractor('unmakeself'),
-                Extractor('unshar')),
         'application/x-slp':
             Extractor('alien', '-g'),
             # FIXME: Untested for lack of a .slp file
@@ -782,11 +778,6 @@ aliases = {
         'x-gzip': 'application/x-gzip',
         'x-uuencode': 'application/x-uuencode',
 }
-for key in aliases:
-    if key in EXTRACTORS:
-        raise Exception("OVERWRITE: %s -> %s" % (aliases[key], key))
-    EXTRACTORS[key] = EXTRACTORS[aliases[key]]
-del aliases, key
 
 EXTENSIONS = {
         '.7z': 'application/x-7z-compressed',
@@ -838,7 +829,7 @@ EXTENSIONS = {
         '.sea': 'application/sea',
         '.sfark': 'application/x-extension-sfark',
         '.sh': 'application/x-sh',
-        '.shar': 'application/x-shar',
+        '.shar': 'application/x-sh',
         '.sit': 'application/x-stuffit',
         '.sitx': 'application/x-stuffitx',
         '.slp': 'application/x-slp',
@@ -891,8 +882,8 @@ FALLBACK_DESCRIPTIONS = {
         'application/msi': "Microsoft Installer package. If you trust it, "
             "you can use Wine's msiexec tool to install it.",
             #TODO: I believe 7zip can now unpack MSIs.
-        'application/x-shar': "self-extracting shell archive. For security "
-            "reasons, it has not been executed automatically.",
+        #'application/x-shar': "self-extracting shell archive. For security "
+        #    "reasons, it has not been executed automatically.",
         'application/x-sh': "shell script. If the file is more than a few "
             "hundred kilobytes in size, it's almost definitely a 'shar' or "
             "'makeself' archive. At present, unball lacks a method to "
@@ -911,6 +902,14 @@ command work.
 @todo: Also rework it so it's used to describe nested unpacks.
 (The [archive %s contained a single file which|file %s] may be a...)
 """
+
+for key, target_key in aliases.items():
+    for target in (EXTRACTORS, FALLBACK_DESCRIPTIONS):
+        if target_key in target:
+            if key in target:
+                raise Exception("OVERWRITE: %s -> %s" % (target_key, key))
+            target[key] = target[target_key]
+del aliases, key
 
 def which(execName, execpath=None):
     """Like the UNIX which command, this function attempts to find the given
