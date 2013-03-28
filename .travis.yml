@@ -1,0 +1,20 @@
+language: python
+python:
+  - "2.5"
+  - "2.6"
+  - "2.7"
+  - "3.2"
+  - "3.3"
+  - "pypy"
+  # TODO: http://www.topbug.net/blog/2012/05/27/use-travis-ci-with-jython/
+  # TODO: Can I use Travis's OSX worker without paying for Pro?
+matrix:
+    allow_failures:
+        - python: "3.2"
+        - python: "3.3"
+install:
+- sudo apt-get update -qq
+- xargs -a debian_test_deps.txt sudo apt-get install -qq --no-install-recommends
+- if [[ $TRAVIS_PYTHON_VERSION == '2.5' ]]; then pip install unittest2
+- if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2
+script: python run_test.py

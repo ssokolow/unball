@@ -1,0 +1,13 @@
+arc
+arj
+cabextract
+lha
+lzop
+mscompress
+ncompress
+p7zip-full
+rzip
+unace-nonfree
+unrar
+unzip
+zoo
