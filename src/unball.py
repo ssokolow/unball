@@ -1016,12 +1016,12 @@ class TempTarget(NamedTemporaryFolder):
                 shutil.move(move_from, self.target)
 
             # You have to set the umask to retrieve it. :(
-            umask = os.umask(022)
+            umask = os.umask(0o022)
             os.umask(umask)
 
             # The target directory was created by mkdtemp, so loosen the
             # permissions according to the umask.
-            perms = os.path.isdir(self.target) and 0777 or 0666
+            perms = os.path.isdir(self.target) and 0o777 or 0o666
             os.chmod(self.target, perms & (~umask))
         finally:
             super(TempTarget, self).__exit__(exc_type, exc_value, traceback)
