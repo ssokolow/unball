@@ -38,6 +38,9 @@ __author__ = "Stephan Sokolow (deitarion)"
 __license__ = "GNU GPL 2.0 or later"
 
 import os, shutil, sys, tempfile
+
+from os import listdir
+from os.path import abspath, dirname, normcase, realpath
 from optparse import OptionParser
 
 if sys.version_info[0] == 2 and sys.version_info[1] < 7:  # pragma: no cover
@@ -47,7 +50,7 @@ else:                                                     # pragma: no cover
     import unittest
 
 
-sys.path.append(os.path.abspath('./src'))
+sys.path.append(abspath('./src'))
 import unball
 
 # Files which may be added to the test sources dir without being test sources.
@@ -64,23 +67,32 @@ retcodes = {
             6: 'Could not move files to target dir',
             7: 'Could not delete temporary files/dirs',
             32512: 'Unknown. Could not find a required command in PATH?'
-           }
+}
 
 # TODO: Why did I do this again?
 count_omit = ['jartest.j', 'jartest.jar', 'eartest.ear', 'wartest.war']
 
 # Test files in formats which cannot contain multiple files.
 compress_only = [
-    'b64test.png.b64',     'b64test.png.mim',
-    'binhextest.bh',       'binhextest.bhx',    'binhextest.hqx',
-    'bziptest.bz2',        'bziptest.header',
-    'compress_test.txt.Z', 'compress_test.txt.header',
-    'gziptest.gz',         'gziptest.header',
+    'b64test.png.b64',
+    'b64test.png.mim',
+    'binhextest.bh',
+    'binhextest.bhx',
+    'binhextest.hqx',
+    'bziptest.bz2',
+    'bziptest.header',
+    'compress_test.txt.Z',
+    'compress_test.txt.header',
+    'gziptest.gz',
+    'gziptest.header',
     'mscompress.tx_',
     'rziptest.rz',
-    'uutest.png.uu',       'uutest.png.uue',
-    'xxtest.png.xx',       'xxtest.png.xxe',
-    'yenctest.png.ync',    'yenctest.png.yenc']
+    'uutest.png.uu',
+    'uutest.png.uue',
+    'xxtest.png.xx',
+    'xxtest.png.xxe',
+    'yenctest.png.ync',
+    'yenctest.png.yenc']
 
 def makeTests(path, verbosity=0):
     """
@@ -88,6 +100,7 @@ def makeTests(path, verbosity=0):
     Used to allow per-format testing of unball in a simple manner.
     """
     filename = os.path.split(path)[1]
+
     class UnballTestSet(unittest.TestCase):
         """Test unball with a specific archive"""
         def setUp(self):
@@ -97,7 +110,7 @@ def makeTests(path, verbosity=0):
             #  space-related bugs remaining.
             self.cwd_dir = os.path.join(self.workdir, 'cwd dir')
             self.srcdir  = os.path.join(self.workdir, 'src dir')
-            self.srcfile = os.path.join(self.srcdir , filename)
+            self.srcfile = os.path.join(self.srcdir, filename)
             self.destdir = os.path.join(self.workdir, 'dest dir')
 
             os.makedirs(self.srcdir)
@@ -106,6 +119,7 @@ def makeTests(path, verbosity=0):
             shutil.copyfile(path, self.srcfile)
 
             self.oldcwd = os.getcwdu()
+
         def tearDown(self):
             """Make sure the test tree gets deleted."""
             os.chdir(self.oldcwd)
@@ -116,63 +130,76 @@ def makeTests(path, verbosity=0):
         for destination directory specification."""
         def testMethod(self, dest=destDir, cwd=workDir, realDest=realDest):
             if dest:
-                dest = os.path.normcase(os.path.realpath(getattr(self, dest)))
-            cwd      = os.path.normcase(os.path.realpath(getattr(self, cwd)))
-            realDest = os.path.normcase(os.path.realpath(getattr(self, realDest)))
+                dest = normcase(realpath(getattr(self, dest)))
+            cwd      = normcase(realpath(getattr(self, cwd)))
+            realDest = normcase(realpath(getattr(self, realDest)))
 
             oldcwd = os.getcwd()
             os.chdir(cwd)
             try:
-                old_src  = os.listdir(self.srcdir)
-                old_dest = os.listdir(realDest)
-                old_cwd  = os.listdir(cwd)
+                old_src  = listdir(self.srcdir)
+                old_dest = listdir(realDest)
+                old_cwd  = listdir(cwd)
 
-                if verbosity == 2: pass #TODO: What do I do here?
+                if verbosity == 2:
+                    pass  # TODO: What do I do here?
                 try:
                     unball.tryExtract(self.srcfile, dest)
                 except unball.NoExtractorError:
                     self.skipTest("No suitable extractors installed")
-                callstring="tryExtract(%r, %r)" % (self.srcfile, dest)
+                callstring = "tryExtract(%r, %r)" % (self.srcfile, dest)
 
                 if realDest == self.srcdir:
-                    self.assertTrue(len(os.listdir(self.srcdir)) > len(old_src),
-                                    "%s didn't extract to the source dir when asked to." % callstring)
+                    self.assertTrue(
+                        len(listdir(self.srcdir)) > len(old_src),
+                        "Callstring didn't extract to source dir: "
+                        "%s" % callstring)
                 else:
-                    self.assertTrue(len(os.listdir(self.srcdir)) == len(old_src),
-                                    "%s extracted to the source dir without being asked to." % callstring)
+                    self.assertTrue(
+                        len(listdir(self.srcdir)) == len(old_src),
+                        "Callstring extracted ti source dir: "
+                        "%s" % callstring)
 
                 if realDest != cwd:
-                    self.assertFalse(len(os.listdir(cwd))  > len(old_cwd),
-                        "%s extracted to working dir when given a different destination." % callstring)
+                    self.assertFalse(len(listdir(cwd))  > len(old_cwd),
+                        "Callstring used working dir instead of explicit "
+                        "destination: %s" % callstring)
 
                 self.assertTrue(os.path.exists(self.srcfile),
-                                "%s didn't prevent the original archive from being destroyed." % callstring)
-                self.assertFalse(len(os.listdir(realDest)) < (len(old_dest) + 1),
-                                "%s didn't extract anything to the target dir." % callstring)
+                    "%s didn't preserve the original archive" % callstring)
+                self.assertFalse(len(listdir(realDest)) < (len(old_dest) + 1),
+                    "%s extract nothing to the target dir." % callstring)
 
-                added_files = [x for x in os.listdir(realDest) if x not in old_dest]
+                added_files = [x for x in listdir(realDest)
+                               if x not in old_dest]
                 newdir = os.path.join(realDest, added_files[0])
                 if os.path.isdir(newdir):
-                    self.assertFalse(len(os.listdir(newdir)) <= 1,
-                                "%s created a wrapper dir without needing to" % callstring)
+                    self.assertFalse(len(listdir(newdir)) <= 1,
+                        "%s created an unnecessary wrapper dir" % callstring)
                     self.assertFalse(newdir.endswith('.tar'),
-                                "%s didn't strip .tar from the name of the newly created dir." % callstring)
+                        "%s didn't strip .tar from the name of the newly "
+                        "created dir." % callstring)
                     if not filename in count_omit:
-                        self.assertFalse(len(os.listdir(newdir)) != 9,
-                                    "%s did not extract the correct number of files. Got %s but expected %s" % (callstring, len(os.listdir(newdir)), 9))
+                        self.assertFalse(len(listdir(newdir)) != 9,
+                            "%s did not extract the correct number of files. "
+                            "Got %s but expected %s" % (
+                                callstring, len(listdir(newdir)), 9))
                 else:
-                    self.assertFalse(filename not in compress_only, "Archive extracted a single file when a folder was expected: %s -> %s" % (filename, newdir))
+                    self.assertFalse(filename not in compress_only,
+                        "Archive extracted a single file when a folder was "
+                        "expected: %s -> %s" % (filename, newdir))
                 pass
             finally:
                 os.chdir(oldcwd)
-        testMethod.__doc__ = """Testing unball %s with %s destination""" % (filename, destName)
+        testMethod.__doc__ = (
+            """Testing unball %s with %s destination""" % (filename, destName))
         setattr(UnballTestSet, 'test%s' % destName.capitalize(), testMethod)
 
-    # Note: Implicit is only truly implicit when unball is run from the command-line.
-    # (The command-line code simply calls os.getcwdu() for dest)
+    # Note: Implicit is only truly implicit when unball is run from the
+    #       command-line. (The command-line code calls os.getcwdu() for dest)
     makeTestMethod('implicit', 'destdir', 'destdir', 'destdir')
     makeTestMethod('explicit', 'destdir', 'cwd_dir', 'destdir')
-    makeTestMethod('same',     None,      'cwd_dir', 'srcdir')
+    makeTestMethod('same', None, 'cwd_dir', 'srcdir')
     return UnballTestSet
 
 class GlobalTests(unittest.TestCase):
@@ -184,22 +211,25 @@ class GlobalTests(unittest.TestCase):
     @unittest.expectedFailure
     def testExtensionCoverage(self):
         """Checking for extensions without testcases"""
-        present = [os.path.splitext(x)[1].lower() for x in os.listdir(self.testdir)]
+        present = [os.path.splitext(x)[1].lower() for x
+                   in listdir(self.testdir)]
         missing = [ext for ext in unball.EXTENSIONS if not ext in present]
         missing.sort()
-        self.assertFalse(missing, "The following supported extensions have no testcases: %s" % ', '.join(missing))
+        self.assertFalse(missing, "The following supported extensions have no "
+                         "testcases: %s" % ', '.join(missing))
 
     def testMimetypeCoverage(self):
-        """Checking for mimetypes without testcases (prone to false negatives)"""
+        """Checking for mimetypes without tests (prone to false negatives)"""
         def isPresent(mime):
             if mimetype is None:
-                return True # This problem is caught elsewhere
+                return True  # This problem is caught elsewhere
             if isinstance(mimetype, basestring):
                 return mimetype in present
             else:
                 return all(x in present for x in mimetype)
 
-        present_exts = [os.path.splitext(x)[1].lower() for x in os.listdir(self.testdir)]
+        present_exts = [os.path.splitext(x)[1].lower() for
+                        x in listdir(self.testdir)]
 
         present = []
         for ext in present_exts:
@@ -211,8 +241,9 @@ class GlobalTests(unittest.TestCase):
             else:
                 present.extend(mimetype)
 
-        missing = [mime for mime in unball.EXTENSIONS.values() if not isPresent(mime)]
-        self.assertFalse(missing, "The following supported mimetypes have no testcases: %s" % ', '.join(missing))
+        missing = [x for x in unball.EXTENSIONS.values() if not isPresent(x)]
+        self.assertFalse(missing, "The following supported mimetypes have no "
+                         "testcases: %s" % ', '.join(missing))
 
     @unittest.expectedFailure
     def testSelfTests(self):
@@ -231,45 +262,60 @@ class GlobalTests(unittest.TestCase):
 
     def testOrphanedExts(self):
         """Checking for orphaned extension-mime mappings"""
-        orphaned_exts = [ext for ext in unball.EXTENSIONS if not self._check_mimetype(unball.EXTENSIONS[ext],
-                            lambda x: x in unball.EXTRACTORS or x in unball.FALLBACK_DESCRIPTIONS)]
-        self.assertFalse(orphaned_exts, "EXTENSIONS lines must be paired with EXTRACTORS or FALLBACK_DESCRIPTIONS lines:" +
-                    '\n'.join('%s: %s' % (ext, unball.EXTENSIONS[ext]) for ext in orphaned_exts))
+        orphaned_exts = [ext for ext in unball.EXTENSIONS
+                         if not self._check_mimetype(unball.EXTENSIONS[ext],
+                            lambda x: x in unball.EXTRACTORS or
+                                      x in unball.FALLBACK_DESCRIPTIONS)]
+        self.assertFalse(orphaned_exts, "EXTENSIONS lines must be paired with "
+                         "EXTRACTORS or FALLBACK_DESCRIPTIONS lines:" +
+                         '\n'.join('%s: %s' % (ext, unball.EXTENSIONS[ext]) for
+                             ext in orphaned_exts))
 
     @unittest.expectedFailure
     def testOrphanedMimes(self):
         """Checking for mimetypes without extension fallbacks"""
         # Find potentially-orphaned extensions in the extractors
         # (and discard potentials that are merely aliases for header-checking)
-        orphan_mimes_pre = [mime for mime in unball.EXTRACTORS if not mime in unball.EXTENSIONS.values()]
+        orphan_mimes_pre = [mime for mime in unball.EXTRACTORS
+                            if not mime in unball.EXTENSIONS.values()]
         orphan_mimes = []
         for mime in orphan_mimes_pre:
-            _aliases = [x for x in unball.EXTRACTORS if x != mime and unball.EXTRACTORS[x] is unball.EXTRACTORS[mime]]
-            if not [x for x in unball.EXTENSIONS if unball.EXTENSIONS[x] in _aliases]:
+            _aliases = [x for x in unball.EXTRACTORS if x != mime and
+                        unball.EXTRACTORS[x] is unball.EXTRACTORS[mime]]
+            if not [x for x in unball.EXTENSIONS if
+                    unball.EXTENSIONS[x] in _aliases]:
                 orphan_mimes.append(mime)
 
         # Add in any extensionless FALLBACK_DESCRIPTIONS entries.
-        orphan_mimes += [mime for mime in unball.FALLBACK_DESCRIPTIONS if not mime in unball.EXTENSIONS.values()]
-        self.assertFalse(orphan_mimes, "Mimetypes without extension mappings detected:" +
-                        '\n'.join(orphan_mimes))
+        orphan_mimes += [mime for mime in unball.FALLBACK_DESCRIPTIONS
+                         if not mime in unball.EXTENSIONS.values()]
+        self.assertFalse(orphan_mimes, "Mimetypes without extension mappings "
+                         "detected:" +
+                         '\n'.join(orphan_mimes))
 
     def testExtensionCases(self):
         """Checking for extension mappings which use non-lowercase alphas"""
         upper_exts = [ext for ext in unball.EXTENSIONS if ext.lower() != ext]
-        self.assertFalse(upper_exts, "Extension mappings must be case-insensitive. Violations detected:" +
-                    '\n'.join("%s: %s" % (ext, unball.EXTENSIONS[ext]) for ext in upper_exts))
+        self.assertFalse(upper_exts, "Extension mappings must be "
+                         "case-insensitive. Violations detected:" +
+                         '\n'.join("%s: %s" % (ext, unball.EXTENSIONS[ext]) for
+                             ext in upper_exts))
 
     def testMimetypeCases(self):
-        """Checking for extractor/message mappings which use non-lowercase alphas"""
-        upper_mimes = [mime for mime in unball.EXTRACTORS.keys() + unball.FALLBACK_DESCRIPTIONS.keys() if mime.lower() != mime]
-        upper_mimes += [mime for mime in unball.EXTENSIONS.values() if self._check_mimetype(mime, lambda x: x.lower() != x)]
-        self.assertFalse(upper_mimes, "Mimetype-extractor/message mappings must be case-insensitive. Violations detected:" +
-                    '\n'.join(upper_mimes))
+        """Checking for extractor/msg mappings using non-lowercase alphas"""
+        upper_mimes = [mime for mime in unball.EXTRACTORS.keys() +
+                       unball.FALLBACK_DESCRIPTIONS.keys() if
+                       mime.lower() != mime]
+        upper_mimes += [mime for mime in unball.EXTENSIONS.values() if
+                        self._check_mimetype(mime, lambda x: x.lower() != x)]
+        self.assertFalse(upper_mimes, "Mimetype-extractor/message mappings "
+                         "must be case-insensitive. Violations detected:" +
+                         '\n'.join(upper_mimes))
 
 
 def test_dir(path=None, verbosity=0):
-    """Generate and run a set of tests for the given directory full of archives."""
-    path = os.path.abspath(path or os.path.join(os.path.dirname(__file__), 'test sources'))
+    """Generate and run a set of tests for the given dir full of archives."""
+    path = abspath(path or os.path.join(dirname(__file__), 'test sources'))
     print 'Testing directory "%s" ...' % os.path.split(path)[1]
 
     # Ensure interactive test runs mimic CI servers a bit more
@@ -281,19 +327,20 @@ def test_dir(path=None, verbosity=0):
     else:
         print "WARNING: Verbose output defeats a regression test for unace. Please also run this in non-verbose mode."
 
-    i, j, l = os.path.isdir, os.path.join, os.listdir
-    f = [j(path, arch) for arch in l(path) if not (i(arch)) and not arch in excluded]
+    f = [os.path.join(path, arch) for arch in listdir(path)
+         if not (os.path.isdir(arch)) and not arch in excluded]
     f.sort()
     for path in f:
         yield unittest.makeSuite(makeTests(path, verbosity))
 
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option("-v", "--verbose", action="count", dest="verbosity", default=0,
-                  help="Increase the unit test framework's verbosity.")
-    parser.add_option("--unball_verbose", action="count", dest="unball_verbosity", default=0,
-                  help="Pass through unball's output. Twice to trigger verbosity in unball." +
-                  "Note that this sacrifices one of the unace regression tests.")
+    parser.add_option("-v", "--verbose", action="count", dest="verbosity",
+        default=0, help="Increase the unit test framework's verbosity.")
+    parser.add_option("--unball_verbose", action="count", default=0,
+        dest="unball_verbosity", help="Pass through unball's output. Twice to "
+             "trigger verbosity in unball. Note that this sacrifices one of "
+             "the unace regression tests.")
 
     (opts, args) = parser.parse_args()
 
@@ -311,7 +358,8 @@ if __name__ == '__main__':
     print "Using %s" % unball.__file__
 
     tests  = unittest.TestSuite([
-        unittest.TestSuite(test_dir(args and args[0] or None, opts.unball_verbosity)),
+        unittest.TestSuite(test_dir(args and args[0] or None,
+                                    opts.unball_verbosity)),
         unittest.makeSuite(GlobalTests)
     ])
 
