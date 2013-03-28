@@ -1,9 +1,10 @@
 TODO:
-- Decide on a more unified approach to testing.
+- Migrate unit tests to nose
+- Start testing EPyDoc validity too
 
 Python:
-- pyflakes, pychecker, pylint (Occasionally)
-- run_test.py (Unit Tests, Constantly)
+- run_test.py (Functional Tests, Constantly)
+- flake8 (pyflakes+pip8, Constantly)
 
 ebuilds:
 - bash -n (syntax check (short for "noexec"))
