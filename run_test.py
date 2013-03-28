@@ -37,8 +37,15 @@ catch problems like "PipeExtractor used ASCII-mode file handles on Windows."
 __author__ = "Stephan Sokolow (deitarion)"
 __license__ = "GNU GPL 2.0 or later"
 
-import os, shutil, sys, tempfile, unittest
+import os, shutil, sys, tempfile
 from optparse import OptionParser
+
+if sys.version_info[0] == 2 and sys.version_info[1] < 7:  # pragma: no cover
+    import unittest2 as unittest
+    unittest  # Silence erroneous PyFlakes warning
+else:                                                     # pragma: no cover
+    import unittest
+
 
 sys.path.append(os.path.abspath('./src'))
 import unball
