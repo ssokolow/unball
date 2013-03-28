@@ -260,9 +260,9 @@ class GlobalTests(unittest.TestCase):
                     '\n'.join(upper_mimes))
 
 
-def testdir(path, verbosity=0):
+def test_dir(path=None, verbosity=0):
     """Generate and run a set of tests for the given directory full of archives."""
-    path = os.path.abspath(path)
+    path = os.path.abspath(path or os.path.join(os.path.dirname(__file__), 'test sources'))
     print 'Testing directory "%s" ...' % os.path.split(path)[1]
 
     # Ensure interactive test runs mimic CI servers a bit more
@@ -277,18 +277,8 @@ def testdir(path, verbosity=0):
     i, j, l = os.path.isdir, os.path.join, os.listdir
     f = [j(path, arch) for arch in l(path) if not (i(arch)) and not arch in excluded]
     f.sort()
-    t = [unittest.makeSuite(makeTests(path, verbosity)) for path in f]
-    return unittest.TestSuite(t)
-
-def get_tests(unball_verbosity=0, test_src_dir=None):
-    test_src_dir = test_src_dir or 'test sources'
-
-    tests  = unittest.TestSuite([
-        testdir(test_src_dir, unball_verbosity),
-        unittest.makeSuite(GlobalTests)
-    ])
-
-    return tests
+    for path in f:
+        yield unittest.makeSuite(makeTests(path, verbosity))
 
 if __name__ == '__main__':
     parser = OptionParser()
@@ -312,7 +302,11 @@ if __name__ == '__main__':
     print
 
     print "Using %s" % unball.__file__
-    tests = get_tests(opts.unball_verbosity, args and args[0] or None)
+
+    tests  = unittest.TestSuite([
+        unittest.TestSuite(test_dir(args and args[0] or None, opts.unball_verbosity)),
+        unittest.makeSuite(GlobalTests)
+    ])
 
     tester = unittest.TextTestRunner(verbosity=opts.verbosity + 1)
     tester.run(tests)

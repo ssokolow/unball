@@ -1245,6 +1245,7 @@ def main_func():
         print "\nUnball encountered errors while extracting one or more files:"
         print '\t' + '\n\t'.join(failures)
         print
+        raise
 
     if cautions:
         print "One or more provided files were not recognized as archives. "
