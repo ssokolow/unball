@@ -50,9 +50,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 @todo: Figure out a better syntax for specifying extractor arguments.
        (especially destination directories)
 
-@todo: The extension checker needs to be rewritten to support this
-(Oh, and what does compress.exe do with an extension longer than 3 characters?)
- - *.??_) extract extract_gbzip msexpand "$FILE" "Microsoft compress.exe-packed file";;
+@todo: The extension checker needs to be rewritten to support *.??_
+(Oh, and what does compress.exe do with extensions longer than 3 characters?)
 
 @todo: Un-handled archive formats:
  - atr, bzf, cpt, dar, dmg, dz, gcf, kgb, partimg, pit, pq6, qda, rk, sfpack,
@@ -276,7 +275,8 @@ class NamedOutputExtractor(Extractor):
                     stdout=_out, stderr=_err, close_fds=_fds,
                     cwd=target, universal_newlines=True)
 
-    def _make_target_filename(self, srcPath, destDir, srcExt=None, destExt=None):
+    def _make_target_filename(self, srcPath, destDir,
+                              srcExt=None, destExt=None):
         """A pseudo-protected function for generating a target filename when
         wrapping an extractor that does not provide one on its own.
 
@@ -618,78 +618,120 @@ class TryAll(Extractor):
         return bool(self.extractors)
 
 EXTRACTORS = {
-        'application/x-7z-compressed'  : (Extractor('7z', 'x'),
-                                          Extractor('7za', 'x'),
-                                          Extractor('7zr', 'x'),
-                                          Extractor('sqc', 'x')),
-        'application/x-ace-compressed' : (Extractor('unace-bin', 'x', '-y'),
-                                          Extractor('unace', 'x', '-y'),
-                                          Extractor('sqc', 'x')),
-        'application/x-adf'            : (Extractor('unadf'),
-                                          Extractor('readdisk'),
-                                          Extractor('e-readdisk')),
-        'application/x-adz'            :  PipeExtractor('gunzip', '.adz', '.adf'),
-        'application/x-alz'            :  Extractor('unalz'),
-        'application/x-ar'             :  Extractor('ar', 'x'),
-        'application/x-arc'            :  Extractor('arc', 'x'),
-        'application/arj'              : (Extractor('arj', 'x', '-y'),
-                                          Extractor('unarj', 'x'),
-                                          Extractor('sqc', 'x')),
-        'application/bzip2'            : (PipeExtractor('bunzip2', '.bz2'),
-                                          BZip2Extractor()),
-        'application/cab'              : TryAll(Extractor('cabextract'),
-                                          Extractor('unshield'),
-                                          Extractor('sqc', 'x')),
-        'application/x-compress'       : (PipeExtractor('uncompress.real', '.z'),
-                                          PipeExtractor('uncompress', '.z')),
-        'application/x-cpio'           :  Extractor('cpio', '--force-local', '--quiet', '-idI'),
-        'application/x-deb'            :  Extractor('ar', 'x'),
-        'application/x-dosexec'        :  [],    # See below for how this works
-        'application/x-diskmasher'     : (Extractor('xdms', 'u'),
-                                          NamedOutputExtractor('undms', '.dms', '.adf')),
-        'application/x-gzip'           :  (PipeExtractor('gunzip', '.gz'),
-                                           GZipExtractor()),
-        'application/lzh'              : (Extractor('lha', 'x'),
-                                          Extractor('sqc', 'x')),
-        'application/lzx'              :  Extractor('unlzx', '-x'),
-        'application/x-lzop'           :  Extractor('lzop', '-x',),
-        'application/macbinary'        : (SitExtractor(),
-                                          Extractor('macunpack', '-f')),
-        'application/mac-binhex40'     : (SitExtractor(),
-                                          Extractor('uudeview', '-i')),
-        'application/mime'             :  Extractor('uudeview', '-ib'),
-        'application/msi'              :  Extractor('7z', 'x'),
-        'application/x-rar'            : (Extractor('unrar', 'x', '-y', '-p-'),
-                                          Extractor('rar', 'x', '-y', '-p-'),
-                                          Extractor('sqc', 'x')),
-        'application/x-rpm'            : (Extractor('rpm2cpio'),
-                                          Extractor('rpm2targz')),
-        'application/x-rzip'           :  NamedOutputExtractor(['runzip', '-k'], '.rz', outfile_option='-o '),
-        'application/x-extension-sfark':  Extractor('sfarkxtc'),
-        'application/x-shar'           : TryAll(Extractor('unmakeself'),
-                                          Extractor('unshar')),
-        'application/x-slp'            :  Extractor('alien', '-g'),  # Untested for lack of a .slp file
-        'application/x-squeeze'        :  Extractor('sqc', 'x'),
-        'application/x-stuffit'        :  SitExtractor(),
-        'application/x-tar'            : (Extractor('tar', 'xf'),
-                                          TarExtractor()),
-        'application/x-uuencode'       : (Extractor('uudeview', '-i'),
-                                          Extractor('uudecode'),
-                                          UUDecoder()),
-        'application/x-xar'            :  Extractor('xar', '-xf'),
-        'application/x-xx-encoded'     : (Extractor('uudeview', '-i'),
-                                          Extractor('xxdecode')),
-        'application/x-yenc-encoded'   : (Extractor('uudeview', '-i'),
-                                          Extractor('ydecode'),
-                                          Extractor('yydecode')),
-        'application/zip'              : (Extractor('7z', 'x'),
-                                          Extractor('7za', 'x'),
-                                          Extractor('unzip', '-q'),
-                                          ZipExtractor(),
-                                          Extractor('jar', 'xf'),
-                                          Extractor('sqc', 'x')),
-        'application/x-zoo'            : (Extractor('unzoo', '-x'),
-                                          Extractor('zoo', '-extract'))
+        'application/x-7z-compressed':
+            (Extractor('7z', 'x'),
+             Extractor('7za', 'x'),
+             Extractor('7zr', 'x'),
+             Extractor('sqc', 'x')),
+        'application/x-ace-compressed':
+            (Extractor('unace-bin', 'x', '-y'),
+             Extractor('unace', 'x', '-y'),
+             Extractor('sqc', 'x')),
+        'application/x-adf':
+            (Extractor('unadf'),
+             Extractor('readdisk'),
+             Extractor('e-readdisk')),
+        'application/x-adz':
+            PipeExtractor('gunzip', '.adz', '.adf'),
+        'application/x-alz':
+            Extractor('unalz'),
+        'application/x-ar':
+            Extractor('ar', 'x'),
+        'application/x-arc':
+            Extractor('arc', 'x'),
+        'application/arj':
+            (Extractor('arj', 'x', '-y'),
+             Extractor('unarj', 'x'),
+             Extractor('sqc', 'x')),
+        'application/bzip2':
+            (PipeExtractor('bunzip2', '.bz2'),
+             BZip2Extractor()),
+        'application/cab':
+            TryAll(
+                Extractor('cabextract'),
+                Extractor('unshield'),
+                Extractor('sqc', 'x')),
+        'application/x-compress':
+            (PipeExtractor('uncompress.real', '.z'),
+             PipeExtractor('uncompress', '.z')),
+        'application/x-cpio':
+            Extractor('cpio', '--force-local', '--quiet', '-idI'),
+        'application/x-deb':
+            Extractor('ar', 'x'),
+        'application/x-dosexec':
+            [],  # See below for how this works
+        'application/x-diskmasher':
+            (Extractor('xdms', 'u'),
+             NamedOutputExtractor('undms', '.dms', '.adf')),
+        'application/x-gzip':
+            (PipeExtractor('gunzip', '.gz'),
+             GZipExtractor()),
+        'application/lzh':
+            (Extractor('lha', 'x'),
+             Extractor('sqc', 'x')),
+        'application/lzx':
+            Extractor('unlzx', '-x'),
+        'application/x-lzop':
+            Extractor('lzop', '-x',),
+        'application/macbinary':
+            (SitExtractor(),
+             Extractor('macunpack', '-f')),
+        'application/mac-binhex40':
+            (SitExtractor(),
+             Extractor('uudeview', '-i')),
+        'application/mime':
+            Extractor('uudeview', '-ib'),
+        'application/msi':
+            Extractor('7z', 'x'),
+        'application/x-rar':
+            (Extractor('unrar', 'x', '-y', '-p-'),
+             Extractor('rar', 'x', '-y', '-p-'),
+             Extractor('sqc', 'x')),
+        'application/x-rpm':
+            (Extractor('rpm2cpio'),
+             Extractor('rpm2targz')),
+        'application/x-rzip':
+            NamedOutputExtractor(['runzip', '-k'], '.rz',
+                                 outfile_option='-o '),
+        'application/x-extension-sfark':
+            Extractor('sfarkxtc'),
+        'application/x-shar':
+            TryAll(
+                Extractor('unmakeself'),
+                Extractor('unshar')),
+        'application/x-slp':
+            Extractor('alien', '-g'),
+            # FIXME: Untested for lack of a .slp file
+        'application/x-squeeze':
+            Extractor('sqc', 'x'),
+        'application/x-stuffit':
+            SitExtractor(),
+        'application/x-tar':
+            (Extractor('tar', 'xf'),
+             TarExtractor()),
+        'application/x-uuencode':
+            (Extractor('uudeview', '-i'),
+             Extractor('uudecode'),
+             UUDecoder()),
+        'application/x-xar':
+            Extractor('xar', '-xf'),
+        'application/x-xx-encoded':
+            (Extractor('uudeview', '-i'),
+             Extractor('xxdecode')),
+        'application/x-yenc-encoded':
+            (Extractor('uudeview', '-i'),
+             Extractor('ydecode'),
+             Extractor('yydecode')),
+        'application/zip':
+            (Extractor('7z', 'x'),
+             Extractor('7za', 'x'),
+             Extractor('unzip', '-q'),
+             ZipExtractor(),
+             Extractor('jar', 'xf'),
+             Extractor('sqc', 'x')),
+        'application/x-zoo':
+            (Extractor('unzoo', '-x'),
+             Extractor('zoo', '-extract'))
 }
 """Mappings from mimetypes to Extractor instances or iterables thereof.
 @note: Order is significant within the target iterables."""
@@ -705,39 +747,39 @@ EXTRACTORS['application/x-dosexec'] = TryAll(
             'application/x-ace-compressed')
 
 aliases = {
-        'application/x-archive'             : 'application/x-ar',
-        'application/x-ace'                 : 'application/x-ace-compressed',
-        'application/x-arj'                 : 'application/arj',
-        'application/x-bcpio'               : 'application/x-cpio',
-        'application/x-bz2'                 : 'application/bzip2',
-        'application/x-bzip'                : 'application/bzip2',
-        'application/x-bzip2'               : 'application/bzip2',
-        'application/x-compressed'          : 'application/x-gzip',
-        'application/x-dms'                 : 'application/x-diskmasher',
-        'application/x-gtar'                : 'application/x-tar',
-        'application/java-archive'          : 'application/zip',
-        'application/x-lha'                 : 'application/lzh',
-        'application/x-lharc'               : 'application/lzh',
-        'application/x-lzh'                 : 'application/lzh',
-        'application/x-lzh-archive'         : 'application/lzh',
-        'application/x-lzx'                 : 'application/lzx',
-        'application/x-ole-storage'         : 'application/msi',
-        'application/x-macbinary'           : 'application/macbinary',
-        'application/x-mime-encoded'        : 'application/mime',
-        'application/x-msi'                 : 'application/msi',
-        'application/x-msiexec'             : 'application/msi',
-        'application/sea'                   : 'application/x-stuffit',
-        'application/x-sea'                 : 'application/x-stuffit',
-        'application/x-sh'                  : 'application/x-shar',
-        'application/stuffit-lite'          : 'application/x-stuffit',
-        'application/x-sv4cpio'             : 'application/x-cpio',
-        'application/vnd.ms-cab-compressed' : 'application/cab',
-        'application/x-webarchive'          : 'application/x-tar',
-        'application/x-xpinstall'           : 'application/zip',
-        'application/x-zip'                 : 'application/zip',
-        'x-compress'                        : 'application/x-compress',
-        'x-gzip'                            : 'application/x-gzip',
-        'x-uuencode'                        : 'application/x-uuencode',
+        'application/x-archive': 'application/x-ar',
+        'application/x-ace': 'application/x-ace-compressed',
+        'application/x-arj': 'application/arj',
+        'application/x-bcpio': 'application/x-cpio',
+        'application/x-bz2': 'application/bzip2',
+        'application/x-bzip': 'application/bzip2',
+        'application/x-bzip2': 'application/bzip2',
+        'application/x-compressed': 'application/x-gzip',
+        'application/x-dms': 'application/x-diskmasher',
+        'application/x-gtar': 'application/x-tar',
+        'application/java-archive': 'application/zip',
+        'application/x-lha': 'application/lzh',
+        'application/x-lharc': 'application/lzh',
+        'application/x-lzh': 'application/lzh',
+        'application/x-lzh-archive': 'application/lzh',
+        'application/x-lzx': 'application/lzx',
+        'application/x-macbinary': 'application/macbinary',
+        'application/x-mime-encoded': 'application/mime',
+        'application/x-msi': 'application/msi',
+        'application/x-msiexec': 'application/msi',
+        'application/x-ole-storage': 'application/msi',
+        'application/sea': 'application/x-stuffit',
+        'application/x-sea': 'application/x-stuffit',
+        'application/x-sh': 'application/x-shar',
+        'application/stuffit-lite': 'application/x-stuffit',
+        'application/x-sv4cpio': 'application/x-cpio',
+        'application/vnd.ms-cab-compressed': 'application/cab',
+        'application/x-webarchive': 'application/x-tar',
+        'application/x-xpinstall': 'application/zip',
+        'application/x-zip': 'application/zip',
+        'x-compress': 'application/x-compress',
+        'x-gzip': 'application/x-gzip',
+        'x-uuencode': 'application/x-uuencode',
 }
 for key in aliases:
     if key in EXTRACTORS:
@@ -746,77 +788,77 @@ for key in aliases:
 del aliases, key
 
 EXTENSIONS = {
-        '.7z'   : 'application/x-7z-compressed',
-        '.a'    : 'application/x-ar',
-        '.ace'  : 'application/x-ace-compressed',
-        '.adf'  : 'application/x-adf',
-        '.adz'  : 'application/x-adz',
-        '.alz'  : 'application/x-alz',
-        '.ar'   : 'application/x-ar',
-        '.arc'  : 'application/x-arc',
-        '.arj'  : 'application/arj',
-        '.b64'  : 'application/mime',
-        '.bh'   : ('application/x-blakhole',
-                   'application/mac-binhex40'),
-        '.bhx'  : 'application/mac-binhex40',
-        '.bin'  : 'application/macbinary',
-        '.bz2'  : 'application/bzip2',
-        '.cab'  : 'application/cab',
-        '.cbr'  : 'application/x-rar',
-        '.cbt'  : 'application/x-tar',
-        '.cbz'  : 'application/zip',
-        '.cp'   : 'application/x-cpio',
-        '.cpio' : 'application/x-cpio',
-        '.deb'  : 'application/x-deb',
-        '.dgc'  : 'application/x-dgca-compressed',
-        '.dms'  : 'application/x-dms',
-        '.ear'  : 'application/java-archive',
-        '.egg'  : 'application/zip',
-        '.exe'  : 'application/x-dosexec',
-        '.gca'  : 'application/x-gca-compressed',
-        '.gz'   : 'application/x-gzip',
-        '.hqx'  : 'application/mac-binhex40',
-        '.ipk'  : 'application/x-tar',
-        '.iso'  : 'application/x-iso9660-image',
-        '.j'    : 'application/java-archive',
-        '.jar'  : 'application/java-archive',
-        '.lha'  : 'application/lzh',
-        '.lzh'  : 'application/lzh',
-        '.lzo'  : 'application/x-lzop',
-        '.lzx'  : 'application/lzx',
-        '.mim'  : 'application/mime',
-        '.msi'  : 'application/msi',
-        '.pak'  : 'application/zip',
-        '.pk3'  : 'application/zip',
-        '.rar'  : 'application/x-rar',
-        '.rpm'  : 'application/x-rpm',
-        '.rz'   : 'application/x-rzip',
-        '.rsn'  : 'application/x-rar',
-        '.sea'  : 'application/sea',
+        '.7z': 'application/x-7z-compressed',
+        '.a': 'application/x-ar',
+        '.ace': 'application/x-ace-compressed',
+        '.adf': 'application/x-adf',
+        '.adz': 'application/x-adz',
+        '.alz': 'application/x-alz',
+        '.ar': 'application/x-ar',
+        '.arc': 'application/x-arc',
+        '.arj': 'application/arj',
+        '.b64': 'application/mime',
+        '.bh': ('application/x-blakhole',
+                'application/mac-binhex40'),
+        '.bhx': 'application/mac-binhex40',
+        '.bin': 'application/macbinary',
+        '.bz2': 'application/bzip2',
+        '.cab': 'application/cab',
+        '.cbr': 'application/x-rar',
+        '.cbt': 'application/x-tar',
+        '.cbz': 'application/zip',
+        '.cp': 'application/x-cpio',
+        '.cpio': 'application/x-cpio',
+        '.deb': 'application/x-deb',
+        '.dgc': 'application/x-dgca-compressed',
+        '.dms': 'application/x-dms',
+        '.ear': 'application/java-archive',
+        '.egg': 'application/zip',
+        '.exe': 'application/x-dosexec',
+        '.gca': 'application/x-gca-compressed',
+        '.gz': 'application/x-gzip',
+        '.hqx': 'application/mac-binhex40',
+        '.ipk': 'application/x-tar',
+        '.iso': 'application/x-iso9660-image',
+        '.j': 'application/java-archive',
+        '.jar': 'application/java-archive',
+        '.lha': 'application/lzh',
+        '.lzh': 'application/lzh',
+        '.lzo': 'application/x-lzop',
+        '.lzx': 'application/lzx',
+        '.mim': 'application/mime',
+        '.msi': 'application/msi',
+        '.pak': 'application/zip',
+        '.pk3': 'application/zip',
+        '.rar': 'application/x-rar',
+        '.rpm': 'application/x-rpm',
+        '.rz': 'application/x-rzip',
+        '.rsn': 'application/x-rar',
+        '.sea': 'application/sea',
         '.sfark': 'application/x-extension-sfark',
-        '.sh'   : 'application/x-sh',
-        '.shar' : 'application/x-shar',
-        '.sit'  : 'application/x-stuffit',
-        '.sitx' : 'application/x-stuffitx',
-        '.slp'  : 'application/x-slp',
-        '.sqx'  : 'application/x-squeeze',
-        '.tar'  : 'application/x-tar',
-        '.taz'  : 'application/x-compress',
-        '.tbz2' : 'application/bzip2',
-        '.tgz'  :  'application/x-gzip',
-        '.tz'   : 'application/x-compress',
-        '.uu'   : 'application/x-uuencode',
-        '.uue'  : 'application/x-uuencode',
-        '.war'  : ('application/x-webarchive', 'application/java-archive'),
-        '.xar'  : 'application/x-xar',
-        '.xpi'  : 'application/x-xpinstall',
-        '.xx'   : 'application/x-xx-encoded',
-        '.xxe'  : 'application/x-xx-encoded',
-        '.ync'  : 'application/x-yenc-encoded',
-        '.yenc' : 'application/x-yenc-encoded',
-        '.z'    : 'application/x-compress',
-        '.zip'  : 'application/zip',
-        '.zoo'  : 'application/x-zoo',
+        '.sh': 'application/x-sh',
+        '.shar': 'application/x-shar',
+        '.sit': 'application/x-stuffit',
+        '.sitx': 'application/x-stuffitx',
+        '.slp': 'application/x-slp',
+        '.sqx': 'application/x-squeeze',
+        '.tar': 'application/x-tar',
+        '.taz': 'application/x-compress',
+        '.tbz2': 'application/bzip2',
+        '.tgz': 'application/x-gzip',
+        '.tz': 'application/x-compress',
+        '.uu': 'application/x-uuencode',
+        '.uue': 'application/x-uuencode',
+        '.war': ('application/x-webarchive', 'application/java-archive'),
+        '.xar': 'application/x-xar',
+        '.xpi': 'application/x-xpinstall',
+        '.xx': 'application/x-xx-encoded',
+        '.xxe': 'application/x-xx-encoded',
+        '.ync': 'application/x-yenc-encoded',
+        '.yenc': 'application/x-yenc-encoded',
+        '.z': 'application/x-compress',
+        '.zip': 'application/zip',
+        '.zoo': 'application/x-zoo',
 }
 """Fallback extension-to-mimetype mappings for when header detection fails or
 is unavailable.
@@ -832,17 +874,33 @@ also differ from unball's desired behaviour in certain subtle ways.
 """
 
 FALLBACK_DESCRIPTIONS = {
-        'application/x-blakhole'        : "BlakHole archive. The only extraction tools for this seem to be Windows-only.",
-        'application/x-dgca-compressed' : "DGCA archive. The only known site for these is in Japanese and the only extraction tool seems to be Windows-only.",
-        'application/x-dosexec'         : "DOS/Windows Executable. It may be a self-extracting archive, but all attempts to extract it failed.",
-        'application/x-gca-compressed'  : "GCA archive. The only known site for these is in Japanese and the only extraction tool seems to be Windows-only.",
-        'application/x-iso9660-image'   : "ISO9660 CD/DVD image. To extract files from this, use a virtual disc drive like CDEmu (Linux) or DaemonTools (Windows)",
-        'application/msi'               : "Microsoft Installer package. If you trust it, you can use Wine's msiexec tool to install it.",
-        'application/x-shar'            : "self-extracting shell archive. For security reasons, it has not been executed automatically.",
-        'application/x-sh'              : "shell script. If the file is more than a few hundred kilobytes in size, it's almost definitely a 'shar' or or 'makeself' archive. "
-                                          "At present, unball lacks a method to extract such archives without executing untrusted code.",
-        'application/x-stuffitx'        : "StuffIt X archive. As of this writing, extractors for this format exist only for Windows and MacOS X.",
-        'application/zip'               : "Zip archive. However, extraction failed. If the cause was an unsupported compression method, try installing p7zip.",
+        'application/x-blakhole': "BlakHole archive. The only extraction "
+            "tools for this seem to be Windows-only.",
+        'application/x-dgca-compressed': "DGCA archive. The only known site "
+            "for these is in Japanese and the only extraction tool seems to "
+            "be Windows-only.",
+        'application/x-dosexec': "DOS/Windows Executable. It may be a self-"
+            "extracting archive, but all attempts to extract it failed.",
+        'application/x-gca-compressed': "GCA archive. The only known site "
+            "for these is in Japanese and the only extraction tool seems to "
+            "be Windows-only.",
+        'application/x-iso9660-image': "ISO9660 CD/DVD image. To extract "
+            "files from this, use a virtual disc drive like CDEmu (Linux) or"
+            " DaemonTools (Windows)",
+        'application/msi': "Microsoft Installer package. If you trust it, "
+            "you can use Wine's msiexec tool to install it.",
+            #TODO: I believe 7zip can now unpack MSIs.
+        'application/x-shar': "self-extracting shell archive. For security "
+            "reasons, it has not been executed automatically.",
+        'application/x-sh': "shell script. If the file is more than a few "
+            "hundred kilobytes in size, it's almost definitely a 'shar' or "
+            "'makeself' archive. At present, unball lacks a method to "
+            "extract such archives without executing untrusted code.",
+        'application/x-stuffitx': "StuffIt X archive. As of this writing, "
+            "extractors for this format exist only for Windows and MacOS X.",
+        'application/zip': "Zip archive. However, extraction failed. If the "
+            "cause was an unsupported compression method, try installing "
+            "p7zip.",
 }
 """A list of explanations for formats unball cannot currently extract on its
 own.

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-This file is originally from http://andialbrecht.wordpress.com/2009/03/17/creating-a-man-page-with-distutils-and-optparse/
+This file is originally from
+    http://andialbrecht.wordpress.com/2009/03/17/
+    creating-a-man-page-with-distutils-and-optparse/
 Modified by René Neumann to support for a "See Also" section.
 
 Retrieved from at 2009-08-27 16:21 EST from
@@ -25,8 +27,9 @@ class build_manpage(Command):
     user_options = [
         ('output=', 'O', 'output file'),
         ('parser=', None, 'module path to optparser (e.g. mymod:func)'),
-        ('seealso=', None, 'list of manpages to put into the SEE ALSO section (e.g. bash:1)')
-        ]
+        ('seealso=', None, 'list of manpages to put into the SEE ALSO '
+                           'section (e.g. bash:1)')
+    ]
 
     def initialize_options(self):
         self.output = None
@@ -46,7 +49,7 @@ class build_manpage(Command):
         try:
             mod = __import__(mod_name, fromlist=fromlist)
             self._parser = getattr(mod, func_name)()
-        except ImportError, err:
+        except ImportError:
             raise
         self._parser.formatter = ManPageFormatter()
         self._parser.formatter.set_parser(self._parser)
@@ -60,7 +63,7 @@ class build_manpage(Command):
         appname = self.distribution.get_name()
         ret = []
         ret.append('.TH %s 1 %s "%s v.%s"\n' % (self._markup(appname.upper()),
-                                      self._today.strftime('%Y\\-%m\\-%d'), appname, version))
+                   self._today.strftime('%Y\\-%m\\-%d'), appname, version))
         description = self.distribution.get_description()
         if description:
             name = self._markup('%s - %s' % (self._markup(appname),
@@ -86,7 +89,7 @@ class build_manpage(Command):
         ret.append(self._parser.format_option_help())
         return ''.join(ret)
 
-    def _write_seealso (self):
+    def _write_seealso(self):
         ret = []
         if self.seealso is not None:
             ret.append('.SH "SEE ALSO"\n')
@@ -164,4 +167,3 @@ class ManPageFormatter(optparse.HelpFormatter):
 
 
 build.sub_commands.append(('build_manpage', None))
-

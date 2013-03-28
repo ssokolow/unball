@@ -17,10 +17,12 @@
 @todo: Finish building this:
  - http://epydoc.sourceforge.net/api/epydoc.docbuilder-module.html
  - https://help.launchpad.net/Code
- - http://docs.python.org/distutils/setupscript.html#installing-package-data
- - http://docs.python.org/distutils/setupscript.html#installing-additional-files
- - http://docs.python.org/distutils/setupscript.html#debugging-the-setup-script
- - http://docs.python.org/distutils/sourcedist.html#specifying-the-files-to-distribute
+ - http://docs.python.org/distutils/setupscript.html
+    #installing-package-data
+    #installing-additional-files
+    #debugging-the-setup-script
+ - http://docs.python.org/distutils/sourcedist.html
+    #specifying-the-files-to-distribute
  - http://docs.python.org/distutils/apiref.html#distutils.core.setup
  - http://docs.python.org/distutils/extending.html
  - http://wiki.python.org/moin/Distutils/Tutorial
@@ -39,17 +41,14 @@
  - Source: http://da44en.wordpress.com/2002/11/22/using-distutils/
 """
 
-import datetime, optparse, os, sys
-from distutils.command.build import build as __build
-from distutils.core import Command
-from distutils.errors import DistutilsOptionError
+import os, sys
+#from distutils.command.build import build as __build
+#from distutils.core import Command
+#from distutils.errors import DistutilsOptionError
 
 from build_manpage import build_manpage as _build_manpage
 
-from ez_setup import use_setuptools
-use_setuptools()
-
-from paver.easy import *
+from paver.easy import task, needs, path
 from paver.setuputils import setup
 
 srcdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src'))
@@ -92,37 +91,58 @@ def clean():
                     pass
 
 setup(name="Unball",
-      version=unball.__version__,
-      description="A 'do what I mean' archive extraction wrapper",
-      long_description="A simple-to-use tool for when you just want to " +
-         "extract an archive without making a mess or caring about what " +
-         "format it's in.",
-      author="Stephan Sokolow (deitarion/SSokolow)",
-      author_email="http://www.ssokolow.com/ContactMe",
-      url='https://launchpad.net/unball',
-      license="License :: OSI Approved :: GNU General Public License (GPL)",
-      #TODO: classifiers, platforms
-      # http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    version=unball.__version__,
+    description="'Do what I mean' archive commands for your shell",
+    long_description="""
+        Simple console wrappers which handle decisions like
+        "what format is it in?" and "Do I need to create a folder for it?"
+        for you.
+        """,  # TODO: Rewrite this when I finish making this an API with
+              # console reference implementations.
+    author="Stephan Sokolow (deitarion/SSokolow)",
+    author_email="http://www.ssokolow.com/ContactMe",
+    url='https://github.com/ssokolow/unball',
+    license="License :: OSI Approved :: GNU General Public License (GPL)",
+    classifiers=[
+        "Environment :: Console",
+        "Intended Audience :: End Users/Desktop",
+        "Intended Audience :: System Administrators",
+        # "Intended Audience :: Developers",
+        # TODO: For when I finish the API rework.
+        "License :: OSI Approved :: GNU General Public License (GPL)",
+        "Operating System :: POSIX",
+        #"Operating System :: OS Independent",
+        # TODO: For when the stdlib-based zip/tar support is ready.
+        "Programming Language :: Python",
+        #TODO: Add support for Python 3 and an appropriate classifier
+        "Topic :: System :: Archiving",
+        "Topic :: Utilities",
+    ],
 
-      package_dir={'': 'src'},
-      py_modules=['unball'],
-      scripts=['src/moveToZip'],
-      entry_points = {
+    package_dir={'': 'src'},
+    py_modules=['unball'],
+    scripts=['src/moveToZip'],
+
+    #TODO: Forget setuptools. Just replace this with a stub script.
+    entry_points={
         'console_scripts': [
             'unball = unball:main_func',
         ],
-      },
-      data_files=[('share/man/man1', ['build/man/unball.1']),
-                  ('share/apps/konqueror/servicemenus', ['src/servicemenus/unball.desktop', 'src/servicemenus/moveToZip.desktop']),
-                  ('libexec/thunar-archive-plugin', ['src/unball.tap'])],
+    },
+    data_files=[('share/man/man1', ['build/man/unball.1']),
+                ('share/apps/konqueror/servicemenus', [
+                    'src/servicemenus/unball.desktop',
+                    'src/servicemenus/moveToZip.desktop'
+                ]),
+                ('libexec/thunar-archive-plugin', ['src/unball.tap'])],
 
-      cmdclass = {'build_manpage' : _build_manpage},
-      test_suite='run_test.get_tests',
+    cmdclass={'build_manpage': _build_manpage},
+    test_suite='run_test.get_tests',
 
-      options = {
+    options={
         'build_manpage': {
-            'output' : 'build/man/unball.1',
-            'parser' : 'unball:get_opt_parser',
+            'output': 'build/man/unball.1',
+            'parser': 'unball:get_opt_parser',
         },
-      },
+    },
 )
