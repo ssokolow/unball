@@ -1135,8 +1135,10 @@ def tryExtract(srcFile, targetDir=None, level=0):
             #TODO: Replace this with a logging call for easy disabling
             print("%s seems to be a(n) %s" % (
                     srcFile, FALLBACK_DESCRIPTIONS[mime]))
-            raise UnsupportedFiletypeError("Filetype recognized but "
-                                           "unsupported: %s" % srcFile)
+            raise UnsupportedFiletypeError(
+                "Filetype recognized but unsupported: %s (%s)" % (
+                    srcFile, mime
+                ))
         elif mime in EXTRACTORS:
             raise NoExtractorError("Filetype supported but no viable "
                                    "extractors found: %s" % srcFile)
@@ -1144,11 +1146,14 @@ def tryExtract(srcFile, targetDir=None, level=0):
             raise UnsupportedFiletypeError(
                     "Not a known archive type: %s (%s)" % (srcFile, mime))
 
-    #TODO: Rewrite all this temp directory handling as a context manager.
-
     prefer_contained_name = True  # TODO: Make this configurable
-    context = TempTarget(os.path.join(targetDir, os.path.basename(srcFile)),
-            prefix='unball-', parent=targetDir, collapse=True)
+
+    # TODO: Unit test for proper output folder name generation
+    # TODO: Make sure there's always a test file which LACKS a containing
+    # folder for the files within.
+    target_name = os.path.splitext(os.path.basename(srcFile))[0]
+    context = TempTarget(os.path.join(targetDir, target_name),
+                         prefix='unball-', parent=targetDir, collapse=True)
 
     with context as tempTarget:
         extractors[0](srcFile, tempTarget)  # Raises exception on non-zero exit
@@ -1163,21 +1168,21 @@ def tryExtract(srcFile, targetDir=None, level=0):
                 os.chmod(path, os.stat(path).st_mode | S_IRUSR)
 
         contents = os.listdir(tempTarget)
+        first_contained = os.path.join(tempTarget, contents[0])
         if len(contents) == 0:
             raise NothingProducedError("Operation completed but temp "
                 "folder is empty for %s" % context.target)
         elif (len(contents) == 1 and level < RECURSION_LIMIT and
-                os.path.isfile(os.path.join(tempTarget, contents[0]))):
+                os.path.isfile(first_contained)):
                 # Handle nesting like .tar.7z
             #TODO: Should I go as far as explicitly collapsing nested
             #      containing folders?
             try:
-                tryExtract(os.path.join(tempTarget, contents[0]), None,
-                           level + 1)
+                tryExtract(first_contained, None, level + 1)
             except UnsupportedFiletypeError:
                 pass
             else:
-                os.remove(os.path.join(tempTarget, contents[0]))
+                os.remove(first_contained)
 
         # TODO: Unit test that nested extraction doesn't break this
         contents = os.listdir(tempTarget)

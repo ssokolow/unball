@@ -178,7 +178,7 @@ def makeTests(path, verbosity=0):
                         "%s created an unnecessary wrapper dir" % callstring)
                     self.assertFalse(newdir.endswith('.tar'),
                         "%s didn't strip .tar from the name of the newly "
-                        "created dir." % callstring)
+                        "created dir. (%s)" % (callstring, newdir))
                     if not filename in count_omit:
                         self.assertFalse(len(listdir(newdir)) != 9,
                             "%s did not extract the correct number of files. "
