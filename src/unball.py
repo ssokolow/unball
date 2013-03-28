@@ -126,7 +126,11 @@ except ImportError:  # TODO: Can magic.open or mime_checker.load() fail?
 
         @todo: When can the C{file} command return non-zero error codes?
         @todo: Polish this code and copy it to nonstdlib.
-        """  # TODO: Implement a completely internal version of this.
+        """
+        # TODO: Implement a completely internal version of this.
+        # (And implement detection of COMPRESS.EXE files
+        #  http://www.cabextract.org.uk/libmspack/doc/szdd_kwaj_format.html)
+
         _sp, _cmd = subprocess, ['file', '-bi', path]
         try:
             mime = _sp.Popen(_cmd, stdout=_sp.PIPE).stdout.read().strip()
