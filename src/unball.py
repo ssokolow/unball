@@ -106,7 +106,12 @@ try:
         elif not os.access(path, os.R_OK):
             raise IOError(errno.EACCES, os.strerror(errno.EACCES), path)
         else:
-            return checker(path).decode('string_escape').split()[0].rstrip(',')
+            mime = checker(path).decode('string_escape').split()[0]
+
+            # TODO: Unit test this. IF nothing else, ';' is needed for
+            # arctest.header on Ubuntu 12.04 LTS.
+            mime = mime.rstrip(',;')
+            return mime
 
     del mime_checker
 except ImportError:  # TODO: Can magic.open or mime_checker.load() fail?
