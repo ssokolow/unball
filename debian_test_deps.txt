@@ -10,4 +10,3 @@ rzip
 unace-nonfree
 unrar
 unzip
-zoo
