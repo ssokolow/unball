@@ -147,6 +147,8 @@ def makeTests(path, verbosity=0):
                     unball.tryExtract(self.srcfile, dest)
                 except unball.NoExtractorError:
                     self.skipTest("No suitable extractors installed")
+                except unball.UnsupportedFiletypeError:
+                    self.skipTest("Unball doesn't know how to unpack this")
                 callstring = "tryExtract(%r, %r)" % (self.srcfile, dest)
 
                 if realDest == self.srcdir:

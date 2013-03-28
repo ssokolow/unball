@@ -1132,6 +1132,7 @@ def tryExtract(srcFile, targetDir=None, level=0):
     if not extractors:
         if mime in FALLBACK_DESCRIPTIONS:
             #TODO: Replace this with a logging call for easy disabling
+            #TODO: Phrase this in a way that doesn't require "a(n)"
             print("%s seems to be a(n) %s" % (
                     srcFile, FALLBACK_DESCRIPTIONS[mime]))
             raise UnsupportedFiletypeError(
