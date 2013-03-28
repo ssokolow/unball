@@ -1168,8 +1168,8 @@ def self_test(silent=False):
         untestables.append(mimetype)
 
     if untestables and not silent:
-        print "\nNo viable extractors found for the following mimetypes:"
-        print '\n'.join(untestables)
+        print("\nNo viable extractors found for the following mimetypes:")
+        print('\n'.join(untestables))
 
     return OK
 
@@ -1203,7 +1203,7 @@ def main_func():
 
     if opts.self_test:
         if self_test():
-            print "\nNo inconsistencies found"
+            print("\nNo inconsistencies found")
         parser.exit()
 
     if not len(args):
@@ -1211,14 +1211,14 @@ def main_func():
         parser.exit(errno.ENOENT)  # Apparently it's standard to use ENOENT.
 
     if opts.outdir and not os.access(opts.outdir, os.W_OK):
-        print "FATAL: No write permissions for specified destination directory"
+        print("FATAL: No write permissions for given destination directory")
         parser.exit(errno.EPERM)
 
     failures, cautions = [], []
     last_errcode = 0
     for archive in args:
         try:
-            print "Extracted to %s" % tryExtract(archive, opts.outdir)
+            print("Extracted to %s" % tryExtract(archive, opts.outdir))
             #TODO: Do this in a way which produces nicer output.
         except UnsupportedFiletypeError, err:
             cautions.append(archive)
@@ -1246,16 +1246,17 @@ def main_func():
             last_errcode = 7
 
     if failures:
-        print "\nUnball encountered errors while extracting one or more files:"
-        print '\t' + '\n\t'.join(failures)
-        print
+        print('')
+        print("Unball encountered errors while extracting one or more files:")
+        print('\t' + '\n\t'.join(failures))
+        print('')
         raise
 
     if cautions:
-        print "One or more provided files were not recognized as archives. "
-        print ("If you are certain they are, please file a bug at " +
+        print("One or more provided files were not recognized as archives. ")
+        print("If you are certain they are, please file a bug at " +
               "http://launchpad.net/unball so support can be added.")
-        print ' - ' + '\n - '.join(cautions)
+        print(' - ' + '\n - '.join(cautions))
 
     if failures or (cautions and opts.strict_return):
         sys.exit(last_errcode or 1)

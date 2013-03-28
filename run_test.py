@@ -316,16 +316,18 @@ class GlobalTests(unittest.TestCase):
 def test_dir(path=None, verbosity=0):
     """Generate and run a set of tests for the given dir full of archives."""
     path = abspath(path or os.path.join(dirname(__file__), 'test sources'))
-    print 'Testing directory "%s" ...' % os.path.split(path)[1]
+    print('Testing directory "%s" ...' % os.path.split(path)[1])
 
     # Ensure interactive test runs mimic CI servers a bit more
     if 'DISPLAY' in os.environ:
         del os.environ['DISPLAY']
 
     if not verbosity:
-        print "NOTE: stdin, stdout, and stderr are closed for these tests. If extraction of ACE files freezes, it's a regression."
+        print("NOTE: stdin, stdout, and stderr are closed for these tests. "
+              "If extraction of ACE files freezes, it's a regression.")
     else:
-        print "WARNING: Verbose output defeats a regression test for unace. Please also run this in non-verbose mode."
+        print("WARNING: Verbose output defeats a regression test for unace. "
+              "Please also run this in non-verbose mode.")
 
     f = [os.path.join(path, arch) for arch in listdir(path)
          if not (os.path.isdir(arch)) and not arch in excluded]
@@ -344,18 +346,17 @@ if __name__ == '__main__':
 
     (opts, args) = parser.parse_args()
 
-    print "Platform: %s" % (sys.platform,)
+    print("Platform: %s" % (sys.platform,))
     try:
-        print "uname: %s" % ' '.join(os.uname())
+        print("uname: %s" % ' '.join(os.uname()))
     except AttributeError:
         try:
-            print "Windows Version: %s" % (sys.getwindowsversion(),)
+            print("Windows Version: %s" % (sys.getwindowsversion(),))
         except AttributeError:
-            print "Detailed system version information unavailable"
-    print "Runtime Version: %s" % sys.version
-    print
+            print("Detailed system version information unavailable")
+    print("Runtime Version: %s\n" % sys.version)
 
-    print "Using %s" % unball.__file__
+    print("Using %s" % unball.__file__)
 
     tests  = unittest.TestSuite([
         unittest.TestSuite(test_dir(args and args[0] or None,
