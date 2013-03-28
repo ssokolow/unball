@@ -1220,28 +1220,28 @@ def main_func():
         try:
             print("Extracted to %s" % tryExtract(archive, opts.outdir))
             #TODO: Do this in a way which produces nicer output.
-        except UnsupportedFiletypeError, err:
+        except UnsupportedFiletypeError as err:
             cautions.append(archive)
-        except NothingProducedError, err:  # Bug trap triggered
+        except NothingProducedError as err:  # Bug trap triggered
             failures.append(str(err))
             last_errcode = 1
-        except IOError, err:  # Permissions error
+        except IOError as err:  # Permissions error
             failures.append(str(err))
             last_errcode = 2
-        except OSError, err:  # Path error (eg. target exists or not a dir)
+        except OSError as err:  # Path error (eg. target exists or not a dir)
             failures.append(str(err))
             last_errcode = 3
-        except NoExtractorError, err:  # Could not find suitable extractor
+        except NoExtractorError as err:  # Could not find suitable extractor
             failures.append(str(err))
             last_errcode = 4
-        except subprocess.CalledProcessError, err:  # Extractor failed
+        except subprocess.CalledProcessError as err:  # Extractor failed
             if err.returncode >= 0:
                 failures.append(str(err))
                 last_errcode = 5
             else:
                 last_errcode = 6
                 break
-        except Exception, err:   # Unknown error
+        except Exception as err:   # Unknown error
             failures.append(str(err))
             last_errcode = 7
 
