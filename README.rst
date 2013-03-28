@@ -3,7 +3,7 @@ Unball
 by deitarion (Stephan Sokolow)
 Version 0.2.99.0
 
-Inspired by [maitre's unball](http://kde-look.org/content/show.php/KDE+Unballer?content=12561)
+Inspired by `maitre's unball <http://kde-look.org/content/show.php/KDE+Unballer?content=12561>`_.
 (It would be based on it, but there was none of the old code left by the time I was done the first release)
 
 .. image:: https://travis-ci.org/ssokolow/unball.png
@@ -17,10 +17,10 @@ Known Flaws
 
 - As of 2013-03-28, the Python port is functional with the remaining test failures caused by incomplete
   support for certain formats already supported by the old shell script version.
-- **Installation for unball 0.3.x is still being converted from ``install.sh`` to ``setup.py``.**
+- **Installation for unball 0.3.x is still being converted from install.sh to setup.py**
 - The style and architecture for the codebase and test suite are still very much stuck back in 2009.
 - Documentation is still catching up to the 0.3.x rewrite.
-- Gentoo's app-arch/unarj isn't supported because app-arch/arj is GPLed and better in every way.
+- Gentoo's ``app-arch/unarj`` isn't supported because ``app-arch/arj`` is GPLed and better in every way.
 
 Requirements:
 -------------
@@ -60,17 +60,15 @@ Console
   For details, run ``unball --help``.
 
 KDE
-
-  - Right-click any archive and "Extract with unball" will be available in the Actions menu.
-  - Right-click any folder and "Move to Zip Archive" will be available in the Actions menu.
+  Right-click any archive and "Extract with unball" will be available in the Actions menu.
+  Right-click any folder and "Move to Zip Archive" will be available in the Actions menu.
 
 GNOME
-
-  - Right-click any archive and "Unball" will be available in the Scripts menu.
-  - Right-click any file or folder and "Move to ZIP" will be available in the Scripts menu.
+  Right-click any archive and "Unball" will be available in the Scripts menu.
+  Right-click any file or folder and "Move to ZIP" will be available in the Scripts menu.
 
 Xfce
-  thunar-archive-plugin will offer unball (and moveToZip) as the backend for it's archive functions.
+  `thunar-archive-plugin` will offer unball (and moveToZip) as the backend for it's archive functions.
 
 The unit tests can be run by typing ``./run_test.py`` after installing unball. (preferrably not as root)
 For details on the options ``run_test.py`` accepts, use the ``--help`` option.
@@ -87,8 +85,8 @@ When using Konqueror, you can easily batch-convert a collection of assorted arch
 
 I haven't had a chance to check whether this works in Nautilus yet, but it should.
 
-To convert a WinHTTrack-generated library of saved websites into zips for easy archival on CDs or DVDs:
+To convert a WinHTTrack-generated library of saved websites into ZIPs for easy archival on CDs or DVDs:
 
-1. CD into the folder where your library is kept
-2. Run this command --> ``for SITE in *.whtt; do moveToZip.sh "${SITE%.whtt}"; rm -f "$SITE"; done``
+1. ``cd`` into the folder where your library is kept
+2. Run this command → ``for SITE in *.whtt; do moveToZip.sh "${SITE%.whtt}"; rm -f "$SITE"; done``
 
