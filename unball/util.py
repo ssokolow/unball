@@ -1,3 +1,4 @@
+"""Utility classes and functions"""
 __author__  = "Stephan Sokolow (deitarion/SSokolow)"
 __license__ = "GNU GPL 2.0 or later"
 
@@ -129,7 +130,6 @@ class TempTarget(NamedTemporaryFolder):
             super(TempTarget, self).__exit__(exc_type, exc_value, traceback)
 
 #}
-#{ Functions
 
 def which(execName, execpath=None):
     """Like the UNIX which command, this function attempts to find the given
@@ -156,5 +156,3 @@ def which(execName, execpath=None):
             if os.path.exists(fullPath + suffix):
                 return fullPath + suffix
     return None  # Couldn't find anything.
-
-#}

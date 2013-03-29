@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Unball 0.2.99.0
+"""Command-line implementation and code still to be refactored.
+
+Unball 0.2.99.0
 Copyright 2005-2009, 2013 Stephan Sokolow
 
 See the README file in the distribution archive for details.

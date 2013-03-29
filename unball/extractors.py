@@ -1,4 +1,5 @@
-"""
+"""Wrappers and from-mimetype lookup code for archive extractors
+
 @todo: Will unstuff and cabextract handle self-extracting cabs?
        (If so, add application/cab to the .exe list)
 @todo: Figure out a better syntax for specifying extractor arguments.

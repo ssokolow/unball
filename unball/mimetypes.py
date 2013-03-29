@@ -1,4 +1,5 @@
-"""
+"""Mimetype lookup helpers
+
 @todo: Use the following to set up an internal header matcher:
     - http://www.fileformat.info/format/arc/corion.htm
     - http://www.fileformat.info/format/zoo/corion.htm
