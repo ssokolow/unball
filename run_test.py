@@ -19,6 +19,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 @todo: Create a pseudo-quine to test recursion limits.
+@todo: Add tests for non-StuffIt MacBinary files.
+@todo: Add password-protected archive tests to ensure subprocesses don't pause
+       to ask for a password.
+@todo: Add a BlakHole test archive and figure out a way to reliably identify
+       extractors that aren't getting tested, not just extensions.
 @todo: Rename this to meet the naming conventions for distutils.
 @todo: Add support for returning "skipped" for NoExtractorError.
 @todo: Add a test to ensure that tryExtract doesn't start adding extra layers
@@ -49,9 +54,14 @@ if sys.version_info[0] == 2 and sys.version_info[1] < 7:  # pragma: no cover
 else:                                                     # pragma: no cover
     import unittest
 
-
 sys.path.append(abspath('./src'))
-from unball import main as unball
+
+from unball.extractors import (
+        NoExtractorError, UnsupportedFiletypeError,
+        EXTRACTORS, FALLBACK_DESCRIPTIONS
+)
+from unball.main import self_test, tryExtract
+from unball.mimetypes import EXTENSIONS
 
 # Files which may be added to the test sources dir without being test sources.
 excluded = ['.DS_Store']
@@ -144,10 +154,10 @@ def makeTests(path, verbosity=0):
                 if verbosity == 2:
                     pass  # TODO: What do I do here?
                 try:
-                    unball.tryExtract(self.srcfile, dest)
-                except unball.NoExtractorError:
+                    tryExtract(self.srcfile, dest)
+                except NoExtractorError:
                     self.skipTest("No suitable extractors installed")
-                except unball.UnsupportedFiletypeError:
+                except UnsupportedFiletypeError:
                     self.skipTest("Unball doesn't know how to unpack this")
                 callstring = "tryExtract(%r, %r)" % (self.srcfile, dest)
 
@@ -215,7 +225,7 @@ class GlobalTests(unittest.TestCase):
         """Checking for extensions without testcases"""
         present = [os.path.splitext(x)[1].lower() for x
                    in listdir(self.testdir)]
-        missing = [ext for ext in unball.EXTENSIONS if not ext in present]
+        missing = [ext for ext in EXTENSIONS if not ext in present]
         missing.sort()
         self.assertFalse(missing, "The following supported extensions have no "
                          "testcases: %s" % ', '.join(missing))
@@ -235,7 +245,7 @@ class GlobalTests(unittest.TestCase):
 
         present = []
         for ext in present_exts:
-            mimetype = unball.EXTENSIONS.get(ext, None)
+            mimetype = EXTENSIONS.get(ext, None)
             if mimetype is None:
                 continue
             if isinstance(mimetype, basestring):
@@ -243,14 +253,14 @@ class GlobalTests(unittest.TestCase):
             else:
                 present.extend(mimetype)
 
-        missing = [x for x in unball.EXTENSIONS.values() if not isPresent(x)]
+        missing = [x for x in EXTENSIONS.values() if not isPresent(x)]
         self.assertFalse(missing, "The following supported mimetypes have no "
                          "testcases: %s" % ', '.join(missing))
 
     @unittest.expectedFailure
     def testSelfTests(self):
         """Running unball's internal self-tests"""
-        self.assertTrue(unball.self_test(silent=True),
+        self.assertTrue(self_test(silent=True),
             "Unball's internal self-tests reported errors")
 
     def _check_mimetype(self, mime, test):
@@ -264,13 +274,13 @@ class GlobalTests(unittest.TestCase):
 
     def testOrphanedExts(self):
         """Checking for orphaned extension-mime mappings"""
-        orphaned_exts = [ext for ext in unball.EXTENSIONS
-                         if not self._check_mimetype(unball.EXTENSIONS[ext],
-                            lambda x: x in unball.EXTRACTORS or
-                                      x in unball.FALLBACK_DESCRIPTIONS)]
+        orphaned_exts = [ext for ext in EXTENSIONS
+                         if not self._check_mimetype(EXTENSIONS[ext],
+                            lambda x: x in EXTRACTORS or
+                                      x in FALLBACK_DESCRIPTIONS)]
         self.assertFalse(orphaned_exts, "EXTENSIONS lines must be paired with "
                          "EXTRACTORS or FALLBACK_DESCRIPTIONS lines:" +
-                         '\n'.join('%s: %s' % (ext, unball.EXTENSIONS[ext]) for
+                         '\n'.join('%s: %s' % (ext, EXTENSIONS[ext]) for
                              ext in orphaned_exts))
 
     @unittest.expectedFailure
@@ -278,37 +288,37 @@ class GlobalTests(unittest.TestCase):
         """Checking for mimetypes without extension fallbacks"""
         # Find potentially-orphaned extensions in the extractors
         # (and discard potentials that are merely aliases for header-checking)
-        orphan_mimes_pre = [mime for mime in unball.EXTRACTORS
-                            if not mime in unball.EXTENSIONS.values()]
+        orphan_mimes_pre = [mime for mime in EXTRACTORS
+                            if not mime in EXTENSIONS.values()]
         orphan_mimes = []
         for mime in orphan_mimes_pre:
-            _aliases = [x for x in unball.EXTRACTORS if x != mime and
-                        unball.EXTRACTORS[x] is unball.EXTRACTORS[mime]]
-            if not [x for x in unball.EXTENSIONS if
-                    unball.EXTENSIONS[x] in _aliases]:
+            _aliases = [x for x in EXTRACTORS if x != mime and
+                        EXTRACTORS[x] is EXTRACTORS[mime]]
+            if not [x for x in EXTENSIONS if
+                    EXTENSIONS[x] in _aliases]:
                 orphan_mimes.append(mime)
 
         # Add in any extensionless FALLBACK_DESCRIPTIONS entries.
-        orphan_mimes += [mime for mime in unball.FALLBACK_DESCRIPTIONS
-                         if not mime in unball.EXTENSIONS.values()]
+        orphan_mimes += [mime for mime in FALLBACK_DESCRIPTIONS
+                         if not mime in EXTENSIONS.values()]
         self.assertFalse(orphan_mimes, "Mimetypes without extension mappings "
                          "detected:" +
                          '\n'.join(orphan_mimes))
 
     def testExtensionCases(self):
         """Checking for extension mappings which use non-lowercase alphas"""
-        upper_exts = [ext for ext in unball.EXTENSIONS if ext.lower() != ext]
+        upper_exts = [ext for ext in EXTENSIONS if ext.lower() != ext]
         self.assertFalse(upper_exts, "Extension mappings must be "
                          "case-insensitive. Violations detected:" +
-                         '\n'.join("%s: %s" % (ext, unball.EXTENSIONS[ext]) for
+                         '\n'.join("%s: %s" % (ext, EXTENSIONS[ext]) for
                              ext in upper_exts))
 
     def testMimetypeCases(self):
         """Checking for extractor/msg mappings using non-lowercase alphas"""
-        upper_mimes = [mime for mime in unball.EXTRACTORS.keys() +
-                       unball.FALLBACK_DESCRIPTIONS.keys() if
+        upper_mimes = [mime for mime in EXTRACTORS.keys() +
+                       FALLBACK_DESCRIPTIONS.keys() if
                        mime.lower() != mime]
-        upper_mimes += [mime for mime in unball.EXTENSIONS.values() if
+        upper_mimes += [mime for mime in EXTENSIONS.values() if
                         self._check_mimetype(mime, lambda x: x.lower() != x)]
         self.assertFalse(upper_mimes, "Mimetype-extractor/message mappings "
                          "must be case-insensitive. Violations detected:" +
@@ -356,9 +366,6 @@ if __name__ == '__main__':
             print("Windows Version: %s" % (sys.getwindowsversion(),))
         except AttributeError:
             print("Detailed system version information unavailable")
-    print("Runtime Version: %s\n" % sys.version)
-
-    print("Using %s" % unball.__file__)
 
     tests  = unittest.TestSuite([
         unittest.TestSuite(test_dir(args and args[0] or None,
