@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """moveToZip
-Copyright 2005-2009 Stephan Sokolow
+Copyright 2005-2009, 2013 Stephan Sokolow
 
 See the README file in the distribution archive for details.
-If this tool came pre-installed, the archive can be obtained from https://launchpad.net/unball
+If this tool came pre-installed, the archive can be obtained from
+https://github.com/ssokolow/unball
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,7 +26,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 __appname__ = "moveToZip"
-from unball import __author__, __version__, __license__
+__author__  = "Stephan Sokolow (deitarion/SSokolow)"
+__version__ = "0.2.99.0"
+__license__ = "GNU GPL 2.0 or later"
+# FIXME: Can I make setup.py my DRY location for some of this data?
 
 import logging, os, subprocess
 
@@ -51,8 +55,10 @@ if __name__ == '__main__':
         destfile = srcdir + '.zip'
 
         try:
-            subprocess.check_call(['zip', '-rTm', srcdir + '.zip', srcdir], cwd=parent)
+            subprocess.check_call(['zip', '-rTm', srcdir + '.zip', srcdir],
+                                  cwd=parent)
         except subprocess.CalledProcessError:
-            logging.error("Zip subprocess failed to compress source file/directory: %s" % path)
+            logging.error("Zip subprocess failed to compress source "
+                          "file/directory: %s" % path)
         except OSError:
             logging.critical("Could not find the zip binary")
