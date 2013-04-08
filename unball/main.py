@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Command-line implementation and code still to be refactored.
 
-Unball 0.2.99.0
+Unball
 Copyright 2005-2009, 2013 Stephan Sokolow
 
 See the README file in the distribution archive for details.
@@ -39,8 +39,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 __appname__ = "Unball"
-__author__  = "Stephan Sokolow (deitarion/SSokolow)"
 __version__ = "0.2.99.0"
+__author__  = "Stephan Sokolow (deitarion/SSokolow)"
 __license__ = "GNU GPL 2.0 or later"
 
 RECURSION_LIMIT = 5  #: Controls the anti-quine check.
@@ -203,7 +203,9 @@ def self_test(silent=False):
     return OK
 
 def get_opt_parser():
-    """Build and return an OptionParser instance for unball."""
+    """Build and return an OptionParser instance for unball.
+    @note: This must stay a separate function for manpage generation.
+    """
     from optparse import OptionParser
 
     descr = ("Extract one or more archives, given only the filename, while " +
@@ -226,7 +228,8 @@ def get_opt_parser():
 
     return parser
 
-def main_func():
+def main():
+    """The main entry point... in a form setup.py can reference."""
     parser = get_opt_parser()
     opts, args = parser.parse_args()
 
@@ -291,4 +294,4 @@ def main_func():
         sys.exit(last_errcode or 1)
 
 if __name__ == '__main__':
-    main_func()
+    main()

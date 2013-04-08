@@ -1,14 +1,18 @@
 #!/usr/bin/env python
-import sys
+import os, sys
+
+_a = lambda path: os.path.join(os.path.dirname(__file__), path)
 
 if __name__ == '__main__' and not 'flake8' in sys.modules:
     #FIXME: Why does this segfault flake8 under PyPy?
     from setuptools import setup
-    import unball.main as unball
+    #from distutils.core import setup
+
+    from build_manpage import build_manpage
 
     setup(
         name="Unball",
-        version=unball.__version__,
+        version="0.2.99.0",  # TODO: Figure out how to DRY this.
         description="'Do what I mean' archive commands for your shell",
         long_description="""
             Simple console wrappers which handle decisions like
@@ -44,25 +48,26 @@ if __name__ == '__main__' and not 'flake8' in sys.modules:
         #TODO: Forget setuptools. Just replace this with a stub script.
         entry_points={
             'console_scripts': [
-                'unball = unball.main:main_func',
+                'unball = unball.main:main',
             ],
         },
-        #data_files=[
-        #    ('share/man/man1', ['build/man/unball.1']),
+        data_files=[
+            ('share/man/man1', ['build/man/unball.1']),
         #    ('share/apps/konqueror/servicemenus', [
         #        'src/servicemenus/unball.desktop',
         #        'src/servicemenus/moveToZip.desktop'
         #    ]),
-        #    ('libexec/thunar-archive-plugin', ['src/unball.tap'])
-        #],
+            ('libexec/thunar-archive-plugin', ['src/unball.tap'])
+        ],
 
-        #cmdclass={'build_manpage': _build_manpage},
+        cmdclass={'build_manpage': build_manpage},
         test_suite='run_test.get_tests',
 
+        #TODO: I need to rewrite build_manpage to build more than one
         options={
             'build_manpage': {
                 'output': 'build/man/unball.1',
-                'parser': 'unball:get_opt_parser',
+                'parser': 'unball.main:get_opt_parser',
             },
         },
     )

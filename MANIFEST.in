@@ -1,0 +1,2 @@
+include build_manpage.py
+include src/unball.tap
