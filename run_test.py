@@ -325,7 +325,7 @@ class GlobalTests(unittest.TestCase):
                          '\n'.join(upper_mimes))
 
 
-def test_dir(path=None, verbosity=0):
+def gen_dir_suite(path=None, verbosity=0):
     """Generate and run a set of tests for the given dir full of archives."""
     path = abspath(path or os.path.join(dirname(__file__), 'test sources'))
     print('Testing directory "%s" ...' % os.path.split(path)[1])
@@ -368,7 +368,7 @@ if __name__ == '__main__':
             print("Detailed system version information unavailable")
 
     tests  = unittest.TestSuite([
-        unittest.TestSuite(test_dir(args and args[0] or None,
+        unittest.TestSuite(gen_dir_suite(args and args[0] or None,
                                     opts.unball_verbosity)),
         unittest.makeSuite(GlobalTests)
     ])
