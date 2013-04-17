@@ -1,4 +1,5 @@
 build
+.coverage
 html
 misc
 .tox

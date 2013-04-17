@@ -53,10 +53,10 @@ if __name__ == '__main__' and not 'flake8' in sys.modules:
         },
         data_files=[
             ('share/man/man1', ['build/man/unball.1']),
-        #    ('share/apps/konqueror/servicemenus', [
-        #        'src/servicemenus/unball.desktop',
-        #        'src/servicemenus/moveToZip.desktop'
-        #    ]),
+            #('share/apps/konqueror/servicemenus', [
+            #    'src/servicemenus/unball.desktop',
+            #    'src/servicemenus/moveToZip.desktop'
+            #]),
             ('libexec/thunar-archive-plugin', ['src/unball.tap'])
         ],
 

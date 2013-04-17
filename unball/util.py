@@ -27,6 +27,8 @@ class NamedTemporaryFolder(object):
     """Context manager wrapping C{tempfile.mkdtemp} with automatic cleanup.
 
     @todo: Look into using the version from http://bugs.python.org/issue5178
+    @todo: Is it even possible to make a context manager reentrant within a
+           single instance?
     """
 
     tmp = None  # Path to created folder. Filled in __enter__
