@@ -57,6 +57,7 @@ System Integration:
 
 Formats and Tools:
 - Extractors with Debian/Ubuntu packages: unar lrzip unp orange
+- http://www.neillcorlett.com/ecm/
 - https://en.wikipedia.org/wiki/ARC_%28file_format%29
 - Add support for using TheUnarchiver for almost anything... especially Mac
   formats like Stuffit and the old stuff I don't currently support.
@@ -156,3 +157,6 @@ Miscellaneous:
 - Audit the environment and the extractor manpages for variables I should be setting/unsetting
 - Check to see if there are any variables I should be marking read-only.
 - Make the installer copy the documentation into /usr/share/...
+- URLs to evaluate:
+  - https://pypi.python.org/pypi/python-magic/
+  - http://stackoverflow.com/questions/5585670/running-generated-nose-tests
