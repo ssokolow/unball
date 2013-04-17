@@ -14,7 +14,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] < 7:  # pragma: no cover
 else:                                                     # pragma: no cover
     import unittest
 
-from unball.util import BinYes, NamedTemporaryFolder
+from unball.util import BinYes  # , NamedTemporaryFolder
 
 class TestBinYes(unittest.TestCase):
     def test_callability(self):
