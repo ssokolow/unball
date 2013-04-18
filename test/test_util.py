@@ -36,9 +36,16 @@ class TestBinYes(unittest.TestCase):
                 "handle associated with it as in BinYes.")
 
     def test_read(self):
-        """Test the return value of BinYes.read()"""
+        """Test the return value of BinYes.read()
+
+        @todo: Decide on a policy for str vs. unicode
+        """
         self.assertRegexpMatches(BinYes.read(), '(y\n)+',
             "read() must return a sequence of one or more 'y\\n' substrings")
+        self.assertRegexpMatches(BinYes.read(10), '(y\n)+',
+            "read(i) must return a sequence of one or more 'y\\n' substrings")
+        self.assertLessEqual(len(BinYes.read(10)), 10,
+            "read(10) must return no more than 10 characters.")
 
         for i in xrange(0, 100):
             self.assertRegexpMatches(BinYes.read(), '(y\n)+',
