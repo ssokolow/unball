@@ -139,8 +139,13 @@ def which(execName, execpath=None):
     anything.
 
     @todo: Find the copy I extended with win32all and use it here.
+    @todo: Figure out how to "pragma: no cover" conditional on os.name.
     """
     if 'nt' in os.name:
+        # TODO: Figure out how to retrieve this list from the OS.
+        # (We can't just use PATHEXT according to
+        #  http://bugs.python.org/issue2200#msg131532 because spawnv doesn't
+        #  support all extensions)
         suffixes = ['.exe', '.com', '.bat', '.cmd']
     else:
         suffixes = []

@@ -22,7 +22,7 @@ class TestBinYes(unittest.TestCase):
         for method in ('fileno', 'read'):
             try:
                 getattr(BinYes, method)()
-            except TypeError:
+            except TypeError:  # pragma: no cover
                 self.fail(("BinYes.%s() must be callable without first "
                 "having to instantiate BinYes.") % method)
 
