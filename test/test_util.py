@@ -14,7 +14,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] < 7:  # pragma: no cover
 else:                                                     # pragma: no cover
     import unittest
 
-from unball.util import BinYes  # , NamedTemporaryFolder
+from unball.util import BinYes, which  # , NamedTemporaryFolder
 
 class TestBinYes(unittest.TestCase):
     def test_callability(self):
@@ -102,4 +102,10 @@ class TestNamedTemporaryFolder(unittest.TestCase):
         @todo: Look into how to test a context manager for GC-safety.
     """
 
-#TODO: Test TempTarget and which()
+#TODO: Test TempTarget and which() fully and properly
+def test_which():
+    """Placeholder integration test for which()
+
+    @todo: Test which() fully, properly, and portably
+    """
+    assert which('sh') == which('sh', '/bin') == '/bin/sh'
