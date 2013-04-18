@@ -21,17 +21,13 @@ class TestBinYes(unittest.TestCase):
         """Test that BinYes requires no extra instantiation"""
         for method in ('fileno', 'read'):
             try:
-                getattr(BinYes, method)
+                getattr(BinYes, method)()
             except TypeError:
-                self.fail("BinYes.fileno() must be callable without first "
-                "having to instantiate BinYes.")
+                self.fail(("BinYes.%s() must be callable without first "
+                "having to instantiate BinYes.") % method)
 
     def test_fileno(self):
-        """Test the fileno() method of util.BinYes
-
-        @important: Not needing to instantiate BinYes is part of its API.
-            These tests must remain in a form that tests that property.
-        """
+        """Test the fileno() method of util.BinYes"""
         self.assertTrue(hasattr(BinYes, 'fileno'),
                 "BinYes must have a fileno() method for compatibility.")
 
