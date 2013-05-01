@@ -8,6 +8,10 @@ Inspired by `maitre's unball <http://kde-look.org/content/show.php/KDE+Unballer?
 
 .. image:: https://travis-ci.org/ssokolow/unball.png
    :target: https://travis-ci.org/ssokolow/unball
+   :alt: Unit Test Status
+.. image:: https://coveralls.io/repos/ssokolow/unball/badge.png?branch=master
+   :target: https://coveralls.io/r/ssokolow/unball
+   :alt: Coverage Status
 
 Version 1.0.0 of this script will be released when I am satisfied that the interface behaviour has stabilized
 and that the list of supported archive formats and planned features have grown/shrunk enough.
