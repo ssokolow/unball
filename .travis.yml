@@ -15,7 +15,7 @@ install:
 - sudo apt-get update -qq
 - xargs -a debian_test_deps.txt sudo apt-get install -qq --no-install-recommends
 - pip install -r requirements/test.txt --use-mirrors
-- if [[ $TRAVIS_PYTHON_VERSION != '2.5' ]]; then pip install coveralls --use-mirrors && export HAS_COVERALLS=1; f
+- if [[ $TRAVIS_PYTHON_VERSION != '2.5' ]]; then pip install coveralls --use-mirrors && export HAS_COVERALLS=1; fi
 - if [[ $TRAVIS_PYTHON_VERSION == '2.5' ]]; then pip install -q unittest2; fi
 - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install -q unittest2; fi
 script:
