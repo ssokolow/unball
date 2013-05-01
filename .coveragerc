@@ -3,8 +3,7 @@ omit =
     */python?.?/io.py
     */python?.?/subprocess.py
     */python?.?/zipfile.py
-    */pypy/lib-python/?.?/io.py
-    */pypy/lib-python/?.?/subprocess.py
-    */pypy/lib-python/?.?/zipfile.py
+    */lib-python/?.?/*.py
+    */lib_pypy/_*.py
     */site-packages/nose/*
     */unittest2/*
